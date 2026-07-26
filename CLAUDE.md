@@ -107,13 +107,21 @@ ADR-002. Si cambias la tipografía del poema, recalibra `PRESUPUESTO` ahí y en
 ningún otro sitio.
 
 ### `lib/voz/prosodia.ts`
-Decide las pausas. Lo importante es el **encabalgamiento**: si el verso no cierra
-con puntuación, la frase sigue en el siguiente y ahí casi no se para. Es lo que
-separa una lectura de poesía de una lectura de la lista de la compra. Ante la
-duda, pausa mínima.
+Decide **qué se dice de una tirada y dónde se calla**. Lo importante es el
+**encabalgamiento**: si el verso no cierra con puntuación, la frase sigue en el
+siguiente — y entonces los dos versos se unen en UNA SOLA emisión.
+
+No basta con acortar la pausa: cada emisión que recibe el sintetizador se
+pronuncia como una oración completa, con su entonación descendente al final.
+Diez versos sueltos = diez frases que caen. Por eso se agrupan. La voz solo
+corta donde hay puntuación —punto, coma, punto y coma, dos puntos— o al acabar
+la estrofa. En esta obra la mayoría de los poemas no llevan puntuación, así que
+una estrofa entera suele ser una sola emisión.
 
 Lo usan dos consumidores: el reproductor del navegador (hoy) y el generador de
 SSML de la Fase 4. Al compartirlo, la maqueta y el audio final respiran igual.
+La cesura del alejandrino solo se marca en SSML: ahí `<break>` va dentro de la
+frase, mientras que en Web Speech obligaría a partir la emisión y sonaría peor.
 
 ---
 

@@ -1,17 +1,26 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { construirCola, type Emision } from '@/lib/voz/prosodia'
+import { construirFrases, type Frase } from '@/lib/voz/prosodia'
 import type { Voz } from '@/lib/tipos'
 
 /**
  * Narración en el navegador (Web Speech API).
  *
- * Es la voz de la maqueta, no la definitiva. La Fase 4 sustituye esto por audio
- * pregenerado con un proveedor de TTS y cacheado en el almacenamiento de
- * objetos — pero la prosodia (dónde y cuánto se calla) ya sale de
- * `lib/voz/prosodia`, que es el módulo que compartirán las dos. Cuando llegue
- * el audio real, `audios[]` del poema tendrá URL y este hook cede el paso.
+ * Es la voz de la maqueta, no la definitiva. La Fase 4 la sustituye por audio
+ * pregenerado con un proveedor de TTS — pero la prosodia ya sale de
+ * `lib/voz/prosodia`, que es el módulo que comparten los dos.
+ *
+ * Lo importante de aquí: **a la voz se le entrega una frase entera, no un
+ * verso**. El sintetizador cierra cada emisión con entonación descendente,
+ * como si fuera una oración; darle los versos de uno en uno hace que un poema
+ * suene como una lista. Los versos encabalgados van unidos en una sola emisión
+ * y el motor los lee de corrido.
+ *
+ * El resaltado se afina con `onboundary`, que avisa palabra a palabra de por
+ * dónde va. Si el navegador no lo emite —pasa con algunas voces de red— se
+ * queda iluminada la frase completa, que es exactamente lo que se está
+ * leyendo. Degrada sin mentir.
  */
 
 const FEM =
@@ -26,13 +35,13 @@ interface Opciones {
 
 export function useNarracion({ voz, velocidad, alAvisar }: Opciones) {
   const [narrando, setNarrando] = useState(false)
-  const [versoActivo, setVersoActivo] = useState<number | null>(null)
+  const [versosActivos, setVersosActivos] = useState<number[]>([])
   const [disponible, setDisponible] = useState(false)
 
   const temporizador = useRef<ReturnType<typeof setTimeout> | null>(null)
   const activo = useRef(false)
-  // Guardamos velocidad y voz en refs para que cambiarlas a mitad de lectura no
-  // reinicie la cola: se aplican a partir del siguiente verso.
+  // Velocidad y voz en refs para que cambiarlas a mitad de lectura no reinicie
+  // la cola: se aplican a partir de la frase siguiente.
   const velocidadRef = useRef(velocidad)
   const vozRef = useRef(voz)
 
@@ -46,7 +55,6 @@ export function useNarracion({ voz, velocidad, alAvisar }: Opciones) {
   useEffect(() => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
     setDisponible(true)
-    // Algunos navegadores cargan las voces de forma asíncrona.
     const alCambiar = () => setDisponible(true)
     window.speechSynthesis.addEventListener('voiceschanged', alCambiar)
     return () => window.speechSynthesis.removeEventListener('voiceschanged', alCambiar)
@@ -62,7 +70,7 @@ export function useNarracion({ voz, velocidad, alAvisar }: Opciones) {
       /* algunos navegadores lanzan si no hay nada en curso */
     }
     setNarrando(false)
-    setVersoActivo(null)
+    setVersosActivos([])
   }, [])
 
   const narrar = useCallback(
@@ -73,8 +81,8 @@ export function useNarracion({ voz, velocidad, alAvisar }: Opciones) {
       }
       parar()
 
-      const cola: Emision[] = construirCola(estrofas, { titulo, incluirTitulo })
-      if (cola.length === 0) return
+      const frases: Frase[] = construirFrases(estrofas, { titulo, incluirTitulo })
+      if (frases.length === 0) return
 
       const todas = window.speechSynthesis.getVoices().filter((v) => /^es/i.test(v.lang))
       const patron = vozRef.current === 'femenina' ? FEM : MASC
@@ -82,7 +90,7 @@ export function useNarracion({ voz, velocidad, alAvisar }: Opciones) {
       if (!elegida) {
         alAvisar?.('No hay voces en español instaladas; se usa la voz por defecto.')
       }
-      // Si la voz encontrada no es del género pedido, ajustamos el tono como
+      // Si la voz encontrada no es del género pedido, se ajusta el tono como
       // respaldo. No es ideal, pero es mejor que leer con la voz equivocada.
       const acorde = elegida ? patron.test(elegida.name) : false
 
@@ -91,20 +99,33 @@ export function useNarracion({ voz, velocidad, alAvisar }: Opciones) {
 
       let i = 0
       const siguiente = () => {
-        if (!activo.current || i >= cola.length) {
+        if (!activo.current || i >= frases.length) {
           parar()
           return
         }
-        const emision = cola[i++]
-        setVersoActivo(emision.indiceVerso)
+        const frase = frases[i++]
+        // De entrada se ilumina la frase entera; `onboundary` la irá afinando.
+        setVersosActivos(frase.versos)
 
-        const u = new SpeechSynthesisUtterance(emision.texto)
+        const u = new SpeechSynthesisUtterance(frase.texto)
         if (elegida) u.voice = elegida
         u.lang = elegida?.lang ?? 'es-ES'
         u.rate = velocidadRef.current
         u.pitch = acorde ? 1 : vozRef.current === 'femenina' ? 1.25 : 0.75
+
+        u.onboundary = (e) => {
+          if (!activo.current || frase.tramos.length === 0) return
+          const pos = e.charIndex ?? 0
+          const tramo =
+            frase.tramos.find((t) => pos >= t.inicio && pos < t.fin) ??
+            // Entre dos versos (el espacio que los une): se mantiene el último
+            // que ya había empezado.
+            [...frase.tramos].reverse().find((t) => t.inicio <= pos)
+          if (tramo) setVersosActivos([tramo.verso])
+        }
+
         u.onend = () => {
-          temporizador.current = setTimeout(siguiente, emision.pausaMs / velocidadRef.current)
+          temporizador.current = setTimeout(siguiente, frase.pausaMs / velocidadRef.current)
         }
         u.onerror = () => {
           temporizador.current = setTimeout(siguiente, 120)
@@ -128,5 +149,5 @@ export function useNarracion({ voz, velocidad, alAvisar }: Opciones) {
     }
   }, [parar])
 
-  return { narrando, versoActivo, narrar, parar, disponible }
+  return { narrando, versosActivos, narrar, parar, disponible }
 }

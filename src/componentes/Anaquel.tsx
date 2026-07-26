@@ -78,15 +78,25 @@ export function Anaquel({ libros }: { libros: Libro[] }) {
                   href={`/${libro.slug}`}
                   className={`tomo t${(libro.orden ?? i) % 4}`}
                 >
-                  {/* La portada del capítulo NO se usa aquí: son tarjetas
-                      apaisadas con su propia tipografía, y recortadas en
-                      vertical chocan con el título de la ficha. Se muestran
-                      enteras en la portada del volumen, que es donde caben. */}
-                  <span className="vol">{libro.volumen}</span>
-                  <span className="tt">{libro.titulo}</span>
-                  <span className="au">{AUTOR}</span>
-                  <span className="cn">
-                    {n || '—'} {n === 1 ? 'poema' : 'poemas'}
+                  {/* La portada va como banda superior y SIN recortar. Son
+                      tarjetas apaisadas con su propia tipografía: llenar con
+                      ellas una ficha vertical obliga a un recorte que se come
+                      su texto y lo cruza con el nuestro. */}
+                  <span className="banda">
+                    {libro.portadaUrl && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={libro.portadaUrl} alt="" aria-hidden="true" />
+                    )}
+                  </span>
+                  <span className="ficha">
+                    <span className="centro">
+                      <span className="vol">{libro.volumen}</span>
+                      <span className="tt">{libro.titulo}</span>
+                      <span className="au">{AUTOR}</span>
+                    </span>
+                    <span className="cn">
+                      {n || '—'} {n === 1 ? 'poema' : 'poemas'}
+                    </span>
                   </span>
                 </Link>
               )

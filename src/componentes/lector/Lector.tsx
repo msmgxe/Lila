@@ -59,7 +59,7 @@ export function Lector({ libro, pliegos, inicial }: Props) {
     avisoReloj.current = setTimeout(() => setAviso(null), 3200)
   }, [])
 
-  const { narrando, versoActivo, narrar, parar, disponible } = useNarracion({
+  const { narrando, versosActivos, narrar, parar, disponible } = useNarracion({
     voz,
     velocidad,
     alAvisar: avisar,
@@ -225,9 +225,10 @@ export function Lector({ libro, pliegos, inicial }: Props) {
 
   /* El verso que se lee tiene que estar a la vista. */
   useEffect(() => {
-    if (versoActivo === null) return
+    if (versosActivos.length === 0) return
     const versos = pliegoRef.current?.querySelectorAll('.pagina .verso')
-    const el = versos?.[versoActivo] as HTMLElement | undefined
+    // Con la frase entera iluminada, se sigue al primero de sus versos.
+    const el = versos?.[versosActivos[0]] as HTMLElement | undefined
     if (!el) return
     const caja = el.closest('.hoja-int') ?? el.closest('.pliego')
     if (!caja) return
@@ -236,7 +237,8 @@ export function Lector({ libro, pliegos, inicial }: Props) {
     if (r.top < rc.top + 20 || r.bottom > rc.bottom - 20) {
       el.scrollIntoView({ block: 'center', behavior: reducido ? 'auto' : 'smooth' })
     }
-  }, [versoActivo, reducido])
+    // `join` y no el array: si no, el efecto se dispara en cada render.
+  }, [versosActivos.join(','), reducido])
 
   /* ── narración ───────────────────────────────────────────────────────── */
 
@@ -493,7 +495,7 @@ export function Lector({ libro, pliegos, inicial }: Props) {
                 libro={libro}
                 pliego={pliego}
                 entradas={entradas}
-                versoActivo={versoActivo}
+                versosActivos={versosActivos}
                 narrando={narrando}
                 capital={capital}
                 alIr={ir}
@@ -508,7 +510,7 @@ export function Lector({ libro, pliegos, inicial }: Props) {
                     libro={libro}
                     pliego={pliegos[giro.frente]}
                     entradas={entradas}
-                    versoActivo={null}
+                    versosActivos={[]}
                     narrando={false}
                     capital={capital}
                     alIr={() => {}}

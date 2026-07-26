@@ -1,6 +1,6 @@
 import { guardarPoema, eliminarPoema, guardarPlancha, eliminarPlancha } from './acciones'
 import { repartirEstrofas } from '@/lib/paginar'
-import { construirCola, aSSML, hashSSML } from '@/lib/voz/prosodia'
+import { construirFrases, aSSML, hashSSML, type Frase } from '@/lib/voz/prosodia'
 import { aCuerpo } from '@/lib/texto'
 import type { Libro, Poema } from '@/lib/tipos'
 
@@ -152,9 +152,14 @@ export function FormularioPoema({ libro, poema }: { libro: Libro; poema?: Poema 
 /** Cómo va a quedar maquetado y cómo se va a leer. */
 function Previsiones({ poema }: { poema: Poema }) {
   const grupos = repartirEstrofas(poema)
-  const cola = construirCola(poema.estrofas, { titulo: poema.titulo, incluirTitulo: true })
-  const ssml = aSSML(cola)
-  const encabalgamientos = cola.filter((e) => e.pausaMs <= 100).length
+  const frases: Frase[] = construirFrases(poema.estrofas, {
+    titulo: poema.titulo,
+    incluirTitulo: true,
+  })
+  const ssml = aSSML(frases)
+  const versos = poema.estrofas.reduce((n, e) => n + e.length, 0)
+  // Un verso encabalgado es el que NO cierra su emisión: va unido al siguiente.
+  const encabalgamientos = frases.reduce((n, f) => n + Math.max(0, f.versos.length - 1), 0)
 
   return (
     <section style={{ marginTop: '2.6rem' }}>
@@ -193,12 +198,28 @@ function Previsiones({ poema }: { poema: Poema }) {
 
       <div className="recuadro">
         <p style={{ marginBottom: '.6rem' }}>
-          <strong>Lectura en voz alta.</strong> {cola.length} emisiones,{' '}
-          {encabalgamientos}{' '}
-          {encabalgamientos === 1 ? 'encabalgamiento' : 'encabalgamientos'} — versos que no
-          cierran y en los que la voz casi no se para. La dedicatoria y la nota del autor no
-          entran.
+          <strong>Lectura en voz alta.</strong> {versos} versos se dicen en{' '}
+          {frases.filter((f) => !f.esTitulo).length}{' '}
+          {frases.filter((f) => !f.esTitulo).length === 1 ? 'tirada' : 'tiradas'}, porque
+          hay {encabalgamientos}{' '}
+          {encabalgamientos === 1 ? 'encabalgamiento' : 'encabalgamientos'}: versos que no
+          cierran con puntuación y se leen de corrido con el siguiente, sin pausa. La
+          dedicatoria y la nota del autor no entran.
         </p>
+        <div className="pliegos-previa" style={{ marginBottom: '.8rem' }}>
+          {frases
+            .filter((f) => !f.esTitulo)
+            .map((f, i) => (
+              <div className="linea" key={i}>
+                <span className="n">Tirada {i + 1}</span>
+                <span>
+                  «{f.texto.slice(0, 70)}
+                  {f.texto.length > 70 ? '…' : ''}»
+                </span>
+                <span className="dens">{f.pausaMs} ms</span>
+              </div>
+            ))}
+        </div>
         <p className="pista" style={{ fontSize: '.72rem' }}>
           Huella del SSML: <code>{hashSSML(ssml)}</code>. Cuando cambies un verso, cambia la
           huella y el audio guardado queda marcado como viejo.

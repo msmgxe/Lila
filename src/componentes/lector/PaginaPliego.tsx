@@ -9,8 +9,9 @@ interface Props {
   libro: Libro
   pliego: Pliego
   entradas: Array<{ n: number; folio: number; titulo: string; slug: string; forma: string }>
-  /** Índice del verso que se está leyendo, dentro de esta página. */
-  versoActivo: number | null
+  /** Versos que se están leyendo, dentro de esta página. Suelen ser varios:
+   *  los encabalgados se leen de corrido, en una sola emisión. */
+  versosActivos: number[]
   narrando: boolean
   capital: boolean
   alIr: (n: number) => void
@@ -27,7 +28,7 @@ export function PaginaPliego({
   libro,
   pliego,
   entradas,
-  versoActivo,
+  versosActivos,
   narrando,
   capital,
   alIr,
@@ -67,7 +68,7 @@ export function PaginaPliego({
           <PoemaPliego
             pliego={pliego}
             libro={libro}
-            versoActivo={versoActivo}
+            versosActivos={versosActivos}
             narrando={narrando}
             capital={capital}
             alIr={alIr}
@@ -117,7 +118,7 @@ function Colofon({ libro }: { libro: Libro }) {
 function PoemaPliego({
   pliego,
   libro,
-  versoActivo,
+  versosActivos,
   narrando,
   capital,
   alIr,
@@ -125,7 +126,7 @@ function PoemaPliego({
 }: {
   pliego: Pliego
   libro: Libro
-  versoActivo: number | null
+  versosActivos: number[]
   narrando: boolean
   capital: boolean
   alIr: (n: number) => void
@@ -166,7 +167,7 @@ function PoemaPliego({
               return (
                 <span
                   key={v}
-                  className={`verso${!inerte && indice === versoActivo ? ' leyendo' : ''}`}
+                  className={`verso${!inerte && versosActivos.includes(indice) ? ' leyendo' : ''}`}
                 >
                   {/* Las marcas manuales del poeta (/ y //) no se imprimen. */}
                   {limpiarMarcas(verso)}

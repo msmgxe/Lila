@@ -246,18 +246,63 @@ button {
   cursor: pointer;
   overflow: hidden;
   background: var(--panel);
-  padding: 1.4rem 1.2rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  align-items: stretch;
   text-align: center;
-  gap: 0.5rem;
   transition:
     transform 0.35s,
     border-color 0.35s;
   color: inherit;
   text-decoration: none;
+}
+
+/* La portada del capítulo, entera y sin recortar. Ocupa la banda de arriba y
+   deja el resto de la ficha a nuestra tipografía: son imágenes apaisadas con
+   su propio texto, y superponerle el título del volumen los cruza a los dos. */
+.tomo .banda {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  flex: none;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(245, 245, 240, 0.14);
+}
+.tomo .banda img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s;
+}
+.tomo:hover .banda img {
+  transform: scale(1.04);
+}
+/* Sin portada la banda se queda vacía: enseña el degradado del tomo y mantiene
+   todas las fichas con la misma estructura. */
+.tomo .banda:empty {
+  opacity: 0;
+}
+.tomo .ficha {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 1.3rem 1.1rem 1.1rem;
+  position: relative;
+}
+/* El bloque del título se centra en el hueco que queda; el recuento va SIEMPRE
+   al fondo, en el flujo. En posición absoluta se le montaba encima al nombre
+   del autor cuando este doblaba a dos líneas. */
+.tomo .ficha .centro {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
 }
 .tomo::before {
   content: '';
@@ -266,16 +311,24 @@ button {
   opacity: 0.85;
   transition: opacity 0.4s;
 }
-.tomo::after {
+/* El filete interior enmarca SOLO la parte de texto. Cruzando la banda parecía
+   un marco mal puesto encima de la fotografía. */
+.tomo .ficha::before {
   content: '';
   position: absolute;
-  inset: 14px;
+  inset: 10px 10px 10px;
   border: 1px solid rgba(245, 245, 240, 0.16);
+  border-top: 0;
   pointer-events: none;
 }
 .tomo > * {
   position: relative;
   z-index: 2;
+}
+.tomo .banda,
+.tomo .banda img {
+  position: relative;
+  z-index: 1;
 }
 .tomo:hover {
   transform: translateY(-5px);
@@ -304,10 +357,7 @@ button {
   margin-top: 0.4rem;
 }
 .tomo .cn {
-  position: absolute;
-  bottom: 1.1rem;
-  left: 0;
-  right: 0;
+  padding-top: 0.9rem;
   font-size: 0.58rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
