@@ -27,6 +27,20 @@ export function Plancha({
       ? `${pliego.poema.slug}-${pliego.parte ?? 0}`
       : `${libro.slug}-${pliego.tipo}`
 
+  // La portada del capítulo abre el volumen. Va entera, montada sobre fondo
+  // oscuro como una lámina sobre su paspartú: son imágenes apaisadas y
+  // recortarlas para llenar el panel se comería su propia tipografía.
+  if (pliego.tipo === 'portada' && libro.portadaUrl) {
+    return (
+      <figure className="plancha es-cubierta" style={{ opacity: fundido ? 0 : 1 }}>
+        <div className="arte-caja">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={libro.portadaUrl} alt={`Portada de ${libro.titulo}`} />
+        </div>
+      </figure>
+    )
+  }
+
   return (
     <figure className="plancha" style={{ opacity: fundido ? 0 : 1 }}>
       <div className="arte-caja">

@@ -76,14 +76,12 @@ export function Anaquel({ libros }: { libros: Libro[] }) {
                 <Link
                   key={libro.id}
                   href={`/${libro.slug}`}
-                  className={`tomo t${(libro.orden ?? i) % 4}${libro.portadaUrl ? ' con-portada' : ''}`}
+                  className={`tomo t${(libro.orden ?? i) % 4}`}
                 >
-                  {/* Cuando hay portada de verdad, sustituye al degradado.
-                      Se atenúa con un velo para que el texto siga legible. */}
-                  {libro.portadaUrl && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img className="cubierta" src={libro.portadaUrl} alt="" aria-hidden="true" />
-                  )}
+                  {/* La portada del capítulo NO se usa aquí: son tarjetas
+                      apaisadas con su propia tipografía, y recortadas en
+                      vertical chocan con el título de la ficha. Se muestran
+                      enteras en la portada del volumen, que es donde caben. */}
                   <span className="vol">{libro.volumen}</span>
                   <span className="tt">{libro.titulo}</span>
                   <span className="au">{AUTOR}</span>

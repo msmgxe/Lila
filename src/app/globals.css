@@ -273,24 +273,6 @@ button {
   border: 1px solid rgba(245, 245, 240, 0.16);
   pointer-events: none;
 }
-/* Portada real del volumen. Va detrás del degradado, que aquí hace de velo
-   para que el título y el autor sigan leyéndose sobre cualquier imagen. */
-.tomo .cubierta {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 0;
-}
-.tomo.con-portada::before {
-  background: linear-gradient(180deg, rgba(10, 8, 12, 0.35), rgba(10, 8, 12, 0.82));
-  opacity: 1;
-  z-index: 1;
-}
-.tomo.con-portada:hover::before {
-  background: linear-gradient(180deg, rgba(10, 8, 12, 0.22), rgba(10, 8, 12, 0.74));
-}
 .tomo > * {
   position: relative;
   z-index: 2;
@@ -660,6 +642,27 @@ button {
   height: 100%;
   object-fit: cover;
 }
+/* La portada del capítulo: entera, centrada sobre fondo oscuro. `contain` y no
+   `cover` porque son imágenes apaisadas con texto propio; recortarlas para
+   llenar el panel vertical se comería su tipografía. */
+.plancha.es-cubierta {
+  background: #0b0a0a;
+}
+.plancha.es-cubierta .arte-caja {
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 3vw, 2rem);
+}
+.plancha.es-cubierta img {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  object-fit: contain;
+  border: 1px solid rgba(245, 245, 240, 0.14);
+}
+
 .plancha .pie {
   position: absolute;
   left: 0;
@@ -1324,7 +1327,28 @@ h2.tit .sigue {
 }
 /* Fuera del degradado: la cartela se lee sobre el muro blanco, no sobre la
    obra. Es lo que arreglaba el contraste del badge y de la técnica. */
-.lector[data-sala='true'] .plancha .pie {
+.lector[data-sala='true'] /* La portada del capítulo: entera, centrada sobre fondo oscuro. `contain` y no
+   `cover` porque son imágenes apaisadas con texto propio; recortarlas para
+   llenar el panel vertical se comería su tipografía. */
+.plancha.es-cubierta {
+  background: #0b0a0a;
+}
+.plancha.es-cubierta .arte-caja {
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 3vw, 2rem);
+}
+.plancha.es-cubierta img {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  object-fit: contain;
+  border: 1px solid rgba(245, 245, 240, 0.14);
+}
+
+.plancha .pie {
   position: absolute;
   bottom: 0;
   background: none;
