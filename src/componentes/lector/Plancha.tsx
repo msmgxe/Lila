@@ -1,63 +1,56 @@
 'use client'
 
 import { arteDePlancha } from '@/lib/arte'
-import type { Pliego } from '@/lib/tipos'
+import type { Libro, Pliego } from '@/lib/tipos'
 
 /**
  * La página izquierda del pliego: la obra plástica que acompaña al poema, con
  * su cartela (número, título, técnica).
  *
- * Mientras no haya obra real subida, se pinta un SVG generativo determinista
- * que marca el sitio. En cuanto `plancha.url` tenga valor, se muestra la imagen.
+ * Mientras no haya obra subida se pinta un motivo generativo determinista,
+ * teñido con el color del volumen — **y sin cartela**. Una cartela que ponga
+ * «pieza no asignada» debajo de cada poema no informa de nada y ensucia el
+ * pliego; el hueco callado se lee como lo que es.
  */
-export function Plancha({ pliego, fundido }: { pliego: Pliego; fundido: boolean }) {
-  const plancha = pliego.plancha
-
-  const contenido = (() => {
-    if (pliego.tipo !== 'poema' || !plancha) {
-      return {
-        semilla: `${pliego.tipo}-${pliego.n}`,
-        apagado: true,
-        badge: pliego.tipo === 'portada' ? 'Frontispicio' : 'Sin plancha',
-        titulo: pliego.tipo === 'portada' ? 'Cubierta del volumen' : 'Pieza no asignada',
-        tecnica: 'pendiente de catalogación',
-        url: null as string | null,
-      }
-    }
-    return {
-      semilla: `${pliego.poema!.slug}-${pliego.parte ?? 0}`,
-      apagado: false,
-      badge: plancha.numero,
-      titulo: plancha.titulo,
-      tecnica: plancha.tecnica,
-      url: plancha.url,
-    }
-  })()
+export function Plancha({
+  pliego,
+  libro,
+  fundido,
+}: {
+  pliego: Pliego
+  libro: Libro
+  fundido: boolean
+}) {
+  const plancha = pliego.tipo === 'poema' ? pliego.plancha : null
+  const semilla =
+    pliego.tipo === 'poema' && pliego.poema
+      ? `${pliego.poema.slug}-${pliego.parte ?? 0}`
+      : `${libro.slug}-${pliego.tipo}`
 
   return (
     <figure className="plancha" style={{ opacity: fundido ? 0 : 1 }}>
-      {/* La caja lleva clase y no estilos en línea: en el modo sala el CSS
-          necesita convertirla en una banda con proporción propia, y un estilo
-          en línea se lo impediría. */}
       <div className="arte-caja">
-        {contenido.url ? (
+        {plancha?.url ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={contenido.url} alt={`${contenido.titulo} — ${contenido.tecnica}`} />
+          <img src={plancha.url} alt={`${plancha.titulo} — ${plancha.tecnica}`} />
         ) : (
           <div
-            // El SVG lo generamos nosotros a partir de una semilla fija: no hay
-            // entrada de usuario en esta cadena.
+            // El SVG lo generamos nosotros a partir de una semilla fija y de un
+            // color validado: no hay entrada libre de usuario en esta cadena.
             dangerouslySetInnerHTML={{
-              __html: arteDePlancha(contenido.semilla, contenido.apagado),
+              __html: arteDePlancha(semilla, pliego.tipo !== 'poema', libro.colorAcento),
             }}
           />
         )}
       </div>
-      <figcaption className="pie">
-        <span className="badge">{contenido.badge}</span>
-        <h4>{contenido.titulo}</h4>
-        <div className="tec">{contenido.tecnica}</div>
-      </figcaption>
+
+      {plancha && (
+        <figcaption className="pie">
+          <span className="badge">{plancha.numero}</span>
+          <h4>{plancha.titulo}</h4>
+          <div className="tec">{plancha.tecnica}</div>
+        </figcaption>
+      )}
     </figure>
   )
 }

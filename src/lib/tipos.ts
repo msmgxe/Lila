@@ -4,7 +4,15 @@
  * de funciones). Ver docs/ADR-003.
  */
 
-export type Categoria = 'sonetos' | 'verso libre' | 'breves' | 'borradores'
+/**
+ * Categoría del volumen: la que agrupa la estantería del anaquel.
+ *
+ * Es texto libre a propósito. Era una unión cerrada mientras las categorías
+ * estaban escritas a mano, pero ahora el poeta las crea desde el panel y la
+ * barra lateral se deriva de lo que hay publicado (`lib/categorias.ts`). Una
+ * unión cerrada obligaría a tocar el código para añadir una forma nueva.
+ */
+export type Categoria = string
 
 export type Voz = 'masculina' | 'femenina'
 

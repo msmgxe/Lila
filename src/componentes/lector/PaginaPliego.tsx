@@ -1,6 +1,6 @@
 'use client'
 
-import { AUTOR } from '@/lib/contenido/muestra'
+import { AUTOR } from '@/lib/contenido/pentapoemario'
 import { vineta } from '@/lib/arte'
 import { limpiarMarcas, romano } from '@/lib/texto'
 import type { Libro, Pliego } from '@/lib/tipos'
@@ -96,15 +96,18 @@ function Portada({ libro }: { libro: Libro }) {
 }
 
 function Colofon({ libro }: { libro: Libro }) {
+  const cuantos = libro.poemas.filter((p) => p.publicado).length
   return (
     <div className="portada-vol">
       <div className="filete" style={{ borderTop: 0, borderBottom: 0 }}>
-        <p className="desc" style={{ maxWidth: '28ch' }}>
-          Aquí acaba <em>{libro.titulo}</em>. Los textos son de muestra, compuestos para
-          probar la métrica, el corte de página y la lectura en voz alta.
+        <p className="desc" style={{ maxWidth: '30ch' }}>
+          Aquí acaba el <em>{libro.titulo.toLowerCase()}</em>, con {cuantos}{' '}
+          {cuantos === 1 ? 'poema' : 'poemas'}.
         </p>
       </div>
       <div className="au">
+        {AUTOR}
+        <br />
         {libro.volumen} · {libro.anio ?? ''}
       </div>
     </div>
@@ -188,10 +191,14 @@ function PoemaPliego({
       )}
 
       <div className="pie-pag">
+        {/* Los temas cuando los hay; si no, la referencia del volumen — el pie
+            nunca se queda vacío. */}
         <span>
           {pliego.partes && pliego.partes > 1
             ? `Fragmento ${romano((pliego.parte ?? 0) + 1)} de ${pliego.partes} · ${libro.categoria}`
-            : `${poema.temas.slice(0, 3).join(' · ')}`}
+            : poema.temas.length > 0
+              ? poema.temas.slice(0, 3).join(' · ')
+              : `${libro.volumen} · ${libro.titulo}`}
         </span>
         <button
           className="der"

@@ -12,7 +12,8 @@
 
 import { conexionDirecta, ok } from './_conexion'
 
-const PASOS: Array<[string, string]> = [
+/** Exportado para que `npm run db:probar` ejecute exactamente estos pasos. */
+export const PASOS: Array<[string, string]> = [
   [
     'extensión unaccent (búsqueda sin acentos)',
     `CREATE EXTENSION IF NOT EXISTS unaccent;`,
@@ -35,6 +36,19 @@ const PASOS: Array<[string, string]> = [
        LANGUAGE sql
        IMMUTABLE PARALLEL SAFE STRICT
      AS $func$ SELECT public.unaccent('public.unaccent', $1) $func$;`,
+  ],
+  [
+    'función f_unir, marcada IMMUTABLE',
+    // `array_to_string(anyarray, text)` es STABLE, no IMMUTABLE: para un array
+    // de cualquier tipo tiene que llamar a la función de salida del elemento, y
+    // esa puede depender de la sesión (una fecha, sin ir más lejos). Postgres
+    // rechaza la columna generada por eso. Acotándolo a text[] —cuya salida sí
+    // es inmutable— el envoltorio es correcto y la columna ya se acepta.
+    `CREATE OR REPLACE FUNCTION public.f_unir(text[])
+       RETURNS text
+       LANGUAGE sql
+       IMMUTABLE PARALLEL SAFE STRICT
+     AS $func$ SELECT array_to_string($1, ' ') $func$;`,
   ],
   [
     'configuración de búsqueda spanish_unaccent',
@@ -84,7 +98,14 @@ async function principal() {
   }
 }
 
-principal().catch((e) => {
-  console.error('\n  ✗ Ha fallado la preparación:\n', e, '\n')
-  process.exit(1)
-})
+// Solo se conecta a la base de datos cuando se ejecuta este archivo a mano.
+// `scripts/probar-esquema.ts` importa PASOS y no debe abrir ninguna conexión.
+const invocadoDirectamente =
+  process.argv[1] && import.meta.url.endsWith(process.argv[1].split('/').pop() ?? '\0')
+
+if (invocadoDirectamente) {
+  principal().catch((e) => {
+    console.error('\n  ✗ Ha fallado la preparación:\n', e, '\n')
+    process.exit(1)
+  })
+}

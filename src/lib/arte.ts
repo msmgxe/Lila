@@ -7,7 +7,12 @@
  * tenga `url`, este SVG deja de usarse.
  */
 
-export function arteDePlancha(semilla: string, apagado = false): string {
+/**
+ * `acento` es el color del volumen (`libros.color_acento`). Tiñe el fondo para
+ * que cada obra tenga su temperatura: el Pentapoemario lila sale lila, sin que
+ * haya que dibujar nada a mano.
+ */
+export function arteDePlancha(semilla: string, apagado = false, acento?: string | null): string {
   let h = 0
   for (const c of semilla) h = (h * 31 + c.charCodeAt(0)) & 0xffff
   const r = () => ((h = (h * 1103515245 + 12345) & 0x7fffffff), (h % 1000) / 1000)
@@ -33,8 +38,13 @@ export function arteDePlancha(semilla: string, apagado = false): string {
     formas += `<path d="M-20 ${y.toFixed(0)} C 120 ${c1}, 260 ${c2}, 420 ${c3}" fill="none" stroke="#FDF2F3" stroke-width="${gr}" opacity="${op}"/>`
   }
 
+  // Solo aceptamos un hexadecimal: el color viene de la base de datos y acaba
+  // dentro de un SVG que se inyecta como HTML.
+  const tinte = acento && /^#[0-9a-f]{6}$/i.test(acento) ? acento : null
+  const claro = tinte ?? (apagado ? '#2b2626' : '#3a3130')
   const id = `g-${semilla.replace(/[^a-z0-9]/gi, '')}`
-  return `<svg class="arte" viewBox="0 0 400 520" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Espacio reservado para la obra que acompaña al poema"><defs><radialGradient id="${id}" cx="35%" cy="25%"><stop offset="0" stop-color="${apagado ? '#2b2626' : '#3a3130'}"/><stop offset="1" stop-color="#0a0909"/></radialGradient></defs><rect width="400" height="520" fill="url(#${id})"/>${formas}</svg>`
+
+  return `<svg class="arte" viewBox="0 0 400 520" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Motivo generado para acompañar al poema"><defs><radialGradient id="${id}" cx="35%" cy="25%"><stop offset="0" stop-color="${claro}" stop-opacity="${tinte ? 0.55 : 1}"/><stop offset="1" stop-color="#0a0909"/></radialGradient></defs><rect width="400" height="520" fill="#0a0909"/><rect width="400" height="520" fill="url(#${id})"/>${formas}</svg>`
 }
 
 /**

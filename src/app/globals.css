@@ -273,6 +273,24 @@ button {
   border: 1px solid rgba(245, 245, 240, 0.16);
   pointer-events: none;
 }
+/* Portada real del volumen. Va detrás del degradado, que aquí hace de velo
+   para que el título y el autor sigan leyéndose sobre cualquier imagen. */
+.tomo .cubierta {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+.tomo.con-portada::before {
+  background: linear-gradient(180deg, rgba(10, 8, 12, 0.35), rgba(10, 8, 12, 0.82));
+  opacity: 1;
+  z-index: 1;
+}
+.tomo.con-portada:hover::before {
+  background: linear-gradient(180deg, rgba(10, 8, 12, 0.22), rgba(10, 8, 12, 0.74));
+}
 .tomo > * {
   position: relative;
   z-index: 2;
@@ -756,11 +774,12 @@ h2.tit .sigue {
 }
 
 .poema {
+  --lh: 1.95;
   font-family: var(--display);
   font-style: italic;
   font-weight: 400;
   font-size: clamp(1rem, 1.35vw, 1.14rem);
-  line-height: 1.95;
+  line-height: var(--lh);
   color: var(--tinta-poema);
 }
 .estrofa {
@@ -771,15 +790,15 @@ h2.tit .sigue {
    partir un soneto en dos pliegos, se aprieta un punto. El mínimo sigue por
    encima de 15 px, así que la legibilidad no se resiente. */
 .poema.denso {
+  --lh: 1.78;
   font-size: clamp(0.95rem, 1.24vw, 1.06rem);
-  line-height: 1.78;
 }
 .poema.denso .estrofa {
   margin-bottom: 1rem;
 }
 .poema.muy-denso {
+  --lh: 1.62;
   font-size: clamp(0.92rem, 1.15vw, 1rem);
-  line-height: 1.62;
 }
 .poema.muy-denso .estrofa {
   margin-bottom: 0.8rem;
@@ -808,14 +827,30 @@ h2.tit .sigue {
   opacity: 0.34;
 }
 
-/* Letra capital — dirección A (Códice). Se activa desde la barra inferior. */
+/* Letra capital — dirección A (Códice). Se activa desde la barra inferior.
+
+   Los versos llevan sangría francesa: `padding-left` más un `text-indent`
+   negativo que saca la primera línea hacia la izquierda. Junto a una letra
+   flotada eso es justo lo que no se puede hacer — el flotante acorta la caja de
+   línea, pero el `text-indent` negativo devuelve el texto a su sitio original y
+   se lo monta encima. Por eso la sangría se anula en TODA la primera estrofa,
+   que es la que convive con la capital. Son dos recursos tipográficos que
+   compiten; mandando la capital, la sangría sobra. */
+.poema.capitular .estrofa:first-child .verso {
+  padding-left: 0;
+  text-indent: 0;
+}
 .poema.capitular .estrofa:first-child .verso:first-child::first-letter {
+  float: left;
   font-family: var(--display);
   font-style: normal;
-  font-size: 3.1em;
-  float: left;
-  line-height: 0.82;
-  padding: 0.06em 0.12em 0 0;
+  font-size: 3.2em;
+  /* Alto de la capital ≈ dos líneas del poema, sea cual sea la densidad con la
+     que el servidor haya decidido componer la página. Se queda en 1.94 y no en
+     2 justos: a dos líneas exactas la tercera cae en el borde del flotante y el
+     navegador la sangra por redondeo. */
+  line-height: calc(var(--lh) * 1.94 / 3.2);
+  padding-right: 0.09em;
   color: var(--tinta-acento);
 }
 

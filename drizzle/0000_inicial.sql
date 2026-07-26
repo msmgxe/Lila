@@ -52,7 +52,7 @@ CREATE TABLE "poemas" (
 	"orden" integer DEFAULT 0 NOT NULL,
 	"temas" text[] DEFAULT '{}'::text[] NOT NULL,
 	"publicado" boolean DEFAULT false NOT NULL,
-	"busqueda" "tsvector" GENERATED ALWAYS AS (to_tsvector('public.spanish_unaccent', coalesce(titulo,'') || ' ' || coalesce(cuerpo,'') || ' ' || array_to_string(temas,' '))) STORED,
+	"busqueda" "tsvector" GENERATED ALWAYS AS (to_tsvector('public.spanish_unaccent', coalesce(titulo,'') || ' ' || coalesce(cuerpo,'') || ' ' || public.f_unir(temas))) STORED,
 	"creado_en" timestamp with time zone DEFAULT now() NOT NULL,
 	"actualizado_en" timestamp with time zone DEFAULT now() NOT NULL
 );

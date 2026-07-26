@@ -38,3 +38,6 @@ yarn-error.log*
 
 # drizzle
 drizzle/meta/_journal.json.bak
+
+# base de datos local de pruebas
+.pglite/

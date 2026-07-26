@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import { AUTOR, CATEGORIAS } from '@/lib/contenido/muestra'
+import { AUTOR, OBRA } from '@/lib/contenido/pentapoemario'
+import { categoriasDe } from '@/lib/categorias'
 import type { Libro } from '@/lib/tipos'
 
 /**
@@ -13,21 +14,26 @@ import type { Libro } from '@/lib/tipos'
 export function Anaquel({ libros }: { libros: Libro[] }) {
   const [filtro, setFiltro] = useState<string>('todos')
 
+  const categorias = useMemo(() => categoriasDe(libros), [libros])
   const visibles = useMemo(
     () => libros.filter((l) => filtro === 'todos' || l.categoria === filtro),
     [libros, filtro],
   )
 
-  const nuevo = [...libros].sort((a, b) => (b.anio ?? 0) - (a.anio ?? 0))[0]
+  // La «nueva incorporación» es el último volumen del orden, que es como el
+  // poeta los ordena: el más reciente va al final.
+  const nuevo = libros[libros.length - 1]
 
   return (
     <section className="biblioteca">
       <aside className="lateral">
         <h2>Índice general</h2>
-        <div className="et sub">Aurelia · obra reunida</div>
+        <div className="et sub">{OBRA}</div>
 
+        {/* Con una sola categoría el filtro no filtraría nada, y `categoriasDe`
+            devuelve una lista vacía: la barra se queda solo con los enlaces. */}
         <ul className="nav">
-          {CATEGORIAS.map((c) => (
+          {categorias.map((c) => (
             <li key={c.clave}>
               <button
                 type="button"
@@ -70,13 +76,19 @@ export function Anaquel({ libros }: { libros: Libro[] }) {
                 <Link
                   key={libro.id}
                   href={`/${libro.slug}`}
-                  className={`tomo t${(libro.orden ?? i) % 4}`}
+                  className={`tomo t${(libro.orden ?? i) % 4}${libro.portadaUrl ? ' con-portada' : ''}`}
                 >
+                  {/* Cuando hay portada de verdad, sustituye al degradado.
+                      Se atenúa con un velo para que el texto siga legible. */}
+                  {libro.portadaUrl && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img className="cubierta" src={libro.portadaUrl} alt="" aria-hidden="true" />
+                  )}
                   <span className="vol">{libro.volumen}</span>
                   <span className="tt">{libro.titulo}</span>
                   <span className="au">{AUTOR}</span>
                   <span className="cn">
-                    {libro.categoria} · {n || '—'} {n === 1 ? 'poema' : 'poemas'}
+                    {n || '—'} {n === 1 ? 'poema' : 'poemas'}
                   </span>
                 </Link>
               )

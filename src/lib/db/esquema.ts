@@ -88,8 +88,11 @@ export const poemas = pgTable(
     orden: integer('orden').notNull().default(0),
     temas: text('temas').array().notNull().default(sql`'{}'::text[]`),
     publicado: boolean('publicado').notNull().default(false),
+    // `f_unir` en vez de `array_to_string`: el segundo es STABLE y Postgres no
+    // admite nada que no sea IMMUTABLE en una columna generada. Ver el paso
+    // correspondiente en scripts/extensiones.ts.
     busqueda: tsvector('busqueda').generatedAlwaysAs(
-      sql`to_tsvector('public.spanish_unaccent', coalesce(titulo,'') || ' ' || coalesce(cuerpo,'') || ' ' || array_to_string(temas,' '))`,
+      sql`to_tsvector('public.spanish_unaccent', coalesce(titulo,'') || ' ' || coalesce(cuerpo,'') || ' ' || public.f_unir(temas))`,
     ),
     creadoEn: timestamp('creado_en', { withTimezone: true }).notNull().defaultNow(),
     actualizadoEn: timestamp('actualizado_en', { withTimezone: true }).notNull().defaultNow(),

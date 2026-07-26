@@ -14,24 +14,24 @@ import 'server-only'
 
 import { hayBaseDeDatos } from './db/cliente'
 import { buscar as buscarEnDb, traerLibro, traerLibrosPublicados } from './db/consultas'
-import { LIBROS_MUESTRA } from './contenido/muestra'
+import { LIBROS_PENTAPOEMARIO } from './contenido/pentapoemario'
 import { sinAcentos, escaparHtml, textoPlano } from './texto'
 import type { Libro, ResultadoBusqueda } from './tipos'
 
-export const origenDeDatos: 'neon' | 'muestra' = hayBaseDeDatos ? 'neon' : 'muestra'
+export const origenDeDatos: 'neon' | 'archivo' = hayBaseDeDatos ? 'neon' : 'archivo'
 
 export async function obtenerLibros(): Promise<Libro[]> {
-  if (!hayBaseDeDatos) return LIBROS_MUESTRA
+  if (!hayBaseDeDatos) return LIBROS_PENTAPOEMARIO
   const libros = await traerLibrosPublicados()
   // Red de seguridad: si la base está vacía (aún sin semilla), no dejamos el
   // sitio en blanco.
-  return libros.length > 0 ? libros : LIBROS_MUESTRA
+  return libros.length > 0 ? libros : LIBROS_PENTAPOEMARIO
 }
 
 export async function obtenerLibro(slug: string): Promise<Libro | null> {
-  if (!hayBaseDeDatos) return LIBROS_MUESTRA.find((l) => l.slug === slug) ?? null
+  if (!hayBaseDeDatos) return LIBROS_PENTAPOEMARIO.find((l) => l.slug === slug) ?? null
   const libro = await traerLibro(slug)
-  return libro ?? LIBROS_MUESTRA.find((l) => l.slug === slug) ?? null
+  return libro ?? LIBROS_PENTAPOEMARIO.find((l) => l.slug === slug) ?? null
 }
 
 /**
@@ -53,7 +53,7 @@ function buscarEnMuestra(consulta: string): ResultadoBusqueda[] {
   const nq = sinAcentos(consulta)
   const salida: ResultadoBusqueda[] = []
 
-  for (const libro of LIBROS_MUESTRA) {
+  for (const libro of LIBROS_PENTAPOEMARIO) {
     for (const poema of libro.poemas) {
       if (!poema.publicado) continue
       const cuerpo = textoPlano(poema.estrofas)

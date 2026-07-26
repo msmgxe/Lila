@@ -4,7 +4,13 @@ Sitio de un artista con dos cuerpos de obra: **poesía** (lo que hay) y **obra
 plástica** (fase posterior). Debe sentirse como un objeto editado, no como un blog.
 Público general, mayoritariamente móvil, llegando desde redes.
 
-Estado: **Fase 1 terminada**. Fases 2–7 pendientes (ver `Implementacion_inicial.md`).
+**La obra:** *Pentapoemario lila*, de José Andrés Saldarriaga Medina. Ocho
+capítulos, cinco poemas cada uno, cinco versos cada poema. Todos los títulos
+empiezan por P — es la restricción de la obra, y el importador la usa como
+comprobación.
+
+Estado: **Fases 1 y 5 terminadas** (cimientos y panel de administración).
+Pendientes: 2–4, 6 y 7 (ver `Implementacion_inicial.md`).
 
 ---
 
@@ -17,6 +23,7 @@ Estado: **Fase 1 terminada**. Fases 2–7 pendientes (ver `Implementacion_inicia
 | Base de datos | Neon (Postgres serverless) |
 | ORM | Drizzle + Drizzle Kit |
 | Driver | `@neondatabase/serverless` — HTTP en runtime, WebSocket en scripts |
+| Autenticación | Auth.js v5, un solo administrador (ADR-004) |
 | Almacenamiento | Vercel Blob (ADR-001). Aún sin implementar |
 | Tipografías | `next/font`, autoalojadas: Playfair Display + Archivo |
 
@@ -35,8 +42,11 @@ Estado: **Fase 1 terminada**. Fases 2–7 pendientes (ver `Implementacion_inicia
 5. **Nada de binarios en Postgres.** El esquema guarda URLs.
 6. **La legibilidad manda sobre el efecto.** El giro 3D se desactiva con
    `prefers-reduced-motion`, en móvil y en modo Sala.
-7. **Los poemas no se atribuyen a poetas reales.** Textos propios, de dominio
-   público, o marcados como muestra.
+7. **Cada Server Action del panel comprueba la sesión por su cuenta.** El
+   layout solo protege las vistas; una acción es un endpoint propio.
+8. **`src/lib/contenido/pentapoemario.ts` es un archivo generado.** No editarlo a
+   mano: lo reescribe `npm run contenido:importar`. Para cambiar un poema, el
+   panel.
 
 ---
 
@@ -68,14 +78,19 @@ src/
       Plancha.tsx           la página izquierda (obra)
       Buscador.tsx          campo + modal de resultados
       useNarracion.ts       Web Speech (provisional, Fase 4 lo sustituye)
+  app/panel/                el panel: (privado) exige sesión; entrar/ no
+  auth.ts                   Auth.js v5, un solo administrador
   lib/
     db/esquema.ts           ← el esquema Drizzle
-    db/consultas.ts         SQL: lectura y búsqueda
-    datos.ts                capa que decide Neon o muestra
+    db/consultas.ts         SQL público: SOLO lee lo publicado
+    db/panel.ts             SQL del panel: ve borradores y escribe
+    categorias.ts           la barra del anaquel, derivada de los datos
+    datos.ts                capa que decide Neon o archivo
     paginar.ts              reparto en pliegos ← la pieza delicada
     voz/prosodia.ts         dónde y cuánto se calla ← la pieza diferenciadora
-    contenido/muestra.ts    semilla y respaldo
-scripts/                    extensiones, migrar, semilla
+    contenido/pentapoemario.ts   GENERADO — la obra. Semilla y respaldo
+scripts/                    extensiones, migrar, semilla, probar, clave, importar
+origen/                     los .docx y las portadas originales
 docs/                       ADRs y guías
 prototipos/                 los HTML de referencia (A, B, E)
 ```
@@ -109,10 +124,18 @@ npm run dev              # desarrollo
 npm run build            # compilar (pásalo antes de subir nada)
 npm run tipos            # solo comprobar tipos
 
+npm run db:probar        # ← esquema + migración + consultas sobre PGlite, sin Neon
 npm run db:preparar      # extensiones + migraciones + semilla, en orden
 npm run db:generar       # nueva migración tras cambiar el esquema
 npm run db:estudio       # visor de datos
+
+npm run panel:clave      # da de alta al administrador
+npm run contenido:importar   # relee los .docx de origen/
 ```
+
+**`npm run db:probar` antes de tocar el esquema.** Levanta un Postgres real en
+memoria y aplica la migración de verdad. Ya cazó un `array_to_string` que no era
+IMMUTABLE y habría tumbado la primera migración contra Neon.
 
 `db:extensiones` **debe correr antes** de la primera migración: crea la
 configuración `spanish_unaccent` de la que depende la columna `poemas.busqueda`.
@@ -154,7 +177,6 @@ de sistema.**
 
 ## Qué NO hacer todavía
 
-- El panel de administración (Fase 5).
 - La sección de obra plástica (Fase 6).
 - Analítica y boletín (Fase 7).
 - Cambiar `useNarracion` por un TTS de pago sin pasar por `prosodia.ts`.

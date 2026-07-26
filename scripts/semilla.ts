@@ -1,26 +1,26 @@
 /**
- * Vuelca el contenido de muestra en la base de datos.
+ * Vuelca la obra en la base de datos.
  *
  *   npm run db:semilla
  *
  * Es idempotente: reescribe por slug, así que se puede repetir sin duplicar.
- * No borra nada que no venga en la muestra.
+ * No borra nada que no venga en el archivo de contenido.
  */
 
 import { drizzle } from 'drizzle-orm/neon-serverless'
 import { eq } from 'drizzle-orm'
 import { conexionDirecta, ok } from './_conexion'
 import { libros, poemas, planchas } from '../src/lib/db/esquema'
-import { LIBROS_MUESTRA } from '../src/lib/contenido/muestra'
+import { LIBROS_PENTAPOEMARIO } from '../src/lib/contenido/pentapoemario'
 import { aCuerpo } from '../src/lib/texto'
 
 async function principal() {
   const pool = conexionDirecta()
   const db = drizzle(pool, { casing: 'snake_case' })
 
-  console.log('\n  Sembrando contenido de muestra…\n')
+  console.log('\n  Sembrando la obra…\n')
   try {
-    for (const libro of LIBROS_MUESTRA) {
+    for (const libro of LIBROS_PENTAPOEMARIO) {
       const [fila] = await db
         .insert(libros)
         .values({
@@ -119,8 +119,8 @@ async function principal() {
     )
     ok(`búsqueda operativa (${rows.length} coincidencia(s) de prueba)`)
 
-    const total = LIBROS_MUESTRA.reduce((n, l) => n + l.poemas.length, 0)
-    console.log(`\n  Listo: ${LIBROS_MUESTRA.length} volúmenes, ${total} poemas.\n`)
+    const total = LIBROS_PENTAPOEMARIO.reduce((n, l) => n + l.poemas.length, 0)
+    console.log(`\n  Listo: ${LIBROS_PENTAPOEMARIO.length} volúmenes, ${total} poemas.\n`)
   } finally {
     await pool.end()
   }

@@ -1,5 +1,5 @@
 {
-  "id": "8a8a365d-c16d-490b-b08a-33c40536e343",
+  "id": "56b10e1b-43a8-45b2-a582-37bceffdbddc",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -451,7 +451,7 @@
           "primaryKey": false,
           "notNull": false,
           "generated": {
-            "as": "to_tsvector('public.spanish_unaccent', coalesce(titulo,'') || ' ' || coalesce(cuerpo,'') || ' ' || array_to_string(temas,' '))",
+            "as": "to_tsvector('public.spanish_unaccent', coalesce(titulo,'') || ' ' || coalesce(cuerpo,'') || ' ' || public.f_unir(temas))",
             "type": "stored"
           }
         },

@@ -486,7 +486,7 @@ export function Lector({ libro, pliegos, inicial }: Props) {
 
         <div className="mesa" ref={mesaRef} id="contenido">
           <div className="pliego" ref={pliegoRef}>
-            <Plancha pliego={pliegos[planchaN]} fundido={fundido} />
+            <Plancha pliego={pliegos[planchaN]} libro={libro} fundido={fundido} />
 
             <section className="pagina" aria-live="polite">
               <PaginaPliego

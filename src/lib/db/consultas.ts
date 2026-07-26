@@ -62,7 +62,25 @@ export async function traerLibro(slug: string): Promise<Libro | null> {
  *   se enseña conserva sus acentos y su puntuación.
  * · Si no hay coincidencia full-text, cae a similitud por trigramas sobre el
  *   título (pg_trgm), que es lo que salva las erratas.
+ *
+ *   Dos detalles medidos, no supuestos:
+ *   `similarity()` compara las cadenas ENTERAS, así que «cancon» contra
+ *   «Canción de prueba» da 0.25 y nunca salta — el título es mucho más largo
+ *   que la consulta. `word_similarity()` busca la consulta como palabra dentro
+ *   del título y da 0.571, que es lo que queremos.
+ *
+ *   Y el umbral va escrito aquí en lugar de usar el operador `<%`, porque ese
+ *   operador lee `pg_trgm.word_similarity_threshold`, que es estado de sesión;
+ *   con el driver HTTP de Neon cada consulta es una petición independiente y
+ *   ese ajuste no sobrevive. Además su valor por omisión (0.6) deja fuera
+ *   precisamente el caso de una letra bailada.
  */
+
+/**
+ * Umbral del respaldo por erratas. Calibrado: «cancon»→«Canción de prueba»
+ * puntúa 0.571 y una consulta sin relación puntúa 0.
+ */
+const UMBRAL_ERRATA = 0.45
 export async function buscar(consulta: string, limite = 40): Promise<ResultadoBusqueda[]> {
   if (!db) return []
   const q = consulta.trim()
@@ -94,7 +112,7 @@ export async function buscar(consulta: string, limite = 40): Promise<ResultadoBu
       )                   AS fragmento,
       GREATEST(
         ts_rank(p.busqueda, c.tq),
-        similarity(public.f_unaccent(p.titulo), public.f_unaccent(${q})) * 0.5
+        word_similarity(public.f_unaccent(${q}), public.f_unaccent(p.titulo)) * 0.5
       )                   AS rango
     FROM poemas p
     JOIN libros l ON l.id = p.libro_id
@@ -103,7 +121,8 @@ export async function buscar(consulta: string, limite = 40): Promise<ResultadoBu
       AND l.publicado = true
       AND (
         p.busqueda @@ c.tq
-        OR public.f_unaccent(p.titulo) % public.f_unaccent(${q})
+        OR word_similarity(public.f_unaccent(${q}), public.f_unaccent(p.titulo))
+             > ${UMBRAL_ERRATA}
       )
     ORDER BY rango DESC, l.orden, p.orden
     LIMIT ${limite}
