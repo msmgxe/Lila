@@ -24,6 +24,18 @@ interface Props {
   inicial: number
 }
 
+function hayGenero(genero: 'masculina' | 'femenina'): boolean {
+  if (typeof window === 'undefined') return false;
+  const voces = window.speechSynthesis?.getVoices() ?? [];
+  return voces.some((v) => {
+    const nombre = v.name.toLowerCase();
+    if (genero === 'masculina') {
+      return nombre.includes('male') || nombre.includes('hombre') || nombre.includes('masculin');
+    }
+    return nombre.includes('female') || nombre.includes('mujer') || nombre.includes('femenin');
+  });
+}
+
 export function Lector({ libro, pliegos, inicial }: Props) {
   /* ── estado de navegación ────────────────────────────────────────────── */
   const [n, setN] = useState(inicial)
@@ -563,7 +575,7 @@ export function Lector({ libro, pliegos, inicial }: Props) {
                     versosActivos={[]}
                     narrando={false}
                     capital={capital}
-                    alIr={() => {}}
+                    alIr={() => { }}
                     inerte
                   />
                 )}
