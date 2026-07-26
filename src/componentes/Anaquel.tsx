@@ -63,9 +63,9 @@ export function Anaquel({ libros }: { libros: Libro[] }) {
       <main className="anaquel" id="contenido">
         <h1>El anaquel del poeta</h1>
         <p className="intro">
-          Un lugar para la palabra escrita. Cada volumen reúne los poemas por forma y por
-          época, con la plancha que los acompaña. Elige uno y ábrelo: se lee, se busca y se
-          escucha.
+          Un lugar para la palabra escrita. Cada capítulo reúne cinco poemas de cinco
+          versos, con la plancha que los acompaña. Elige uno y ábrelo: se lee, se busca y
+          se escucha.
         </p>
 
         <div className="rejilla">

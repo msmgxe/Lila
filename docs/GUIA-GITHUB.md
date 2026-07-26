@@ -103,8 +103,8 @@ Debería decir `nothing to commit, working tree clean` (nada pendiente).
 1. Entra en **<https://github.com>** y crea una cuenta si no la tienes.
 2. Arriba a la derecha, **+** → **New repository**.
 3. Rellena:
-   - **Repository name**: `aurelia`
-   - **Description**: `Obra reunida — biblioteca de poesía`
+   - **Repository name**: `lila`
+   - **Description**: `Pentapoemario lila — obra reunida`
    - **Public** o **Private**: elige **Private** por ahora. Se puede cambiar
      cuando quieras, y Vercel funciona con los dos.
    - **NO marques** ninguna de las tres casillas de abajo (*Add a README*,
@@ -116,7 +116,7 @@ GitHub te enseña una página con instrucciones. Fíjate solo en la dirección d
 arriba, que será algo como:
 
 ```
-https://github.com/tu-usuario/aurelia.git
+https://github.com/tu-usuario/lila.git
 ```
 
 ---
@@ -126,7 +126,7 @@ https://github.com/tu-usuario/aurelia.git
 Copia estas tres líneas cambiando `tu-usuario` por el tuyo:
 
 ```bash
-git remote add origin https://github.com/tu-usuario/aurelia.git
+git remote add origin https://github.com/tu-usuario/lila.git
 git branch -M main
 git push -u origin main
 ```
@@ -155,18 +155,18 @@ Recarga la página de GitHub. Deberías ver todos tus archivos.
 
 1. Entra en **<https://vercel.com>** y **Sign up with GitHub**.
 2. **Add New → Project**.
-3. Busca `aurelia` en la lista y pulsa **Import**.
+3. Busca `lila` en la lista y pulsa **Import**.
 4. Vercel detecta Next.js solo. **No cambies nada** de Framework Preset, Build
    Command ni Output Directory.
 5. **Environment Variables** — aquí tienes dos caminos:
-   - **Recomendado:** despliega ya, sin variables. El sitio funcionará con el
-     contenido de muestra. Después conecta la integración de Neon, que las
-     rellena sola (ver [GUIA-BASE-DE-DATOS.md, paso 8](GUIA-BASE-DE-DATOS.md#8-conectar-neon-con-vercel)).
+   - **Recomendado:** despliega ya, sin variables. El sitio saldrá completo, con
+     los ocho capítulos, sirviéndolos desde el propio proyecto. Después conecta
+     la integración de Neon, que las rellena sola (ver [GUIA-BASE-DE-DATOS.md, paso 8](GUIA-BASE-DE-DATOS.md#8-conectar-neon-con-vercel)).
    - **A mano:** añade `DATABASE_URL` y `DATABASE_URL_UNPOOLED` con los valores
      de tu `.env.local`. **Sin el prefijo `NEXT_PUBLIC_`.**
 6. **Deploy**. Tarda entre uno y dos minutos.
 
-Al terminar te da una dirección tipo `https://aurelia-xxx.vercel.app`. **Ya está
+Al terminar te da una dirección tipo `https://lila-xxx.vercel.app`. **Ya está
 publicado.**
 
 ### Ponerle tu propio dominio
@@ -236,12 +236,12 @@ git pull                # trae los cambios fusionados
 
 | Mensaje | Qué pasa | Solución |
 |---|---|---|
-| `remote origin already exists` | Ya habías enlazado un repositorio | `git remote set-url origin https://github.com/tu-usuario/aurelia.git` |
+| `remote origin already exists` | Ya habías enlazado un repositorio | `git remote set-url origin https://github.com/tu-usuario/lila.git` |
 | `Authentication failed` | GitHub no acepta la contraseña normal | Usa `gh auth login` o un token (ver [paso 5](#5-subirlo)) |
 | `Updates were rejected` | Hay cambios en GitHub que no tienes | `git pull --rebase` y luego `git push` |
 | `nothing to commit` | No has cambiado nada, o ya hiciste el commit | Comprueba con `git status` |
 | El *deploy* falla en Vercel | Un error de compilación | Abre el registro en Vercel; el error suele estar en las últimas líneas. Pruébalo antes en local con `npm run build` |
-| La web sale pero sin poemas | Faltan las variables de entorno | Añádelas en Vercel y vuelve a desplegar. Aun así debería salir el contenido de muestra |
+| La web sale pero sin poemas | Algo raro en la compilación | Los poemas viajan en el proyecto: no deberían faltar nunca. Mira el registro del despliegue en Vercel |
 | Subí `.env.local` sin querer | La contraseña está expuesta | **Cambia la contraseña en Neon inmediatamente** (Reset password). Borrar el archivo no basta: queda en el historial |
 
 **Deshacer sin haber subido nada:**

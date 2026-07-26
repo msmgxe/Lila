@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Playfair_Display, Archivo } from 'next/font/google'
+import { SITIO } from '@/lib/sitio'
 import './globals.css'
 
 /**
@@ -40,15 +41,14 @@ const baseUrl =
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: 'Aurelia · el anaquel del poeta',
-    template: '%s · Aurelia',
+    default: `${SITIO.nombre} · ${SITIO.lema}`,
+    template: `%s · ${SITIO.nombre}`,
   },
-  description:
-    'Obra reunida. Cada volumen agrupa los poemas por forma y por época, con la plancha que los acompaña. Se lee, se busca y se escucha.',
+  description: SITIO.descripcion,
   openGraph: {
     type: 'website',
     locale: 'es_ES',
-    siteName: 'Aurelia',
+    siteName: SITIO.nombre,
   },
   robots: { index: true, follow: true },
 }

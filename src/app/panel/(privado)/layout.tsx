@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
 import { hayBaseDeDatos } from '@/lib/db/cliente'
+import { SITIO } from '@/lib/sitio'
 import { salir } from '../acciones'
 
 export const dynamic = 'force-dynamic'
@@ -20,7 +21,7 @@ export default async function LayoutPrivado({ children }: { children: React.Reac
     <div className="panel">
       <header className="panel-barra">
         <Link className="marca" href="/panel" style={{ color: 'inherit', textDecoration: 'none' }}>
-          AURELIA
+          {SITIO.nombre}
         </Link>
         <span className="et">panel</span>
         <div className="sep" />

@@ -1,8 +1,8 @@
 {
-  "name": "aurelia",
+  "name": "lila",
   "version": "0.1.0",
   "private": true,
-  "description": "Obra reunida — biblioteca de poesía. Fase 1.",
+  "description": "Pentapoemario lila — obra reunida de José Andrés Saldarriaga Medina.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

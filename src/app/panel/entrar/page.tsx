@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { auth, panelConfigurado } from '@/auth'
+import { SITIO } from '@/lib/sitio'
 import { FormularioEntrada } from './FormularioEntrada'
 
 export const dynamic = 'force-dynamic'
@@ -32,7 +33,7 @@ export default async function PaginaEntrar() {
   return (
     <main className="entrar">
       <div className="caja">
-        <h1>Aurelia</h1>
+        <h1>{SITIO.nombre}</h1>
         <p className="sub">Administración de la obra</p>
         <FormularioEntrada />
       </div>

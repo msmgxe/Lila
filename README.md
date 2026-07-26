@@ -1,4 +1,4 @@
-# Aurelia · el anaquel del poeta
+# Lila · el anaquel del poeta
 
 **Pentapoemario lila**, de José Andrés Saldarriaga Medina. Ocho capítulos, cinco
 poemas cada uno, cinco versos cada poema. **Se lee, se busca y se escucha.**

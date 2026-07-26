@@ -489,6 +489,9 @@ button {
   font-weight: 700;
   font-size: 1.25rem;
   letter-spacing: 0.16em;
+  /* En versalitas por CSS, no escribiéndolo en mayúsculas: así el mismo valor
+     sirve para la barra y para el título de la pestaña. */
+  text-transform: uppercase;
   margin-right: auto;
   color: inherit;
   text-decoration: none;

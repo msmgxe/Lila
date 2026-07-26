@@ -1,4 +1,4 @@
-# Aurelia — notas del proyecto
+# Lila — notas del proyecto
 
 Sitio de un artista con dos cuerpos de obra: **poesía** (lo que hay) y **obra
 plástica** (fase posterior). Debe sentirse como un objeto editado, no como un blog.
@@ -85,6 +85,7 @@ src/
     db/consultas.ts         SQL público: SOLO lee lo publicado
     db/panel.ts             SQL del panel: ve borradores y escribe
     categorias.ts           la barra del anaquel, derivada de los datos
+    sitio.ts                nombre y lema del sitio ← cámbialos AQUÍ, en un sitio
     datos.ts                capa que decide Neon o archivo
     paginar.ts              reparto en pliegos ← la pieza delicada
     voz/prosodia.ts         dónde y cuánto se calla ← la pieza diferenciadora

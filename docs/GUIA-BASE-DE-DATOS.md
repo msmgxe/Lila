@@ -6,9 +6,9 @@ que entiendas SQL: solo copiar dos cadenas de texto y ejecutar tres comandos.
 Tiempo estimado: **15 minutos**.
 
 > **Antes de empezar, lo importante:** el sitio ya funciona sin base de datos.
-> Si ejecutas `npm run dev` ahora mismo, verás la obra completa con el contenido
-> de muestra. La base de datos hace falta cuando quieras **editar los poemas sin
-> tocar el código**. No hay ninguna prisa.
+> Si ejecutas `npm run dev` ahora mismo, verás los ocho capítulos completos: la
+> obra viaja dentro del propio proyecto. La base de datos hace falta para el
+> **panel**, es decir, para editar los poemas sin tocar el código. No hay prisa.
 
 ---
 
@@ -35,7 +35,7 @@ Tiempo estimado: **15 minutos**.
 | **Neon** | Una empresa que te da un Postgres por internet, sin instalar nada. |
 | **Cadena de conexión** | Una línea de texto que contiene la dirección y la contraseña de tu base de datos. **Es una credencial: trátala como una contraseña.** |
 | **Migración** | Un archivo con las instrucciones para crear las tablas. Ya está escrito, en `drizzle/0000_inicial.sql`. |
-| **Semilla** (*seed*) | Meter el contenido de muestra dentro de las tablas ya creadas. |
+| **Semilla** (*seed*) | Volcar los cuarenta poemas dentro de las tablas ya creadas. |
 | **Rama** (*branch*) | Una copia de la base de datos para hacer pruebas sin romper la buena. |
 
 ---
@@ -45,7 +45,7 @@ Tiempo estimado: **15 minutos**.
 1. Entra en **<https://neon.tech>** y pulsa **Sign up**.
 2. Regístrate con GitHub o con tu correo. El plan gratuito sobra para este proyecto.
 3. Cuando te pida crear un proyecto:
-   - **Project name**: `aurelia`
+   - **Project name**: `lila`
    - **Postgres version**: la que venga por defecto
    - **Region**: elige la más cercana a tus lectores. Si el público es español,
      **Europe (Frankfurt)** o **Europe (London)**.
@@ -129,7 +129,7 @@ Por dentro ejecuta, en este orden:
 ```bash
 npm run db:extensiones   # 1. instala las piezas para buscar sin acentos
 npm run db:migrar        # 2. crea las tablas
-npm run db:semilla       # 3. mete los poemas de muestra
+npm run db:semilla       # 3. vuelca los 40 poemas
 ```
 
 **El orden importa.** El paso 1 crea una configuración de búsqueda llamada
@@ -145,18 +145,29 @@ Deberías ver algo así:
   ✓ extensión pg_trgm (tolerancia a erratas)
   ✓ extensión pgcrypto (uuid por defecto)
   ✓ función f_unaccent, marcada IMMUTABLE
+  ✓ función f_unir, marcada IMMUTABLE
   ✓ configuración de búsqueda spanish_unaccent
   ✓ comprobado: «cancion» encuentra «canción»
 
   Aplicando migraciones…
   ✓ migraciones al día
 
-  Sembrando contenido de muestra…
-  ✓ Volumen IV — Ecos del vacío
-  ✓    · Inventario de la casa vacía
+  Sembrando la obra…
+  ✓ Pentapoemario lila — Capítulo primero
+  ✓    · Provocaciones fuera de tiempo
   ...
-  Listo: 4 volúmenes, 10 poemas.
+  Listo: 8 volúmenes, 40 poemas.
 ```
+
+> **Si algo va a fallar, falla aquí.** Antes de tocar Neon puedes ensayarlo
+> entero contra un Postgres de mentira, en tu ordenador y sin coste:
+>
+> ```bash
+> npm run db:probar
+> ```
+>
+> Aplica estas mismas extensiones y esta misma migración, y comprueba que la
+> búsqueda funciona. Si sale «Esquema correcto», el paso de arriba irá bien.
 
 ---
 
@@ -167,7 +178,8 @@ npm run dev
 ```
 
 Abre <http://localhost:3000>. **Se verá exactamente igual que antes** — y eso es
-buena señal: significa que los datos de Neon coinciden con los de muestra.
+buena señal: significa que lo que hay en Neon coincide con lo que había en el
+proyecto.
 
 Para verlo con tus propios ojos, abre el visor de datos de Neon:
 
@@ -178,9 +190,13 @@ npm run db:estudio
 Se abre una web local donde puedes navegar por las tablas `libros`, `poemas`,
 `planchas`… y editar cualquier valor a mano.
 
-**Prueba concreta:** en `poemas`, cambia el título de *Umbral* por otra cosa,
-guarda, y recarga <http://localhost:3000/himnos-nocturnos/umbral>. Si ves el
+**Prueba concreta:** en `poemas`, cambia el título de *Provocaciones fuera de
+tiempo* por otra cosa, guarda, y recarga
+<http://localhost:3000/capitulo-1/provocaciones-fuera-de-tiempo>. Si ves el
 título nuevo, la conexión funciona de verdad.
+
+Mejor aún: a partir de aquí ya no hace falta el visor. Monta el panel
+—[GUIA-PANEL.md](GUIA-PANEL.md), cinco minutos— y edita desde el navegador.
 
 ---
 
@@ -211,7 +227,7 @@ Cuando despliegues (ver [GUIA-GITHUB.md](GUIA-GITHUB.md)), hazlo así:
 
 1. En el panel de tu proyecto de **Vercel** → pestaña **Integrations** →
    busca **Neon** → **Add integration**.
-2. Autoriza y elige tu proyecto `aurelia` en los dos lados.
+2. Autoriza y elige tu proyecto `lila` en los dos lados.
 
 Qué ganas con esto:
 
@@ -243,8 +259,8 @@ el navegador.
 
 **La opción nuclear:** si te has liado del todo, en Neon borra el proyecto,
 créalo de nuevo y repite desde el [paso 2](#2-crear-la-cuenta-y-el-proyecto-en-neon).
-No se pierde nada: los poemas están en el código, en
-`src/lib/contenido/muestra.ts`.
+No se pierde nada: los cuarenta poemas están en el código, en
+`src/lib/contenido/pentapoemario.ts`, y `npm run db:semilla` los vuelve a poner.
 
 ---
 
@@ -263,4 +279,4 @@ No se pierde nada: los poemas están en el código, en
 
 ---
 
-**Siguiente paso:** [GUIA-GITHUB.md](GUIA-GITHUB.md) para subir el proyecto y publicarlo.
+**Siguiente paso:** [GUIA-PANEL.md](GUIA-PANEL.md) para editar la obra desde el navegador, o [GUIA-GITHUB.md](GUIA-GITHUB.md) para publicarla.

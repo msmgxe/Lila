@@ -4,6 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import Link from 'next/link'
 import { entradasDeIndice } from '@/lib/paginar'
 import type { Libro, Pliego, Voz } from '@/lib/tipos'
+import { CLAVE, SITIO } from '@/lib/sitio'
 import { PaginaPliego } from './PaginaPliego'
 import { Plancha } from './Plancha'
 import { Buscador } from './Buscador'
@@ -87,12 +88,12 @@ export function Lector({ libro, pliegos, inicial }: Props) {
 
   useEffect(() => {
     try {
-      const g = localStorage.getItem('aurelia:voz')
+      const g = localStorage.getItem(`${CLAVE}:voz`)
       if (g === 'masculina' || g === 'femenina') setVoz(g)
-      const v = Number(localStorage.getItem('aurelia:velocidad'))
+      const v = Number(localStorage.getItem(`${CLAVE}:velocidad`))
       if (VELOCIDADES.includes(v)) setVelocidad(v)
-      setSala(localStorage.getItem('aurelia:sala') === '1')
-      setCapital(localStorage.getItem('aurelia:capital') === '1')
+      setSala(localStorage.getItem(`${CLAVE}:sala`) === '1')
+      setCapital(localStorage.getItem(`${CLAVE}:capital`) === '1')
     } catch {
       /* modo privado o almacenamiento bloqueado: se usan los valores por defecto */
     }
@@ -104,7 +105,7 @@ export function Lector({ libro, pliegos, inicial }: Props) {
 
   const guardar = (clave: string, valor: string) => {
     try {
-      localStorage.setItem(`aurelia:${clave}`, valor)
+      localStorage.setItem(`${CLAVE}:${clave}`, valor)
     } catch {
       /* sin persistencia; la sesión sigue funcionando igual */
     }
@@ -217,7 +218,7 @@ export function Lector({ libro, pliegos, inicial }: Props) {
   /* ¿Está marcada esta página? */
   useEffect(() => {
     try {
-      setMarcado(localStorage.getItem('aurelia:marcador') === `${libro.slug}:${n}`)
+      setMarcado(localStorage.getItem(`${CLAVE}:marcador`) === `${libro.slug}:${n}`)
     } catch {
       /* sin almacenamiento */
     }
@@ -346,11 +347,11 @@ export function Lector({ libro, pliegos, inicial }: Props) {
   const marcar = () => {
     try {
       if (marcado) {
-        localStorage.removeItem('aurelia:marcador')
+        localStorage.removeItem(`${CLAVE}:marcador`)
         setMarcado(false)
         avisar('Marcador retirado.')
       } else {
-        localStorage.setItem('aurelia:marcador', `${libro.slug}:${n}`)
+        localStorage.setItem(`${CLAVE}:marcador`, `${libro.slug}:${n}`)
         setMarcado(true)
         avisar(`Marcador puesto en la página ${pliego.folio}.`)
       }
@@ -410,7 +411,7 @@ export function Lector({ libro, pliegos, inicial }: Props) {
         </button>
 
         <Link className="marca" href="/">
-          AURELIA
+          {SITIO.nombre}
         </Link>
 
         <Buscador
