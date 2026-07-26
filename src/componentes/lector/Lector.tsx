@@ -12,7 +12,11 @@ import { useNarracion } from './useNarracion'
 
 const DURACION_GIRO = 800
 const DURACION_DESLIZ = 400
-const VELOCIDADES = [0.9, 1, 1.1]
+/** Rango del tempo de lectura. 0.5 se sigue entendiendo; por encima de 1.5 la
+ *  voz se atropella y el verso deja de oírse como verso. */
+const VELOCIDAD_MIN = 0.5
+const VELOCIDAD_MAX = 1.5
+const VELOCIDAD_PASO = 0.1
 
 interface Props {
   libro: Libro
@@ -30,6 +34,7 @@ export function Lector({ libro, pliegos, inicial }: Props) {
 
   /* ── preferencias del lector (se recuerdan) ──────────────────────────── */
   const [voz, setVoz] = useState<Voz>('femenina')
+  const [vozPreferida, setVozPreferida] = useState<string | null>(null)
   const [velocidad, setVelocidad] = useState(1)
   const [sala, setSala] = useState(false)
   const [capital, setCapital] = useState(false)
@@ -60,11 +65,8 @@ export function Lector({ libro, pliegos, inicial }: Props) {
     avisoReloj.current = setTimeout(() => setAviso(null), 3200)
   }, [])
 
-  const { narrando, versosActivos, narrar, parar, disponible } = useNarracion({
-    voz,
-    velocidad,
-    alAvisar: avisar,
-  })
+  const { narrando, versosActivos, narrar, parar, disponible, voces, vozActual } =
+    useNarracion({ voz, velocidad, vozPreferida, alAvisar: avisar })
 
   /* ── lectura del entorno y de las preferencias guardadas ─────────────── */
 
@@ -91,7 +93,8 @@ export function Lector({ libro, pliegos, inicial }: Props) {
       const g = localStorage.getItem(`${CLAVE}:voz`)
       if (g === 'masculina' || g === 'femenina') setVoz(g)
       const v = Number(localStorage.getItem(`${CLAVE}:velocidad`))
-      if (VELOCIDADES.includes(v)) setVelocidad(v)
+      if (v >= VELOCIDAD_MIN && v <= VELOCIDAD_MAX) setVelocidad(v)
+      setVozPreferida(localStorage.getItem(`${CLAVE}:vozPreferida`))
       setSala(localStorage.getItem(`${CLAVE}:sala`) === '1')
       setCapital(localStorage.getItem(`${CLAVE}:capital`) === '1')
     } catch {
@@ -272,10 +275,22 @@ export function Lector({ libro, pliegos, inicial }: Props) {
     if (narrando) avisar('La voz cambia en la próxima lectura.')
   }
 
-  const cambiarVelocidad = () => {
-    const i = (VELOCIDADES.indexOf(velocidad) + 1) % VELOCIDADES.length
-    setVelocidad(VELOCIDADES[i])
-    guardar('velocidad', String(VELOCIDADES[i]))
+  const cambiarVelocidad = (v: number) => {
+    const limitada = Math.min(VELOCIDAD_MAX, Math.max(VELOCIDAD_MIN, Math.round(v * 10) / 10))
+    setVelocidad(limitada)
+    guardar('velocidad', String(limitada))
+  }
+
+  const cambiarVozPreferida = (uri: string) => {
+    const valor = uri || null
+    setVozPreferida(valor)
+    try {
+      if (valor) localStorage.setItem(`${CLAVE}:vozPreferida`, valor)
+      else localStorage.removeItem(`${CLAVE}:vozPreferida`)
+    } catch {
+      /* sin persistencia */
+    }
+    if (narrando) avisar('La voz cambia en la próxima lectura.')
   }
 
   /* ── teclado ─────────────────────────────────────────────────────────── */
@@ -437,7 +452,12 @@ export function Lector({ libro, pliegos, inicial }: Props) {
               type="button"
               onClick={() => cambiarVoz('masculina')}
               aria-pressed={voz === 'masculina'}
-              title="Voz masculina"
+              title={
+                hayGenero('masculina')
+                  ? 'Voz masculina'
+                  : 'Tu sistema no tiene voz masculina en español'
+              }
+              disabled={voces.length === 0}
             >
               M
             </button>
@@ -445,11 +465,40 @@ export function Lector({ libro, pliegos, inicial }: Props) {
               type="button"
               onClick={() => cambiarVoz('femenina')}
               aria-pressed={voz === 'femenina'}
-              title="Voz femenina"
+              title={
+                hayGenero('femenina')
+                  ? 'Voz femenina'
+                  : 'Tu sistema no tiene voz femenina en español'
+              }
+              disabled={voces.length === 0}
             >
               F
             </button>
           </div>
+
+          {/* Qué voz suena de verdad, y cómo cambiarla. La API no dice el género
+              de cada voz —hay que deducirlo del nombre— así que el conmutador
+              M/F acierta casi siempre pero no siempre. Aquí se ve y se corrige. */}
+          {voces.length > 0 && (
+            <select
+              className="sel-voz"
+              value={vozPreferida ?? ''}
+              onChange={(e) => cambiarVozPreferida(e.target.value)}
+              aria-label="Elegir la voz del sistema"
+              title={vozActual ? `Suena «${vozActual.nombre}»` : undefined}
+            >
+              <option value="">
+                {vozActual ? vozActual.nombre : 'Automática'}
+                {vozActual && !hayGenero(voz) ? ' (no es del género pedido)' : ''}
+              </option>
+              {voces.map((v) => (
+                <option key={v.uri} value={v.uri}>
+                  {v.nombre}
+                  {v.genero ? ` · ${v.genero}` : ' · género desconocido'}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
       </header>
 

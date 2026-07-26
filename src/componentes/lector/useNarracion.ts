@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { construirFrases, type Frase } from '@/lib/voz/prosodia'
+import { elegirVoz, vocesEnEspanol, type VozDelSistema } from '@/lib/voz/voces'
 import type { Voz } from '@/lib/tipos'
 
 /**
@@ -23,20 +24,20 @@ import type { Voz } from '@/lib/tipos'
  * leyendo. Degrada sin mentir.
  */
 
-const FEM =
-  /(m[oó]nica|paulina|helena|laura|sabina|elvira|dalia|marisol|esperanza|luc[ií]a|female|femen)/i
-const MASC = /(jorge|diego|pablo|ra[uú]l|carlos|juan|[aá]lvaro|enrique|male|mascul)/i
-
 interface Opciones {
   voz: Voz
   velocidad: number
+  /** URI de una voz concreta elegida a mano. Manda sobre el conmutador M/F. */
+  vozPreferida?: string | null
   alAvisar?: (mensaje: string) => void
 }
 
-export function useNarracion({ voz, velocidad, alAvisar }: Opciones) {
+export function useNarracion({ voz, velocidad, vozPreferida, alAvisar }: Opciones) {
   const [narrando, setNarrando] = useState(false)
   const [versosActivos, setVersosActivos] = useState<number[]>([])
   const [disponible, setDisponible] = useState(false)
+  /** Las voces en español del sistema, para poder enseñarlas y elegirlas. */
+  const [voces, setVoces] = useState<VozDelSistema[]>([])
 
   const temporizador = useRef<ReturnType<typeof setTimeout> | null>(null)
   const activo = useRef(false)
@@ -44,6 +45,7 @@ export function useNarracion({ voz, velocidad, alAvisar }: Opciones) {
   // la cola: se aplican a partir de la frase siguiente.
   const velocidadRef = useRef(velocidad)
   const vozRef = useRef(voz)
+  const preferidaRef = useRef(vozPreferida)
 
   useEffect(() => {
     velocidadRef.current = velocidad
@@ -51,14 +53,24 @@ export function useNarracion({ voz, velocidad, alAvisar }: Opciones) {
   useEffect(() => {
     vozRef.current = voz
   }, [voz])
+  useEffect(() => {
+    preferidaRef.current = vozPreferida
+  }, [vozPreferida])
 
   useEffect(() => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
     setDisponible(true)
-    const alCambiar = () => setDisponible(true)
-    window.speechSynthesis.addEventListener('voiceschanged', alCambiar)
-    return () => window.speechSynthesis.removeEventListener('voiceschanged', alCambiar)
+    // La lista tarda en llegar en algunos navegadores: se guarda en estado en
+    // cuanto aparece, para poder enseñarla sin esperar a que se pulse «Narrar».
+    const leer = () => setVoces(vocesEnEspanol(window.speechSynthesis.getVoices()))
+    leer()
+    window.speechSynthesis.addEventListener('voiceschanged', leer)
+    return () => window.speechSynthesis.removeEventListener('voiceschanged', leer)
   }, [])
+
+  /** Qué voz sonaría ahora mismo, para poder enseñarlo en la interfaz. */
+  const vozActual =
+    voces.find((v) => v.uri === vozPreferida) ?? elegirVoz(voces, voz).voz ?? null
 
   const parar = useCallback(() => {
     activo.current = false
@@ -84,15 +96,24 @@ export function useNarracion({ voz, velocidad, alAvisar }: Opciones) {
       const frases: Frase[] = construirFrases(estrofas, { titulo, incluirTitulo })
       if (frases.length === 0) return
 
-      const todas = window.speechSynthesis.getVoices().filter((v) => /^es/i.test(v.lang))
-      const patron = vozRef.current === 'femenina' ? FEM : MASC
-      const elegida = todas.find((v) => patron.test(v.name)) ?? todas[0] ?? null
+      const todas = window.speechSynthesis.getVoices()
+      const disponibles = vocesEnEspanol(todas)
+      const aMano = preferidaRef.current
+        ? disponibles.find((v) => v.uri === preferidaRef.current)
+        : undefined
+      const { voz: escogida, acorde: acordeAuto } = elegirVoz(disponibles, vozRef.current)
+      const ficha = aMano ?? escogida
+      const acorde = aMano ? aMano.genero === vozRef.current : acordeAuto
+      const elegida = ficha ? (todas.find((v) => v.voiceURI === ficha.uri) ?? null) : null
+
       if (!elegida) {
         alAvisar?.('No hay voces en español instaladas; se usa la voz por defecto.')
+      } else if (!acorde) {
+        // No se disimula: se dice qué voz suena y por qué no es la pedida.
+        alAvisar?.(
+          `Tu sistema no tiene voz ${vozRef.current} en español. Suena «${ficha!.nombre}» con el tono ajustado.`,
+        )
       }
-      // Si la voz encontrada no es del género pedido, se ajusta el tono como
-      // respaldo. No es ideal, pero es mejor que leer con la voz equivocada.
-      const acorde = elegida ? patron.test(elegida.name) : false
 
       activo.current = true
       setNarrando(true)
@@ -111,7 +132,9 @@ export function useNarracion({ voz, velocidad, alAvisar }: Opciones) {
         if (elegida) u.voice = elegida
         u.lang = elegida?.lang ?? 'es-ES'
         u.rate = velocidadRef.current
-        u.pitch = acorde ? 1 : vozRef.current === 'femenina' ? 1.25 : 0.75
+        // Sin voz del género pedido, el tono es lo único que queda. No todos los
+        // motores lo atienden, de ahí el aviso de arriba.
+        u.pitch = acorde ? 1 : vozRef.current === 'femenina' ? 1.35 : 0.6
 
         u.onboundary = (e) => {
           if (!activo.current || frase.tramos.length === 0) return
@@ -149,5 +172,5 @@ export function useNarracion({ voz, velocidad, alAvisar }: Opciones) {
     }
   }, [parar])
 
-  return { narrando, versosActivos, narrar, parar, disponible }
+  return { narrando, versosActivos, narrar, parar, disponible, voces, vozActual }
 }
