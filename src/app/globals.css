@@ -1,0 +1,1585 @@
+@import 'tailwindcss';
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SISTEMA VISUAL — dirección E (Biblioteca)
+   Los tokens salen tal cual del prototipo. Lo que se añade viene de las
+   direcciones A (Códice) y B (Sala blanca), señalado en cada bloque.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@theme {
+  --color-primario: #f5f5f0; /* crema — el papel de la página derecha */
+  --color-secundario: #2d1b1b; /* marrón casi negro — la tinta */
+  --color-terciario: #fdf2f3; /* rosa pálido — acento cálido */
+  --color-neutro: #787776; /* etiquetas y metadatos */
+  --color-fondo: #0e0c0c; /* la sala oscura alrededor del libro */
+  --color-fondo2: #171313;
+  --color-panel: #1c1717;
+
+  --font-display: var(--tipo-display), Georgia, serif;
+  --font-ui: var(--tipo-ui), system-ui, sans-serif;
+}
+
+:root {
+  --primario: #f5f5f0;
+  --secundario: #2d1b1b;
+  --terciario: #fdf2f3;
+  --neutro: #787776;
+  --fondo: #0e0c0c;
+  --fondo2: #171313;
+  --panel: #1c1717;
+  --linea: rgba(245, 245, 240, 0.1);
+
+  --display: var(--tipo-display), Georgia, serif;
+  --ui: var(--tipo-ui), system-ui, sans-serif;
+
+  /* Tinta del poema sobre el papel crema. Contraste 9.8:1 → AA holgado. */
+  --tinta-poema: #3b2a29;
+  /* Rojo de resaltado. 5.6:1 sobre crema → AA para texto normal.
+     El rosa --terciario NO se usa nunca como texto sobre crema: solo como
+     fondo de resaltado, que es donde sí funciona. */
+  --tinta-acento: #8a3d33;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--fondo);
+  color: var(--primario);
+  font-family: var(--ui);
+  font-weight: 300;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+}
+
+:focus-visible {
+  outline: 1.5px solid var(--terciario);
+  outline-offset: 3px;
+}
+
+.et {
+  font-size: 0.62rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--neutro);
+}
+
+/* Solo para lectores de pantalla. */
+.solo-lectores {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.saltar {
+  position: absolute;
+  left: -999px;
+  z-index: 200;
+  background: var(--primario);
+  color: var(--secundario);
+  padding: 0.6rem 1rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.saltar:focus {
+  left: 0.6rem;
+  top: 0.6rem;
+}
+
+/* ═══════════════════════════ ANAQUEL ═══════════════════════════════════════ */
+
+.biblioteca {
+  height: 100dvh;
+  display: grid;
+  grid-template-columns: 248px 1fr;
+}
+
+.lateral {
+  background: var(--fondo2);
+  border-right: 1px solid var(--linea);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 0 1.2rem;
+  overflow-y: auto;
+}
+.lateral h2 {
+  font-family: var(--display);
+  font-size: 1.15rem;
+  font-weight: 500;
+  padding: 0 1.5rem;
+}
+.lateral .sub {
+  padding: 0.25rem 1.5rem 1.6rem;
+}
+
+.nav {
+  list-style: none;
+  flex: 1;
+}
+.nav button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: #b8b3ad;
+  padding: 0.66rem 1.5rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border-left: 2px solid transparent;
+  transition: 0.2s;
+  text-align: left;
+}
+.nav button:hover {
+  color: var(--primario);
+  background: rgba(245, 245, 240, 0.04);
+}
+.nav button[aria-current='true'] {
+  color: var(--primario);
+  border-left-color: var(--primario);
+  background: rgba(245, 245, 240, 0.05);
+}
+.nav svg {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  opacity: 0.85;
+}
+
+.lateral .abajo {
+  padding: 0 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+.cta {
+  width: 100%;
+  background: var(--primario);
+  color: var(--secundario);
+  border: 0;
+  cursor: pointer;
+  padding: 0.72rem;
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 500;
+  transition: 0.2s;
+}
+.cta:hover {
+  background: var(--terciario);
+}
+.mini {
+  display: flex;
+  gap: 1.4rem;
+  justify-content: center;
+  font-size: 0.66rem;
+  color: var(--neutro);
+  letter-spacing: 0.1em;
+}
+.mini button,
+.mini a {
+  background: none;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font-size: inherit;
+  text-decoration: none;
+}
+.mini button:hover,
+.mini a:hover {
+  color: var(--primario);
+}
+
+.anaquel {
+  overflow-y: auto;
+  padding: clamp(2rem, 5vw, 4rem) clamp(1.2rem, 4vw, 3.4rem) 5rem;
+  background: radial-gradient(80% 60% at 20% 0%, #1a1616, var(--fondo) 65%);
+}
+.anaquel h1 {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(2.2rem, 5.4vw, 3.6rem);
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  margin-bottom: 0.9rem;
+}
+.intro {
+  color: #a49f99;
+  max-width: 52ch;
+  line-height: 1.75;
+  font-size: 0.95rem;
+  margin-bottom: clamp(2rem, 5vh, 3.4rem);
+}
+
+.rejilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: clamp(1rem, 2.4vw, 1.8rem);
+}
+.tomo {
+  position: relative;
+  aspect-ratio: 3 / 4.1;
+  border: 1px solid var(--linea);
+  cursor: pointer;
+  overflow: hidden;
+  background: var(--panel);
+  padding: 1.4rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.5rem;
+  transition:
+    transform 0.35s,
+    border-color 0.35s;
+  color: inherit;
+  text-decoration: none;
+}
+.tomo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.85;
+  transition: opacity 0.4s;
+}
+.tomo::after {
+  content: '';
+  position: absolute;
+  inset: 14px;
+  border: 1px solid rgba(245, 245, 240, 0.16);
+  pointer-events: none;
+}
+.tomo > * {
+  position: relative;
+  z-index: 2;
+}
+.tomo:hover {
+  transform: translateY(-5px);
+  border-color: rgba(245, 245, 240, 0.34);
+}
+.tomo:hover::before {
+  opacity: 1;
+}
+.tomo .vol {
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(245, 245, 240, 0.7);
+}
+.tomo .tt {
+  font-family: var(--display);
+  font-size: clamp(1.25rem, 2.1vw, 1.6rem);
+  font-weight: 500;
+  line-height: 1.15;
+}
+.tomo .au {
+  font-size: 0.62rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(245, 245, 240, 0.62);
+  margin-top: 0.4rem;
+}
+.tomo .cn {
+  position: absolute;
+  bottom: 1.1rem;
+  left: 0;
+  right: 0;
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(245, 245, 240, 0.45);
+}
+.tomo.t0::before {
+  background:
+    linear-gradient(150deg, #3b2f28, #171313 60%),
+    radial-gradient(60% 50% at 70% 20%, rgba(253, 242, 243, 0.14), transparent);
+}
+.tomo.t1::before {
+  background:
+    linear-gradient(150deg, #2f3138, #141313 62%),
+    radial-gradient(60% 50% at 30% 30%, rgba(245, 245, 240, 0.12), transparent);
+}
+.tomo.t2::before {
+  background:
+    linear-gradient(150deg, #252f3d, #121316 60%),
+    radial-gradient(60% 60% at 60% 80%, rgba(160, 190, 220, 0.14), transparent);
+}
+.tomo.t3::before {
+  background:
+    linear-gradient(150deg, #3a2a2c, #151111 60%),
+    radial-gradient(50% 50% at 40% 20%, rgba(253, 242, 243, 0.13), transparent);
+}
+
+.tiras {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr;
+  gap: 1.2rem;
+  margin-top: clamp(2.4rem, 6vh, 4rem);
+}
+.tira {
+  border: 1px solid var(--linea);
+  background: var(--panel);
+  padding: 1.6rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.tira h3 {
+  font-family: var(--display);
+  font-size: 1.45rem;
+  font-weight: 500;
+  line-height: 1.15;
+}
+.tira p {
+  color: #a49f99;
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+.tira .btn {
+  align-self: flex-start;
+  margin-top: auto;
+  border: 1px solid rgba(245, 245, 240, 0.3);
+  background: none;
+  color: var(--primario);
+  padding: 0.5rem 1rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: 0.2s;
+  text-decoration: none;
+}
+.tira .btn:hover {
+  background: var(--primario);
+  color: var(--secundario);
+}
+.tira.centrada {
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+}
+.disco {
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(245, 245, 240, 0.28);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  margin-bottom: 0.3rem;
+}
+.disco svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ═══════════════════════════ LECTOR ════════════════════════════════════════ */
+
+.lector {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(70% 60% at 50% 0%, #191515, var(--fondo) 70%);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem clamp(0.8rem, 2.5vw, 1.6rem);
+  border-bottom: 1px solid var(--linea);
+  background: rgba(14, 12, 12, 0.9);
+  backdrop-filter: blur(8px);
+  z-index: 20;
+}
+.ic {
+  background: none;
+  border: 0;
+  color: var(--primario);
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  opacity: 0.85;
+  flex: none;
+}
+.ic:hover {
+  opacity: 1;
+}
+.ic svg {
+  width: 17px;
+  height: 17px;
+}
+.marca {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: 0.16em;
+  margin-right: auto;
+  color: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.buscador {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--linea);
+  background: rgba(245, 245, 240, 0.04);
+  padding: 0.35rem 0.8rem;
+  width: min(300px, 32vw);
+}
+.buscador svg {
+  width: 13px;
+  height: 13px;
+  opacity: 0.55;
+  flex: none;
+}
+.buscador input {
+  background: none;
+  border: 0;
+  color: var(--primario);
+  font-family: var(--ui);
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  width: 100%;
+}
+.buscador input::placeholder {
+  color: var(--neutro);
+}
+.buscador input:focus {
+  outline: 0;
+}
+.narr {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.narr .lb {
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--neutro);
+}
+.sw {
+  display: flex;
+  border: 1px solid var(--linea);
+}
+.sw button {
+  background: none;
+  border: 0;
+  color: var(--neutro);
+  cursor: pointer;
+  padding: 0.28rem 0.62rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+  transition: 0.2s;
+}
+.sw button[aria-pressed='true'] {
+  background: var(--primario);
+  color: var(--secundario);
+}
+
+.cuerpo-lector {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  position: relative;
+}
+
+/* ── índice lateral (dirección E) ── */
+.indice {
+  width: 262px;
+  flex: none;
+  background: var(--fondo2);
+  border-right: 1px solid var(--linea);
+  padding: 1.4rem 0;
+  overflow-y: auto;
+  transition: margin-left 0.35s;
+}
+.indice.cerrado {
+  margin-left: -262px;
+}
+.indice h3 {
+  font-family: var(--display);
+  font-size: 1.05rem;
+  font-weight: 500;
+  padding: 0 1.4rem 0.15rem;
+}
+.indice .sub {
+  padding: 0 1.4rem 1.2rem;
+}
+.indice ol {
+  list-style: none;
+}
+.indice li button {
+  width: 100%;
+  display: flex;
+  gap: 0.7rem;
+  align-items: baseline;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: #b8b3ad;
+  text-align: left;
+  padding: 0.6rem 1.4rem;
+  border-left: 2px solid transparent;
+  transition: 0.2s;
+  font-size: 0.88rem;
+}
+.indice li button:hover {
+  background: rgba(245, 245, 240, 0.05);
+  color: var(--primario);
+}
+.indice li button[aria-current='true'] {
+  border-left-color: var(--terciario);
+  color: var(--primario);
+}
+.indice .np {
+  margin-left: auto;
+  font-size: 0.66rem;
+  color: var(--neutro);
+  letter-spacing: 0.1em;
+}
+.indice .ti {
+  font-family: var(--display);
+  font-size: 0.98rem;
+}
+.volver {
+  display: block;
+  margin: 1.2rem 1.4rem 0;
+  width: calc(100% - 2.8rem);
+  border: 1px solid rgba(245, 245, 240, 0.24);
+  background: none;
+  color: var(--primario);
+  padding: 0.55rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+}
+.volver:hover {
+  background: rgba(245, 245, 240, 0.08);
+}
+
+/* ── el pliego ── */
+.mesa {
+  flex: 1;
+  display: grid;
+  /* minmax(0,1fr) y no `auto`: si la fila se autodimensiona, crece hasta el
+     alto natural del poema entero (que puede pasar de 1000 px) y el pliego se
+     centra dentro de esa fila fantasma, saliéndose de la pantalla. */
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
+  place-items: center;
+  padding: clamp(1rem, 3vh, 2.4rem) clamp(0.6rem, 3vw, 2.6rem);
+  min-height: 0;
+}
+.pliego {
+  position: relative;
+  width: min(1100px, 100%);
+  height: min(100%, 720px);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  perspective: 2200px;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.6);
+}
+
+/* izquierda: la plancha */
+.plancha {
+  position: relative;
+  overflow: hidden;
+  background: #0b0a0a;
+  transition: opacity 0.35s;
+}
+.plancha .arte-caja {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.plancha .arte-caja > div {
+  position: absolute;
+  inset: 0;
+}
+.plancha .arte {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.plancha img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.plancha .pie {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 1.4rem 1.3rem;
+  z-index: 3;
+  background: linear-gradient(0deg, rgba(6, 5, 5, 0.92), transparent);
+}
+.plancha .badge {
+  display: inline-block;
+  border: 1px solid rgba(245, 245, 240, 0.35);
+  padding: 0.24rem 0.6rem;
+  font-size: 0.58rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  margin-bottom: 0.7rem;
+}
+.plancha h4 {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.35rem;
+  line-height: 1.2;
+}
+.plancha .tec {
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #9a938c;
+  margin-top: 0.35rem;
+}
+
+/* derecha: la página de papel */
+.pagina {
+  position: relative;
+  background: var(--primario);
+  color: var(--secundario);
+  overflow: hidden;
+}
+.pagina::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(120% 100% at 0% 50%, rgba(45, 27, 27, 0.12), transparent 30%);
+}
+/* Textura verjurada — dirección A (Códice). Muy sutil: el papel se nota, no se ve. */
+.pagina::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.42;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(120, 95, 60, 0.05) 0 1px,
+    transparent 1px 9px
+  );
+}
+
+.hoja-int {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(1.8rem, 3.2vw, 3rem) clamp(1.5rem, 3.4vw, 3rem) 1.4rem;
+  overflow-y: auto;
+}
+.folio {
+  position: absolute;
+  top: clamp(1.2rem, 2.4vw, 2rem);
+  right: clamp(1.5rem, 3.4vw, 3rem);
+  font-size: 0.6rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--neutro);
+  z-index: 3;
+}
+h2.tit {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1.7rem, 2.9vw, 2.5rem);
+  line-height: 1.15;
+  margin-bottom: 1.4rem;
+  max-width: 16ch;
+}
+h2.tit .sigue {
+  font-style: normal;
+  font-size: 0.5em;
+  color: #8a7f7d;
+  letter-spacing: 0.1em;
+}
+.dedic {
+  font-family: var(--display);
+  font-style: italic;
+  color: #6f5c58;
+  margin: -0.9rem 0 1.3rem;
+  font-size: 1rem;
+}
+.nota-autor {
+  font-size: 0.72rem;
+  line-height: 1.6;
+  color: #7a6a67;
+  border-left: 2px solid rgba(45, 27, 27, 0.18);
+  padding-left: 0.8rem;
+  margin: 1.2rem 0 0;
+  font-style: italic;
+}
+
+.poema {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1rem, 1.35vw, 1.14rem);
+  line-height: 1.95;
+  color: var(--tinta-poema);
+}
+.estrofa {
+  margin-bottom: 1.25rem;
+}
+
+/* Densidad de composición. La decide el servidor en lib/paginar: antes que
+   partir un soneto en dos pliegos, se aprieta un punto. El mínimo sigue por
+   encima de 15 px, así que la legibilidad no se resiente. */
+.poema.denso {
+  font-size: clamp(0.95rem, 1.24vw, 1.06rem);
+  line-height: 1.78;
+}
+.poema.denso .estrofa {
+  margin-bottom: 1rem;
+}
+.poema.muy-denso {
+  font-size: clamp(0.92rem, 1.15vw, 1rem);
+  line-height: 1.62;
+}
+.poema.muy-denso .estrofa {
+  margin-bottom: 0.8rem;
+}
+.verso {
+  display: block;
+  padding-left: 1.1em;
+  text-indent: -1.1em;
+  transition:
+    color 0.25s,
+    background 0.25s,
+    opacity 0.25s;
+}
+.verso mark {
+  background: rgba(253, 242, 243, 0);
+  color: var(--tinta-acento);
+  box-shadow: inset 0 -0.4em 0 rgba(138, 61, 51, 0.14);
+}
+.verso.leyendo {
+  color: #111;
+  background: linear-gradient(90deg, rgba(253, 242, 243, 0.9), rgba(253, 242, 243, 0) 96%);
+  box-shadow: -0.5em 0 0 rgba(253, 242, 243, 0.9);
+}
+/* Enfoque durante la narración — dirección B (Sala blanca). */
+.poema.enfocando .verso:not(.leyendo) {
+  opacity: 0.34;
+}
+
+/* Letra capital — dirección A (Códice). Se activa desde la barra inferior. */
+.poema.capitular .estrofa:first-child .verso:first-child::first-letter {
+  font-family: var(--display);
+  font-style: normal;
+  font-size: 3.1em;
+  float: left;
+  line-height: 0.82;
+  padding: 0.06em 0.12em 0 0;
+  color: var(--tinta-acento);
+}
+
+/* Remate de cierre, no ilustración: la obra ya está en la plancha de la
+   izquierda. Alto fijo y pequeño para que no se coma versos de la página. */
+.vineta {
+  display: block;
+  width: 100%;
+  height: 42px;
+  margin: 0.9rem 0 0;
+  opacity: 0.5;
+}
+
+.pie-pag {
+  margin-top: auto;
+  padding-top: 1.4rem;
+  border-top: 1px solid rgba(45, 27, 27, 0.16);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #7a6a67;
+}
+.pie-pag .der {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--secundario);
+  cursor: pointer;
+  background: none;
+  border: 0;
+  font-size: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  font-family: inherit;
+}
+.pie-pag .der:hover {
+  color: var(--tinta-acento);
+}
+
+/* ── portada, índice y colofón del volumen — dirección A (Códice) ── */
+.portada-vol {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  height: 100%;
+  gap: 0.6rem;
+}
+.portada-vol .filete {
+  width: 78%;
+  border-top: 1px solid rgba(138, 106, 63, 0.55);
+  border-bottom: 1px solid rgba(138, 106, 63, 0.55);
+  padding: 1.8rem 0.5rem;
+}
+.portada-vol h1 {
+  font-family: var(--display);
+  font-weight: 400;
+  font-style: italic;
+  font-size: clamp(1.9rem, 3.6vw, 2.9rem);
+  line-height: 1.05;
+  color: var(--secundario);
+}
+.portada-vol .vol {
+  font-size: 0.66rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #8a6a3f;
+  margin-bottom: 1rem;
+}
+.portada-vol .au {
+  margin-top: 1.6rem;
+  font-size: 0.66rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: #7a6a67;
+}
+.portada-vol .desc {
+  font-family: var(--display);
+  font-style: italic;
+  color: #6f5c58;
+  max-width: 30ch;
+  line-height: 1.7;
+  margin-top: 1.4rem;
+  font-size: 0.95rem;
+}
+
+/* índice como página del libro, con puntos guía */
+.idx-pag {
+  list-style: none;
+  margin-top: 0.4rem;
+}
+.idx-pag li {
+  margin-bottom: 0.35rem;
+}
+.idx-pag button {
+  width: 100%;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--display);
+  font-size: 1.02rem;
+  color: var(--secundario);
+  text-align: left;
+  padding: 0.2rem 0;
+}
+.idx-pag .t {
+  font-style: italic;
+  flex: none;
+  max-width: 70%;
+}
+.idx-pag .pt {
+  flex: 1;
+  border-bottom: 1px dotted rgba(90, 66, 36, 0.5);
+  transform: translateY(-0.28em);
+}
+.idx-pag .pg {
+  font-family: var(--ui);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  color: #7a6a67;
+}
+.idx-pag button:hover .t {
+  color: var(--tinta-acento);
+}
+.regla {
+  width: 56px;
+  height: 1px;
+  background: #8a6a3f;
+  opacity: 0.5;
+  margin: 0.6rem 0 1.3rem;
+}
+.forma-et {
+  font-size: 0.62rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #8a6a3f;
+  margin-bottom: 0.7rem;
+}
+
+/* ── hoja que gira (dirección E, motor propio — ver ADR-002) ── */
+.giro {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  z-index: 9;
+  visibility: hidden;
+  transition: transform 0.78s cubic-bezier(0.42, 0.02, 0.26, 1);
+}
+.giro.on {
+  visibility: visible;
+}
+.giro .cara {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  overflow: hidden;
+  background: var(--primario);
+}
+.giro .dorso {
+  transform: rotateY(180deg);
+  background: linear-gradient(90deg, #e8e7e0, var(--primario));
+  display: grid;
+  place-items: center;
+}
+.giro .dorso span {
+  font-family: var(--display);
+  font-style: italic;
+  color: rgba(45, 27, 27, 0.16);
+  font-size: 2.4rem;
+}
+.giro .cara::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  background: linear-gradient(90deg, rgba(45, 27, 27, 0.22), transparent 30%);
+}
+
+/* ── barra de herramientas ── */
+.herr {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.7rem, 3vw, 2.6rem);
+  padding: 0.7rem 1rem;
+  border-top: 1px solid var(--linea);
+  background: rgba(14, 12, 12, 0.92);
+  flex-wrap: wrap;
+}
+.hbtn {
+  background: none;
+  border: 0;
+  color: #b8b3ad;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  transition: 0.2s;
+}
+.hbtn:hover,
+.hbtn[aria-pressed='true'] {
+  color: var(--primario);
+}
+.hbtn svg {
+  width: 17px;
+  height: 17px;
+}
+.hbtn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.tempo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--linea);
+  border-radius: 999px;
+  padding: 0.3rem 0.5rem;
+}
+.tempo > button:not(.hbtn) {
+  background: none;
+  border: 0;
+  color: var(--primario);
+  cursor: pointer;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 1rem;
+  line-height: 1;
+}
+.tempo > button:not(.hbtn):hover {
+  background: rgba(245, 245, 240, 0.1);
+}
+.tempo > button:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+/* ── barra de progreso — dirección B (Sala blanca) ── */
+.progreso {
+  height: 2px;
+  background: rgba(245, 245, 240, 0.08);
+  position: relative;
+  flex: none;
+}
+.progreso i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: var(--terciario);
+  transition: width 0.5s;
+  display: block;
+}
+
+/* ═════════════════ MODO SALA — dirección B (Sala blanca) ═══════════════════
+   Mismo contenido, misma navegación, otra atmósfera: galería blanca, una sola
+   columna, sin giro 3D. Se activa desde la barra inferior y se recuerda. */
+
+.lector[data-sala='true'] {
+  --primario: #16150f;
+  --linea: #e4e1db;
+  --neutro: #8b877e;
+  background: #fbfaf8;
+  color: #16150f;
+}
+.lector[data-sala='true'] .topbar,
+.lector[data-sala='true'] .herr {
+  background: #fbfaf8;
+  border-color: #e4e1db;
+  backdrop-filter: none;
+}
+.lector[data-sala='true'] .ic,
+.lector[data-sala='true'] .marca,
+.lector[data-sala='true'] .buscador input {
+  color: #16150f;
+}
+.lector[data-sala='true'] .buscador {
+  border-color: #e4e1db;
+  background: transparent;
+}
+.lector[data-sala='true'] .sw {
+  border-color: #e4e1db;
+}
+.lector[data-sala='true'] .sw button[aria-pressed='true'] {
+  background: #16150f;
+  color: #fbfaf8;
+}
+.lector[data-sala='true'] .hbtn {
+  color: #8b877e;
+}
+.lector[data-sala='true'] .hbtn:hover,
+.lector[data-sala='true'] .hbtn[aria-pressed='true'] {
+  color: #e2371f;
+}
+.lector[data-sala='true'] .tempo {
+  border-color: #e4e1db;
+}
+.lector[data-sala='true'] .tempo > button:not(.hbtn) {
+  color: #16150f;
+}
+.lector[data-sala='true'] .indice {
+  background: #fbfaf8;
+  border-color: #e4e1db;
+}
+.lector[data-sala='true'] .indice li button {
+  color: #56534c;
+}
+.lector[data-sala='true'] .indice li button:hover,
+.lector[data-sala='true'] .indice li button[aria-current='true'] {
+  color: #e2371f;
+  background: transparent;
+  border-left-color: #e2371f;
+}
+.lector[data-sala='true'] .volver {
+  color: #16150f;
+  border-color: #e4e1db;
+}
+.lector[data-sala='true'] .progreso {
+  background: #e4e1db;
+}
+.lector[data-sala='true'] .progreso i {
+  background: #e2371f;
+}
+
+/* el pliego pierde el lomo y se convierte en una sola pared */
+.lector[data-sala='true'] .mesa {
+  padding: 0;
+  align-items: start;
+}
+.lector[data-sala='true'] .pliego {
+  grid-template-columns: 1fr;
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  box-shadow: none;
+  overflow-y: auto;
+  display: block;
+  /* El margen de la sala. La plancha y el texto van sin relleno propio, así que
+     los dos se alinean con este mismo borde. */
+  padding: clamp(1.4rem, 4vh, 3rem) clamp(1rem, 4vw, 2.5rem) 3rem;
+}
+.lector[data-sala='true'] .giro {
+  display: none;
+}
+.lector[data-sala='true'] .pagina {
+  background: transparent;
+  color: #16150f;
+  overflow: visible;
+}
+.lector[data-sala='true'] .pagina::after,
+.lector[data-sala='true'] .pagina::before {
+  display: none;
+}
+/* En sala la columna se centra en `.pagina`, no en `.hoja-int`, para que el
+   folio —que es hermano suyo— quede alineado con el texto y no colgando en el
+   borde derecho de la pantalla. */
+.lector[data-sala='true'] .pagina {
+  max-width: 840px;
+  margin: 0 auto;
+}
+.lector[data-sala='true'] .hoja-int {
+  max-width: none;
+  margin: 0;
+  padding: clamp(1.4rem, 3.5vh, 2.4rem) 0 2rem;
+  overflow: visible;
+  min-height: 0;
+}
+.lector[data-sala='true'] .folio {
+  top: 0;
+  right: 0;
+}
+.lector[data-sala='true'] h2.tit {
+  font-style: normal;
+  font-size: clamp(2.4rem, 6vw, 4.4rem);
+  line-height: 0.96;
+  letter-spacing: -0.02em;
+  max-width: 20ch;
+}
+.lector[data-sala='true'] .poema {
+  font-style: normal;
+  font-size: clamp(1.12rem, 1.65vw, 1.32rem);
+  line-height: 1.95;
+  color: #16150f;
+  max-width: 34em;
+}
+.lector[data-sala='true'] .estrofa {
+  margin-bottom: 2.1rem;
+}
+.lector[data-sala='true'] .verso.leyendo {
+  color: #e2371f;
+  background: none;
+  box-shadow: none;
+}
+.lector[data-sala='true'] .verso mark {
+  color: #e2371f;
+  box-shadow: inset 0 -0.35em 0 rgba(226, 55, 31, 0.13);
+}
+.lector[data-sala='true'] .poema.capitular .estrofa:first-child .verso:first-child::first-letter {
+  color: #e2371f;
+}
+.lector[data-sala='true'] .dedic,
+.lector[data-sala='true'] .nota-autor {
+  color: #8b877e;
+  font-style: italic;
+}
+.lector[data-sala='true'] .pie-pag {
+  border-color: #e4e1db;
+  color: #8b877e;
+}
+.lector[data-sala='true'] .pie-pag .der {
+  color: #16150f;
+}
+.lector[data-sala='true'] .folio {
+  color: #8b877e;
+}
+.lector[data-sala='true'] .regla {
+  background: #e2371f;
+}
+.lector[data-sala='true'] .forma-et,
+.lector[data-sala='true'] .portada-vol .vol {
+  color: #8b877e;
+}
+.lector[data-sala='true'] .portada-vol h1,
+.lector[data-sala='true'] .idx-pag button {
+  color: #16150f;
+}
+.lector[data-sala='true'] .portada-vol .filete {
+  border-color: #e4e1db;
+}
+.lector[data-sala='true'] .idx-pag .pt {
+  border-bottom-color: #e4e1db;
+}
+.lector[data-sala='true'] .vineta {
+  display: none;
+}
+
+/* En sala la plancha se convierte en el «hueco» de la dirección B: una banda
+   ancha con su cartela debajo, como en una pared de galería. */
+.lector[data-sala='true'] .plancha {
+  position: relative;
+  max-width: 840px;
+  margin: 0 auto;
+  background: transparent;
+  border: 0;
+  /* Espacio para la cartela, que aquí NO va superpuesta. */
+  padding-bottom: 5rem;
+}
+.lector[data-sala='true'] .plancha .arte-caja {
+  position: relative;
+  inset: auto;
+  aspect-ratio: 16 / 6;
+  border: 1px solid #e4e1db;
+}
+/* Fuera del degradado: la cartela se lee sobre el muro blanco, no sobre la
+   obra. Es lo que arreglaba el contraste del badge y de la técnica. */
+.lector[data-sala='true'] .plancha .pie {
+  position: absolute;
+  bottom: 0;
+  background: none;
+  padding: 1.1rem 0 0;
+  color: #16150f;
+  border-top: 1px solid #e4e1db;
+  margin-top: 1rem;
+}
+.lector[data-sala='true'] .plancha h4 {
+  color: #16150f;
+  font-size: 1.2rem;
+}
+.lector[data-sala='true'] .plancha .badge {
+  border-color: #c9c5bd;
+  color: #56534c;
+}
+.lector[data-sala='true'] .plancha .tec {
+  color: #8b877e;
+}
+
+/* transición de deslizamiento silencioso, en vez del giro 3D */
+.lector[data-sala='true'] .pliego {
+  transition:
+    opacity 0.42s ease,
+    transform 0.42s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.lector[data-sala='true'] .pliego.sale-izq {
+  opacity: 0;
+  transform: translateX(-4%);
+}
+.lector[data-sala='true'] .pliego.sale-der {
+  opacity: 0;
+  transform: translateX(4%);
+}
+
+/* ═══════════════════════════ BÚSQUEDA ══════════════════════════════════════ */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 7, 7, 0.93);
+  z-index: 80;
+  overflow: auto;
+  padding: clamp(2rem, 8vh, 5rem) 1.2rem;
+  backdrop-filter: blur(4px);
+}
+.modal .in {
+  max-width: 720px;
+  margin: 0 auto;
+}
+.modal h2 {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(1.8rem, 4.6vw, 2.8rem);
+  color: #f5f5f0;
+}
+.modal .meta {
+  margin: 0.4rem 0 1.6rem;
+}
+.modal .grupo {
+  margin-bottom: 1.6rem;
+}
+.modal .grupo > .et {
+  padding-bottom: 0.5rem;
+}
+.modal article {
+  border-top: 1px solid rgba(245, 245, 240, 0.1);
+}
+.modal article a {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 0;
+  color: #f5f5f0;
+  cursor: pointer;
+  padding: 1.1rem 0;
+  transition: 0.2s;
+  font-family: inherit;
+  text-decoration: none;
+}
+.modal article a:hover {
+  padding-left: 0.9rem;
+}
+.modal h3 {
+  font-family: var(--display);
+  font-size: 1.3rem;
+  font-weight: 500;
+}
+.modal p {
+  color: #a49f99;
+  line-height: 1.7;
+  margin-top: 0.3rem;
+  font-size: 0.92rem;
+}
+.modal mark {
+  background: transparent;
+  color: #fdf2f3;
+  box-shadow: inset 0 -0.35em 0 rgba(253, 242, 243, 0.16);
+}
+.vacio {
+  color: #787776;
+  font-style: italic;
+  padding-top: 1.2rem;
+}
+
+.aviso {
+  position: fixed;
+  left: 50%;
+  bottom: 5.4rem;
+  transform: translateX(-50%);
+  z-index: 90;
+  background: #1c1717;
+  border: 1px solid rgba(245, 245, 240, 0.1);
+  color: #f5f5f0;
+  padding: 0.55rem 1rem;
+  font-size: 0.8rem;
+  opacity: 0;
+  transition: 0.3s;
+  pointer-events: none;
+  max-width: 92vw;
+  text-align: center;
+}
+.aviso.on {
+  opacity: 1;
+}
+
+/* ═══════════════════════════ RESPONSIVE ════════════════════════════════════ */
+
+@media (max-width: 1000px) {
+  .tiras {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 860px) {
+  body {
+    overflow: auto;
+  }
+  .biblioteca {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 100dvh;
+  }
+  .lateral {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.7rem 0.9rem;
+    overflow-x: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--linea);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .lateral h2,
+  .lateral .sub,
+  .lateral .abajo {
+    display: none;
+  }
+  .nav {
+    display: flex;
+    flex: none;
+    gap: 0.2rem;
+  }
+  .nav button {
+    padding: 0.4rem 0.7rem;
+    border-left: 0;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+  }
+  .nav button[aria-current='true'] {
+    border-left-color: transparent;
+    border-bottom-color: var(--primario);
+  }
+  .nav svg {
+    display: none;
+  }
+
+  .indice {
+    position: absolute;
+    inset: 0 auto 0 0;
+    z-index: 30;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.7);
+  }
+  /* En móvil el pliego se apila: plancha arriba, poema debajo. Sin giro 3D. */
+  .pliego {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    height: auto;
+    min-height: 100%;
+  }
+  .plancha {
+    aspect-ratio: 16 / 9;
+  }
+  .giro {
+    display: none;
+  }
+  .marca {
+    font-size: 1.05rem;
+    letter-spacing: 0.1em;
+  }
+  .buscador {
+    width: auto;
+    flex: 1;
+    min-width: 0;
+  }
+  .buscador input {
+    letter-spacing: 0.08em;
+  }
+  .narr .lb {
+    display: none;
+  }
+  /* Sin `wrap`: si la barra se parte en dos filas, la de arriba se sale de la
+     pantalla y sus botones quedan inalcanzables. Con nowrap + overflow-x
+     siempre se puede llegar a todos. */
+  .herr {
+    gap: 0.7rem;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    justify-content: space-between;
+    padding: 0.6rem 0.8rem;
+    scrollbar-width: none;
+  }
+  .herr::-webkit-scrollbar {
+    display: none;
+  }
+  .hbtn {
+    flex: none;
+  }
+  .hbtn span {
+    display: none;
+  }
+  .hbtn svg {
+    width: 19px;
+    height: 19px;
+  }
+  .tempo {
+    flex: none;
+    gap: 0.2rem;
+    padding: 0.25rem 0.35rem;
+  }
+  .tempo .hbtn {
+    min-width: 48px !important;
+  }
+  .tempo .hbtn span {
+    display: block;
+    font-size: 0.54rem;
+  }
+  .lector[data-sala='true'] .plancha {
+    aspect-ratio: 16 / 9;
+  }
+}
+
+/* El giro no debe sacrificar la legibilidad ni marear a nadie. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .giro {
+    display: none !important;
+  }
+}
+
+@media print {
+  .topbar,
+  .herr,
+  .indice,
+  .modal,
+  .aviso,
+  .giro,
+  .progreso {
+    display: none !important;
+  }
+  body,
+  .lector,
+  .pagina {
+    background: #fff !important;
+    color: #000 !important;
+    overflow: visible !important;
+    height: auto !important;
+  }
+  .pliego {
+    grid-template-columns: 1fr;
+    box-shadow: none;
+  }
+}

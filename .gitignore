@@ -1,0 +1,40 @@
+# dependencias
+node_modules/
+.pnp
+.pnp.js
+
+# build
+.next/
+out/
+build/
+dist/
+
+# entorno — NUNCA subir credenciales
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# sistema
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# editores
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# drizzle
+drizzle/meta/_journal.json.bak

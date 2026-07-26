@@ -1,0 +1,43 @@
+{
+  "name": "aurelia",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Obra reunida — biblioteca de poesía. Fase 1.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "tipos": "tsc --noEmit",
+    "db:extensiones": "tsx scripts/extensiones.ts",
+    "db:generar": "drizzle-kit generate",
+    "db:migrar": "tsx scripts/migrar.ts",
+    "db:semilla": "tsx scripts/semilla.ts",
+    "db:estudio": "drizzle-kit studio",
+    "db:preparar": "npm run db:extensiones && npm run db:migrar && npm run db:semilla"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
+    "drizzle-orm": "^0.45.2",
+    "next": "16.2.12",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@types/ws": "^8.5.13",
+    "dotenv": "^17.0.0",
+    "drizzle-kit": "^0.31.10",
+    "tailwindcss": "^4.3.3",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0",
+    "ws": "^8.18.0"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  }
+}

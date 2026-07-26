@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>B · Sala blanca — La casa que no cierra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --muro:#fbfaf8; --linea:#e4e1db; --texto:#16150f; --gris:#8b877e; --acento:#e2371f;
+  --display:'Instrument Serif',Georgia,serif; --cuerpo:'Newsreader',Georgia,serif;
+  --marco:clamp(1.2rem,5vw,4.5rem);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--muro);color:var(--texto);font-family:var(--cuerpo);font-weight:300;
+  min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
+
+/* cartela superior */
+.cartela{display:flex;align-items:center;gap:1.2rem;padding:1.1rem var(--marco);
+  border-bottom:1px solid var(--linea);position:sticky;top:0;background:var(--muro);z-index:30}
+.cartela .n{font-size:.7rem;letter-spacing:.34em;text-transform:uppercase;color:var(--gris)}
+.cartela .n b{color:var(--acento);font-weight:400}
+.cartela .sp{flex:1}
+.campo{font-family:var(--cuerpo);font-size:.95rem;border:0;border-bottom:1px solid var(--linea);
+  background:transparent;padding:.3rem 0;width:min(220px,38vw);color:var(--texto)}
+.campo::placeholder{color:var(--gris)}
+.campo:focus{outline:0;border-color:var(--acento)}
+.mini{border:0;background:transparent;font-family:var(--cuerpo);font-size:.72rem;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--gris);cursor:pointer;padding:.35rem .1rem;transition:.2s}
+.mini:hover{color:var(--texto)}
+.mini[aria-pressed=true]{color:var(--acento)}
+.mini:focus-visible,.campo:focus-visible{outline:2px solid var(--acento);outline-offset:3px}
+
+/* sala */
+.sala{flex:1;position:relative;overflow:hidden}
+.lienzo{position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:center;
+  padding:clamp(2rem,7vh,6rem) var(--marco) 6rem;overflow-y:auto;
+  transition:opacity .5s ease,transform .5s cubic-bezier(.2,.7,.2,1)}
+.lienzo.sale-izq{opacity:0;transform:translateX(-5%)}
+.lienzo.sale-der{opacity:0;transform:translateX(5%)}
+.obra{width:min(780px,100%)}
+
+.etiqueta{font-size:.68rem;letter-spacing:.32em;text-transform:uppercase;color:var(--gris);
+  padding-bottom:.9rem;border-bottom:1px solid var(--linea);margin-bottom:clamp(2rem,5vh,3.6rem);
+  display:flex;justify-content:space-between;gap:1rem}
+h1.titulo{font-family:var(--display);font-weight:400;font-size:clamp(2.6rem,7vw,5.2rem);
+  line-height:.94;letter-spacing:-.02em;margin-bottom:clamp(1.6rem,4vh,2.6rem)}
+h1.titulo em{font-style:italic;color:var(--acento)}
+.dedic{font-style:italic;color:var(--gris);font-size:1rem;margin:-1.4rem 0 2.4rem}
+.cuerpo{font-size:clamp(1.12rem,1.65vw,1.34rem);line-height:1.95;max-width:34em}
+.estrofa{margin-bottom:2.1rem}
+.verso{display:block;padding-left:1.2em;text-indent:-1.2em;transition:color .25s,opacity .25s}
+.verso mark{background:transparent;color:var(--acento);box-shadow:inset 0 -.35em 0 rgba(226,55,31,.13)}
+.verso.leyendo{color:var(--acento)}
+.leyendo-modo .verso:not(.leyendo){opacity:.32}
+
+.acciones{display:flex;gap:1.6rem;align-items:center;flex-wrap:wrap;
+  margin-top:clamp(2.4rem,6vh,4rem);padding-top:1.2rem;border-top:1px solid var(--linea)}
+.acc{border:0;background:transparent;font-family:var(--cuerpo);font-size:.74rem;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--texto);cursor:pointer;padding:.3rem 0;position:relative}
+.acc::after{content:'';position:absolute;left:0;bottom:0;height:1px;width:100%;background:var(--texto);
+  transform:scaleX(0);transform-origin:left;transition:transform .3s}
+.acc:hover::after,.acc[aria-pressed=true]::after{transform:scaleX(1)}
+.acc[aria-pressed=true]{color:var(--acento)}
+.acc[aria-pressed=true]::after{background:var(--acento)}
+.temas{font-size:.74rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gris);margin-left:auto}
+
+/* espacio de imagen */
+.hueco{aspect-ratio:16/6;border:1px solid var(--linea);margin:clamp(2rem,5vh,3.4rem) 0 0;
+  display:grid;place-items:center;background:
+   repeating-linear-gradient(45deg,rgba(226,55,31,.03) 0 10px,transparent 10px 20px)}
+.hueco span{font-size:.66rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gris)}
+
+/* portada */
+.portada{display:flex;flex-direction:column;justify-content:center;min-height:58vh}
+.portada h1{font-family:var(--display);font-weight:400;font-size:clamp(3rem,11vw,8.5rem);line-height:.86;
+  letter-spacing:-.035em;margin-bottom:2rem}
+.portada h1 em{font-style:italic;display:block;margin-left:clamp(1rem,9vw,7rem);color:var(--acento)}
+.portada p{font-size:.72rem;letter-spacing:.34em;text-transform:uppercase;color:var(--gris)}
+
+/* índice */
+.idx{list-style:none;border-top:1px solid var(--linea)}
+.idx li{border-bottom:1px solid var(--linea)}
+.idx button{width:100%;display:flex;align-items:baseline;gap:1.4rem;background:none;border:0;cursor:pointer;
+  padding:clamp(.9rem,2.4vh,1.5rem) 0;font-family:var(--cuerpo);color:var(--texto);text-align:left;transition:.25s}
+.idx .num{font-size:.68rem;letter-spacing:.2em;color:var(--gris);min-width:2.6em}
+.idx .t{font-family:var(--display);font-size:clamp(1.4rem,3.4vw,2.2rem);line-height:1.05;flex:1}
+.idx button:hover{padding-left:1.2rem;color:var(--acento)}
+.idx button:hover .num{color:var(--acento)}
+.idx button:disabled{opacity:.35;cursor:default}
+.idx button:disabled:hover{padding-left:0;color:var(--texto)}
+
+/* pie de sala */
+.pie{display:flex;align-items:center;gap:1.4rem;padding:.9rem var(--marco);
+  border-top:1px solid var(--linea);background:var(--muro);position:sticky;bottom:0;z-index:30}
+.pie .barra{flex:1;height:1px;background:var(--linea);position:relative}
+.pie .barra i{position:absolute;left:0;top:-1px;height:3px;background:var(--acento);transition:width .5s}
+.pie .f{font-size:.68rem;letter-spacing:.24em;color:var(--gris);white-space:nowrap}
+
+/* búsqueda */
+.panel{position:fixed;inset:0;background:rgba(251,250,248,.97);z-index:60;display:none;
+  padding:clamp(2rem,8vh,6rem) var(--marco);overflow:auto}
+.panel.on{display:block}
+.panel .cab{display:flex;justify-content:space-between;align-items:baseline;
+  border-bottom:1px solid var(--linea);padding-bottom:1rem;margin-bottom:1rem}
+.panel h2{font-family:var(--display);font-weight:400;font-size:clamp(2rem,5vw,3.4rem)}
+.panel .cab span{font-size:.7rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gris)}
+.panel article{border-bottom:1px solid var(--linea)}
+.panel article button{width:100%;text-align:left;background:none;border:0;cursor:pointer;
+  font-family:var(--cuerpo);color:var(--texto);padding:1.4rem 0;transition:.25s}
+.panel article button:hover{padding-left:1.2rem}
+.panel h3{font-family:var(--display);font-size:clamp(1.4rem,3vw,2rem);font-weight:400}
+.panel p{font-size:1rem;line-height:1.8;color:var(--gris);margin-top:.4rem;max-width:60ch}
+.panel mark{background:transparent;color:var(--acento)}
+.vacio{font-style:italic;color:var(--gris);padding:2rem 0}
+
+.aviso{position:fixed;left:50%;bottom:4.5rem;transform:translateX(-50%);z-index:70;background:var(--texto);
+  color:var(--muro);padding:.6rem 1rem;font-size:.8rem;letter-spacing:.06em;opacity:0;transition:.3s;
+  pointer-events:none;max-width:90vw;text-align:center}
+.aviso.on{opacity:1}
+@media (prefers-reduced-motion:reduce){.lienzo,.idx button,.panel article button{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="cartela">
+  <div class="n">Sala <b>B</b> · La casa que no cierra</div>
+  <div class="sp"></div>
+  <input class="campo" id="q" type="search" placeholder="Buscar  ( / )" aria-label="Buscar">
+  <button class="mini" id="vf" aria-pressed="true">Fem</button>
+  <button class="mini" id="vm" aria-pressed="false">Masc</button>
+</header>
+
+<main class="sala">
+  <div class="lienzo" id="lienzo"><div class="obra" id="obra"></div></div>
+</main>
+
+<footer class="pie">
+  <button class="mini" id="prev">← Anterior</button>
+  <div class="barra"><i id="prog"></i></div>
+  <span class="f" id="folio">01 / 12</span>
+  <button class="mini" id="next">Siguiente →</button>
+</footer>
+
+<div class="panel" id="panel"><div id="res"></div></div>
+<div class="aviso" id="aviso"></div>
+
+<script>
+const LIBRO={titulo:'La casa',titulo2:'que no cierra',sub:'poemas · 2019–2025'};
+const POEMAS=[
+ {slug:'umbral',titulo:'Umbral',forma:'poema breve',temas:['mar','memoria','noche'],
+  estrofas:[['Toda la noche estuvo el mar','diciendo una palabra.','Al amanecer','la había olvidado,','y volvió a empezar.']]},
+ {slug:'ausencia',titulo:'Ausencia',forma:'soneto',temas:['ausencia','tiempo','casa'],
+  dedicatoria:'A quien ya no pregunta.',
+  estrofas:[
+   ['No sé qué nombre dar a lo que queda','cuando se apaga el sol de tu costado:','un cuarto que no acaba de ser cuarto,','un reloj que se obstina y no rueda.'],
+   ['Camino por la casa como pueda,','tocando lo que fue por ti tocado,','y encuentro en cada mueble un recado','de tu costumbre mansa, tibia y leda.'],
+   ['Si el tiempo fuera río, yo sería','la piedra que se queda en la corriente,','mojada de una sola travesía.'],
+   ['Pero el tiempo es apenas lo presente,','y en él, sin ti, se me deshace el día','como se deshace la sal en la frente.']]},
+ {slug:'inventario',titulo:'Inventario de la casa vacía',forma:'verso libre',temas:['casa','duelo','objetos'],
+  estrofas:[
+   ['Primero se fueron los ruidos:','la puerta que no cerraba bien,','el hervidor con su silbido de tren,','el paso corto de tus zapatillas','midiendo el pasillo de punta a punta.'],
+   ['Después se fue la luz de las seis,','esa que entraba de costado','y encendía el polvo como si el polvo','tuviera algo que decir.'],
+   ['Quedaron las cosas.','Un vaso con la marca de tu boca.','Dos libros abiertos boca abajo,','tercos en su página,','esperando que alguien vuelva a leerlos','por donde los dejaste.'],
+   ['Hice inventario.','Conté las tazas: siete.','Conté las sillas: cuatro.','Conté las veces que dije tu nombre','en voz alta, para ver si la casa','me lo devolvía.','La casa no devuelve nada.','La casa aprende rápido a callarse.'],
+   ['Ahora vivo aquí como quien alquila','una memoria ajena:','piso despacio,','no muevo los muebles,','dejo la puerta que no cierra','sin arreglar,','por si el ruido volviera','y encontrara su sitio.']]}
+];
+const FANTASMA=['Retrato de mi madre cosiendo','Domingo','Carta a quien venga después','Los nombres del agua','Regreso'];
+const PAGS=[{t:'portada'},{t:'indice'},{t:'poema',p:0,e:[0,0]},{t:'poema',p:1,e:[0,3]},
+ {t:'poema',p:2,e:[0,2]},{t:'poema',p:2,e:[3,4],cont:true}];
+FANTASMA.forEach(n=>PAGS.push({t:'pendiente',n}));
+PAGS.push({t:'colofon'});
+const IDX=[{t:'Umbral',pg:2},{t:'Ausencia',pg:3},{t:'Inventario de la casa vacía',pg:4},
+ ...FANTASMA.map((n,i)=>({t:n,pg:6+i}))];
+
+const $=s=>document.querySelector(s);
+const sinAcentos=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const plano=p=>p.estrofas.flat().join(' ');
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const dd=n=>String(n).padStart(2,'0');
+function avisar(m){const a=$('#aviso');a.textContent=m;a.classList.add('on');clearTimeout(a._t);a._t=setTimeout(()=>a.classList.remove('on'),3200)}
+
+function html(i){
+  const P=PAGS[i];
+  if(P.t==='portada')return `<div class="portada"><h1>${LIBRO.titulo}<em>${LIBRO.titulo2}</em></h1>
+    <p>${LIBRO.sub} — prototipo B · sala blanca</p></div>`;
+  if(P.t==='indice'){
+    let h=`<div class="etiqueta"><span>Índice</span><span>8 piezas</span></div><ul class="idx">`;
+    IDX.forEach((e,k)=>{const dis=PAGS[e.pg].t==='pendiente';
+      h+=`<li><button data-ir="${e.pg}" ${dis?'disabled':''}><span class="num">${dd(k+1)}</span>
+        <span class="t">${e.t}</span><span class="num">p. ${dd(e.pg+1)}</span></button></li>`});
+    return h+'</ul>';
+  }
+  if(P.t==='poema'){
+    const po=POEMAS[P.p];
+    let h=`<div class="etiqueta"><span>${po.forma}</span><span>${dd(i+1)} / ${PAGS.length}</span></div>`;
+    h+= P.cont ? `<h1 class="titulo"><em>…</em> ${esc(po.titulo)}</h1>`
+               : `<h1 class="titulo">${esc(po.titulo)}</h1>`;
+    if(po.dedicatoria&&!P.cont)h+=`<p class="dedic" data-no-leer>${po.dedicatoria}</p>`;
+    h+='<div class="cuerpo">';
+    for(let s=P.e[0];s<=P.e[1];s++)
+      h+='<div class="estrofa">'+po.estrofas[s].map(v=>`<span class="verso">${esc(v)}</span>`).join('')+'</div>';
+    h+='</div>';
+    if(!P.cont)h+='<div class="hueco"><span>Imagen del poema</span></div>';
+    h+=`<div class="acciones"><button class="acc" data-leer="${P.p}">Escuchar</button>
+      <button class="acc" data-parar hidden>Detener</button>
+      <button class="acc" data-vel>Velocidad 1×</button>
+      <span class="temas">${po.temas.join(' / ')}</span></div>`;
+    return h;
+  }
+  if(P.t==='pendiente')return `<div class="etiqueta"><span>Pendiente</span><span>${dd(i+1)}</span></div>
+    <h1 class="titulo">${P.n}</h1><p class="dedic">Entrada del índice sin texto en este prototipo.</p>`;
+  return `<div class="etiqueta"><span>Colofón</span><span>${dd(i+1)}</span></div>
+    <h1 class="titulo"><em>Fin</em></h1><p class="dedic">Tres poemas de muestra para probar métrica, corte de página y lectura en voz alta.</p>`;
+}
+
+let pag=0;
+const reduce=()=>window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+function render(){$('#obra').innerHTML=html(pag);$('#lienzo').scrollTop=0;
+  $('#folio').textContent=`${dd(pag+1)} / ${dd(PAGS.length)}`;
+  $('#prog').style.width=((pag+1)/PAGS.length*100)+'%';
+  $('#prev').disabled=pag===0;$('#next').disabled=pag===PAGS.length-1}
+function ir(n){
+  n=Math.max(0,Math.min(PAGS.length-1,n)); if(n===pag)return;
+  parar();
+  const dir=n>pag?'sale-izq':'sale-der', L=$('#lienzo');
+  if(reduce()){pag=n;render();return}
+  L.classList.add(dir);
+  setTimeout(()=>{pag=n;render();L.classList.remove(dir)},380);
+}
+$('#next').onclick=()=>ir(pag+1); $('#prev').onclick=()=>ir(pag-1);
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'){if(e.key==='Escape')e.target.blur();return}
+  if(e.key==='ArrowRight')ir(pag+1); if(e.key==='ArrowLeft')ir(pag-1);
+  if(e.key==='Home')ir(0); if(e.key==='End')ir(PAGS.length-1);
+  if(e.key==='Escape')$('#panel').classList.remove('on');
+  if(e.key==='/'){e.preventDefault();$('#q').focus()}
+});
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-ir]'); if(b){$('#panel').classList.remove('on');ir(+b.dataset.ir);return}
+  const l=e.target.closest('[data-leer]'); if(l){leer(+l.dataset.leer,l);return}
+  if(e.target.closest('[data-parar]')){parar();return}
+  const v=e.target.closest('[data-vel]'); if(v){velocidad=velocidad===1?1.1:velocidad===1.1?.9:1;
+    document.querySelectorAll('[data-vel]').forEach(x=>x.textContent='Velocidad '+velocidad+'×');return}
+  if(e.target.id==='panel')$('#panel').classList.remove('on');
+});
+/* deslizamiento táctil */
+let x0=null;
+$('#lienzo').addEventListener('touchstart',e=>x0=e.touches[0].clientX,{passive:true});
+$('#lienzo').addEventListener('touchend',e=>{if(x0===null)return;
+  const d=e.changedTouches[0].clientX-x0; if(Math.abs(d)>60)ir(pag+(d<0?1:-1)); x0=null},{passive:true});
+
+/* búsqueda */
+$('#q').addEventListener('input',e=>{
+  const q=e.target.value.trim(); if(q.length<2){$('#panel').classList.remove('on');return}
+  const nq=sinAcentos(q),hits=[];
+  POEMAS.forEach((p,i)=>{
+    const tx=plano(p), campo=sinAcentos(p.titulo+' '+tx+' '+p.temas.join(' '));
+    if(campo.indexOf(nq)<0)return;
+    const rel=sinAcentos(tx).indexOf(nq); let frag;
+    if(rel>=0){const a=Math.max(0,rel-50),b=Math.min(tx.length,rel+nq.length+60);
+      frag=(a>0?'…':'')+esc(tx.slice(a,rel))+'<mark>'+esc(tx.slice(rel,rel+nq.length))+'</mark>'+esc(tx.slice(rel+nq.length,b))+(b<tx.length?'…':'')}
+    else frag='<em>coincide en el título o en los temas</em>';
+    hits.push({p,frag,pg:PAGS.findIndex(x=>x.t==='poema'&&x.p===i)})});
+  $('#res').innerHTML=`<div class="cab"><h2>Búsqueda</h2><span>${hits.length} ${hits.length===1?'resultado':'resultados'} · ${esc(q)}</span></div>`
+    +(hits.length?hits.map(r=>`<article><button data-ir="${r.pg}"><h3>${esc(r.p.titulo)}</h3><p>${r.frag}</p></button></article>`).join('')
+      :'<p class="vacio">Nada por aquí. Prueba con «casa», «mar», «tiempo» o «sal».</p>');
+  $('#panel').classList.add('on');
+});
+
+/* voz */
+let genero='femenina',velocidad=1,hablando=false,timer=null;
+const FEM=/(m[oó]nica|paulina|helena|laura|sabina|elvira|dalia|marisol|esperanza|luc[ií]a|female|femen)/i;
+const MASC=/(jorge|diego|pablo|ra[uú]l|carlos|juan|[aá]lvaro|enrique|male|mascul)/i;
+const vocesEs=()=>speechSynthesis.getVoices().filter(v=>/^es/i.test(v.lang));
+function elegirVoz(){const vs=vocesEs();const re=genero==='femenina'?FEM:MASC;return vs.find(v=>re.test(v.name))||vs[0]||null}
+$('#vf').onclick=()=>setGen('femenina'); $('#vm').onclick=()=>setGen('masculina');
+function setGen(g){genero=g;$('#vf').setAttribute('aria-pressed',g==='femenina');$('#vm').setAttribute('aria-pressed',g==='masculina');
+  if(hablando)avisar('La voz cambia en la próxima lectura.')}
+function pausa(v,fin){if(fin)return 780;const t=v.trim();
+  if(/[.!?…]$/.test(t))return 380; if(/[,;:—–]$/.test(t))return 290; return 90}
+function parar(){hablando=false;clearTimeout(timer);try{speechSynthesis.cancel()}catch(e){}
+  document.querySelectorAll('.verso.leyendo').forEach(v=>v.classList.remove('leyendo'));
+  $('#obra').classList.remove('leyendo-modo');
+  document.querySelectorAll('[data-parar]').forEach(b=>b.hidden=true);
+  document.querySelectorAll('[data-leer]').forEach(b=>b.setAttribute('aria-pressed','false'))}
+function leer(pi,btn){
+  if(!('speechSynthesis'in window)){avisar('Este navegador no tiene síntesis de voz.');return}
+  parar();
+  const cuerpo=$('#obra').querySelector('.cuerpo');
+  const versos=[...cuerpo.querySelectorAll('.verso')];
+  const finales=new Set([...cuerpo.querySelectorAll('.estrofa')].map(e=>e.querySelector('.verso:last-child')));
+  const cola=[]; const cont=PAGS[pag].cont;
+  if(!cont)cola.push({txt:POEMAS[pi].titulo,el:null,p:700});
+  versos.forEach(v=>cola.push({txt:v.textContent,el:v,p:pausa(v.textContent,finales.has(v))}));
+  hablando=true; btn.setAttribute('aria-pressed','true');
+  btn.parentElement.querySelector('[data-parar]').hidden=false;
+  $('#obra').classList.add('leyendo-modo');
+  const voz=elegirVoz(); if(!voz)avisar('No hay voces en español instaladas; se usa la voz por defecto.');
+  const acorde=voz&&(genero==='femenina'?FEM:MASC).test(voz.name);
+  let k=0;
+  (function sig(){
+    if(!hablando||k>=cola.length){parar();return}
+    const it=cola[k++];
+    document.querySelectorAll('.verso.leyendo').forEach(v=>v.classList.remove('leyendo'));
+    if(it.el)it.el.classList.add('leyendo');
+    const u=new SpeechSynthesisUtterance(it.txt);
+    if(voz)u.voice=voz; u.lang=voz?voz.lang:'es-ES'; u.rate=velocidad;
+    u.pitch=acorde?1:(genero==='femenina'?1.25:.75);
+    u.onend=()=>{timer=setTimeout(sig,it.p/velocidad)};
+    u.onerror=()=>{timer=setTimeout(sig,120)};
+    speechSynthesis.speak(u);
+  })();
+}
+window.addEventListener('beforeunload',parar);
+render();
+</script>
+</body>
+</html>
