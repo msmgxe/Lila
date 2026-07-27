@@ -1,5 +1,6 @@
 import NextAuth from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
+import { CredentialsSignin } from 'next-auth'
 import { comprobarClave } from '@/lib/auth/clave'
 
 /**
@@ -37,7 +38,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const esperado = process.env.ADMIN_USUARIO
         const hash = process.env.ADMIN_CLAVE_HASH
 
-        if (!esperado || !hash) return null
+        // Sin variables no es que las credenciales estén mal: es que el panel
+        // no está configurado en ESTE proceso. Distinguirlo ahorra mucho
+        // tiempo — en Vercel, cambiar una variable no afecta a un despliegue
+        // ya hecho, y en local hay que reiniciar el servidor.
+        if (!esperado || !hash) {
+          throw new CredentialsSignin('sin-configurar')
+        }
         if (usuario.trim().toLowerCase() !== esperado.trim().toLowerCase()) return null
         if (!comprobarClave(clave, hash)) return null
 

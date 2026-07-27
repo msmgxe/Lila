@@ -51,7 +51,14 @@ export async function entrar(
     })
   } catch (error) {
     if (error instanceof AuthError) {
-      return { error: 'Usuario o clave incorrectos.', usuario }
+      // `code` llega desde `CredentialsSignin` en auth.ts.
+      const sinConfigurar = (error as { code?: string }).code === 'sin-configurar'
+      return {
+        error: sinConfigurar
+          ? 'El panel no tiene configuradas sus variables. Si acabas de cambiarlas: en local reinicia el servidor, y en Vercel vuelve a desplegar — las variables no se aplican a un despliegue ya hecho.'
+          : 'Usuario o clave incorrectos.',
+        usuario,
+      }
     }
     // signIn lanza un redirect por diseño; hay que dejarlo pasar.
     throw error
