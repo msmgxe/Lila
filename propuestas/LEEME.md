@@ -8,6 +8,7 @@ haga falta servidor ni conexión.
 |---|---|---|
 | [`01-colores-y-estilos.html`](01-colores-y-estilos.html) | Cinco paletas y parejas tipográficas, con el mismo pliego y el mismo poema en cada una | 359 KB |
 | [`02-portadas.html`](02-portadas.html) | Cinco maquetas de página de entrada, cada una apostando por algo distinto | 729 KB |
+| [`03-el-autor.html`](03-el-autor.html) | Seis secciones para presentar al autor —poeta, dibujante y profesor— debajo del poemario | 156 KB |
 
 ---
 
