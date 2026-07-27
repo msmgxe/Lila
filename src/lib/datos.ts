@@ -20,18 +20,41 @@ import type { Libro, ResultadoBusqueda } from './tipos'
 
 export const origenDeDatos: 'neon' | 'archivo' = hayBaseDeDatos ? 'neon' : 'archivo'
 
+/**
+ * La obra nunca falta.
+ *
+ * Tres redes de seguridad, de fuera hacia dentro:
+ *  1. sin `DATABASE_URL`, se sirve el archivo del proyecto;
+ *  2. si la consulta falla —Neon dormido, red caída, migración a medias—, se
+ *     sirve el archivo y se anota el error, en vez de tumbar la página. Esto
+ *     importa sobre todo en la compilación: un fallo pasajero de red no puede
+ *     hacer que un despliegue entero se caiga;
+ *  3. si la base responde pero está vacía, también.
+ *
+ * El precio es que un problema de base de datos pasa desapercibido para el
+ * visitante. A cambio, el sitio no se cae nunca. Para una obra que solo se lee,
+ * es el intercambio correcto — y el error queda en el registro del servidor.
+ */
 export async function obtenerLibros(): Promise<Libro[]> {
   if (!hayBaseDeDatos) return LIBROS_PENTAPOEMARIO
-  const libros = await traerLibrosPublicados()
-  // Red de seguridad: si la base está vacía (aún sin semilla), no dejamos el
-  // sitio en blanco.
-  return libros.length > 0 ? libros : LIBROS_PENTAPOEMARIO
+  try {
+    const libros = await traerLibrosPublicados()
+    return libros.length > 0 ? libros : LIBROS_PENTAPOEMARIO
+  } catch (error) {
+    console.error('[datos] la base no respondió; se sirve el archivo:', error)
+    return LIBROS_PENTAPOEMARIO
+  }
 }
 
 export async function obtenerLibro(slug: string): Promise<Libro | null> {
-  if (!hayBaseDeDatos) return LIBROS_PENTAPOEMARIO.find((l) => l.slug === slug) ?? null
-  const libro = await traerLibro(slug)
-  return libro ?? LIBROS_PENTAPOEMARIO.find((l) => l.slug === slug) ?? null
+  const delArchivo = () => LIBROS_PENTAPOEMARIO.find((l) => l.slug === slug) ?? null
+  if (!hayBaseDeDatos) return delArchivo()
+  try {
+    return (await traerLibro(slug)) ?? delArchivo()
+  } catch (error) {
+    console.error('[datos] la base no respondió; se sirve el archivo:', error)
+    return delArchivo()
+  }
 }
 
 /**
@@ -43,8 +66,12 @@ export async function buscar(consulta: string): Promise<ResultadoBusqueda[]> {
   const q = consulta.trim()
   if (q.length < 2) return []
   if (hayBaseDeDatos) {
-    const resultados = await buscarEnDb(q)
-    if (resultados.length > 0) return resultados
+    try {
+      const resultados = await buscarEnDb(q)
+      if (resultados.length > 0) return resultados
+    } catch (error) {
+      console.error('[buscar] la base no respondió; se busca en el archivo:', error)
+    }
   }
   return buscarEnMuestra(q)
 }
