@@ -2539,13 +2539,22 @@ h2.tit .sigue {
 .marco-vitrina {
   min-height: 78vh;
   display: grid;
-  place-items: center;
+  /* `minmax(0, 1fr)` y no el `auto` implícito: una pista `auto` se estira hasta
+     el max-content de su hijo, y el hijo más ancho aquí es la tira de
+     capítulos. Con ocho, la vitrina medía 1180 px dentro de una ventana de 390
+     y el contenido se salía por la derecha. */
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  align-content: center;
   padding: 2rem 1rem 3rem;
 }
 
 .vitrina {
   width: 100%;
   max-width: 1180px;
+  /* Lo mismo un escalón más abajo: sin esto, la tira le impone su min-content
+     al contenedor flex y la vitrina vuelve a ensancharse. */
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2578,6 +2587,12 @@ h2.tit .sigue {
      todas se verían desde su propio centro y el conjunto no cuadraría. */
   perspective: 1600px;
   perspective-origin: 50% 50%;
+  /* Las láminas van en posición absoluta y se desplazan a los lados con
+     `translateX`. Sin recortar aquí, esas de los lados ENSANCHAN LA PÁGINA: en
+     un móvil de 390 px el documento medía 1200 y el sitio entero se deslizaba
+     en horizontal. `clip` y no `hidden` a propósito — `hidden` crea un
+     contenedor de desplazamiento y aplana el 3D de las láminas. */
+  overflow-x: clip;
 }
 
 .lamina {
@@ -2722,6 +2737,17 @@ h2.tit .sigue {
   display: flex;
   flex-direction: column;
   gap: 0.1rem;
+  /* Sin esto los puntos suspensivos no llegan a aparecer: el hijo flex se
+     niega a encoger por debajo de su contenido y el texto sale cortado a
+     hachazo, que se lee como un fallo y no como «sigue». */
+  min-width: 0;
+}
+
+.vitrina-ficha-cuerpo strong,
+.vitrina-ficha-cuerpo em {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .vitrina-ficha-cuerpo strong {
@@ -2977,24 +3003,86 @@ h2.tit .sigue {
     min-height: clamp(340px, 52vh, 440px);
   }
 
-  /* Sin perspectiva: en una pantalla estrecha las láminas giradas quedan a dos
-     dedos de ancho y no se distingue ninguna. Se ve solo la del centro. */
+  /* De 640 a 900 —tabletas— la perspectiva SE QUEDA, solo que más recogida.
+     Aplanarla aquí desperdicia el ancho que hay: las láminas se cortaban a
+     hueso contra los bordes y el giro, que es la gracia de la vitrina, no se
+     veía. Se aplana más abajo, donde de verdad no cabe. */
   .vitrina-pista {
-    perspective: none;
-    height: clamp(300px, 46vh, 420px);
+    height: clamp(300px, 44vh, 430px);
+    perspective: 1100px;
   }
 
   .lamina {
-    transform: translateX(calc(var(--d) * 78vw));
-    width: 70vw;
+    width: clamp(150px, 21vw, 210px);
+    transform: translateX(calc(var(--d) * clamp(118px, 17vw, 170px)))
+      translateZ(calc(abs(var(--d)) * -90px)) rotateY(calc(var(--d) * -30deg))
+      scale(calc(1 - abs(var(--d)) * 0.07));
   }
 
   .lamina.al-frente {
-    width: 74vw;
+    width: clamp(210px, 32vw, 300px);
   }
 
   .vitrina-ficha-cuerpo {
     min-width: 0;
+    padding: 0 0.5rem;
+  }
+
+  .vitrina-ficha {
+    max-width: 100%;
+  }
+
+  .vitrina-ficha-cuerpo strong,
+  .vitrina-ficha-cuerpo em {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .marco-vitrina {
+    padding: 1.2rem 0 2rem;
+  }
+
+  .vitrina {
+    gap: 1.4rem;
+  }
+
+  /* La tira se desplaza sola. El relleno lateral evita que la primera
+     miniatura quede pegada al borde, que se lee como un recorte. */
+  .vitrina-tira {
+    padding-inline: 1rem;
+    scroll-padding-inline: 1rem;
+  }
+}
+
+/* ── móvil de verdad: una lámina, sin perspectiva ────────────────────────── */
+
+@media (max-width: 640px) {
+  /* Aquí sí se aplana: una lámina girada a 30° en 390 px de ancho queda en dos
+     dedos y no se distingue de un borrón. Se ve una de frente, con las vecinas
+     asomando lo justo para que se note que hay más. */
+  .vitrina-pista {
+    perspective: none;
+    height: clamp(290px, 44vh, 400px);
+  }
+
+  .lamina,
+  .lamina.al-frente {
+    width: min(76vw, 310px);
+    transform: translateX(calc(var(--d) * min(82vw, 334px)));
+  }
+
+  .vitrina-rotulo h1 {
+    font-size: clamp(1.7rem, 8vw, 2.4rem);
+  }
+
+  .lamina.al-frente .lamina-pie h2 {
+    font-size: 1.25rem;
+  }
+
+  .ficha-abrir {
+    align-self: stretch;
+    text-align: center;
   }
 }
 
@@ -3133,6 +3221,9 @@ h2.tit .sigue {
 
 .vitrina-tira {
   width: 100%;
+  /* Lo que hace que se desplace DENTRO de su caja en vez de estirar la página. */
+  min-width: 0;
+  max-width: 100%;
   display: flex;
   gap: 0.7rem;
   padding: 0.2rem 0.2rem 0.8rem;
@@ -3192,4 +3283,85 @@ h2.tit .sigue {
 
 .tira-capitulo:hover .tira-titulo {
   color: var(--primario);
+}
+
+/* ── el guardarraíl: la página no se mueve nunca de lado ─────────────────── */
+
+/*
+ * Última línea de defensa. Cada bloque ancho —la tira, las tablas del panel—
+ * se desplaza DENTRO de su propio contenedor, y eso es lo correcto. Pero basta
+ * con que un `transform` o un `min-width` se escape para que el documento
+ * entero se deslice en horizontal, y en un móvil eso se nota enseguida: la
+ * cabecera se despega del borde y el texto queda cortado.
+ *
+ * `clip` y no `hidden`: `hidden` en el elemento raíz rompe `position: sticky`.
+ */
+html {
+  overflow-x: clip;
+}
+
+body {
+  overflow-x: clip;
+  /* Ningún hijo puede empujar más allá del ancho de la ventana. */
+  max-width: 100%;
+}
+
+/* ── el panel en pantalla estrecha ───────────────────────────────────────── */
+
+@media (max-width: 700px) {
+  /* La tarjeta del capítulo lleva su enlace y, en el panel, el botón de
+     publicar. En una columna estrecha no caben en fila: el título se
+     estrangula y el botón se sale. Se apilan. */
+  .lista-capitulos li {
+    flex-wrap: wrap;
+  }
+
+  .lista-capitulos li > a {
+    flex-basis: 100%;
+  }
+
+  .lista-capitulos .fila-acciones {
+    padding: 0 0.7rem 0.7rem;
+  }
+
+  .miniatura {
+    width: 62px;
+    height: 62px;
+  }
+
+  /* Un título largo deja de ser una línea recortada y pasa a dos: en móvil hay
+     alto de sobra y ancho ninguno. */
+  .lista-texto strong {
+    white-space: normal;
+    overflow: visible;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .ficha-capitulos > header {
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .tarjeta-poemario {
+    align-items: center;
+  }
+
+  .tp-imagen {
+    width: 68px;
+    height: 68px;
+  }
+}
+
+/* La tira, separada del borde en pantallas estrechas.
+   Va al FINAL del archivo a propósito: la regla base de `.vitrina-tira` está
+   escrita más abajo que el bloque de móvil, y con la misma especificidad gana
+   la última. Ponerlo aquí es lo que hace que se aplique. */
+@media (max-width: 900px) {
+  .vitrina-tira {
+    padding-inline: 1rem;
+    scroll-padding-inline: 1rem;
+  }
 }

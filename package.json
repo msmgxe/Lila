@@ -19,7 +19,9 @@
     "contenido:importar": "python3 scripts/importar-docx.py",
     "db:probar": "tsx scripts/probar-esquema.ts",
     "docx:probar": "tsx scripts/probar-docx.ts",
-    "contenido:portadas": "tsx scripts/sincronizar-portadas.ts"
+    "contenido:portadas": "tsx scripts/sincronizar-portadas.ts",
+    "muestra:poner": "tsx scripts/muestra-poemarios.ts poner",
+    "muestra:quitar": "tsx scripts/muestra-poemarios.ts quitar"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
