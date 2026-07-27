@@ -9,8 +9,9 @@ interface Props {
   libro: Libro
   pliego: Pliego
   entradas: Array<{ n: number; folio: number; titulo: string; slug: string; forma: string }>
-  /** Versos que se están leyendo, dentro de esta página. Suelen ser varios:
-   *  los encabalgados se leen de corrido, en una sola emisión. */
+  /** Versos que se están leyendo, dentro de esta página. Normalmente uno: cada
+   *  verso es su propia emisión. Sigue siendo lista porque un verso muy largo
+   *  puede partirse por el tope de caracteres. */
   versosActivos: number[]
   narrando: boolean
   capital: boolean

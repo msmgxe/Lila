@@ -68,7 +68,7 @@ export interface Tramo {
 
 /** Lo que se le entrega al sintetizador de una sola vez. */
 export interface Frase {
-  /** El texto que se pronuncia, con los versos encabalgados ya unidos. */
+  /** El texto que se pronuncia: normalmente un verso. */
   texto: string
   /** Milisegundos de silencio DESPUÉS de pronunciarlo. */
   pausaMs: number

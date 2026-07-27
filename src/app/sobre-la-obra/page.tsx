@@ -53,10 +53,10 @@ export default async function SobreLaObra() {
 
         <h2>La voz</h2>
         <p>
-          Los poemas se pueden escuchar. La lectura respeta la forma del verso: no se
-          detiene al final de cada línea, sino donde hay puntuación —punto, coma, punto y
-          coma—, de modo que los versos encabalgados se leen de corrido, como una frase.
-          Es lo que separa una lectura de poesía de una lectura de lista.
+          Los poemas se pueden escuchar. La lectura respeta la forma del verso: cada línea
+          se dice entera y después la voz calla, porque en esta obra cada verso se sostiene
+          solo. El silencio se alarga donde hay punto o coma, y más aún al cerrar la
+          estrofa. Es lo que separa una lectura de poesía de una lectura de lista.
         </p>
 
         <h2>Las planchas</h2>

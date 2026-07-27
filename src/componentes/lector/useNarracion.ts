@@ -15,7 +15,7 @@ import type { Voz } from '@/lib/tipos'
  * Lo importante de aquí: **a la voz se le entrega una frase entera, no un
  * verso**. El sintetizador cierra cada emisión con entonación descendente,
  * como si fuera una oración; darle los versos de uno en uno hace que un poema
- * suene como una lista. Los versos encabalgados van unidos en una sola emisión
+ * suene como una lista. Cada verso va en su propia emisión, con su pausa detrás
  * y el motor los lee de corrido.
  *
  * El resaltado se afina con `onboundary`, que avisa palabra a palabra de por

@@ -158,8 +158,9 @@ function Previsiones({ poema }: { poema: Poema }) {
   })
   const ssml = aSSML(frases)
   const versos = poema.estrofas.reduce((n, e) => n + e.length, 0)
-  // Un verso encabalgado es el que NO cierra su emisión: va unido al siguiente.
-  const encabalgamientos = frases.reduce((n, f) => n + Math.max(0, f.versos.length - 1), 0)
+  // Cada verso es una emisión, así que lo informativo ya no es cuántas tiradas
+  // hay sino cuánto se calla en total: es lo que nota quien escucha.
+  const silencioMs = frases.reduce((n, f) => n + f.pausaMs, 0)
 
   return (
     <section style={{ marginTop: '2.6rem' }}>
@@ -198,13 +199,11 @@ function Previsiones({ poema }: { poema: Poema }) {
 
       <div className="recuadro">
         <p style={{ marginBottom: '.6rem' }}>
-          <strong>Lectura en voz alta.</strong> {versos} versos se dicen en{' '}
-          {frases.filter((f) => !f.esTitulo).length}{' '}
-          {frases.filter((f) => !f.esTitulo).length === 1 ? 'tirada' : 'tiradas'}, porque
-          hay {encabalgamientos}{' '}
-          {encabalgamientos === 1 ? 'encabalgamiento' : 'encabalgamientos'}: versos que no
-          cierran con puntuación y se leen de corrido con el siguiente, sin pausa. La
-          dedicatoria y la nota del autor no entran.
+          <strong>Lectura en voz alta.</strong> Cada uno de los {versos} versos se dice
+          entero y después la voz calla: más tras un punto, menos si el verso queda
+          abierto, y lo más largo al cerrar la estrofa. En total{' '}
+          {(silencioMs / 1000).toFixed(1)} segundos de silencio. La dedicatoria y la nota
+          del autor no entran.
         </p>
         <div className="pliegos-previa" style={{ marginBottom: '.8rem' }}>
           {frases
