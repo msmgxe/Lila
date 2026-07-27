@@ -42,6 +42,14 @@
      Solo como fondo de resaltado, que es donde sí funciona. */
   --tinta-acento: #7b3fa8;
 
+  /* El color del poemario. Por defecto son los de la casa; cada poemario puede
+     traer el suyo y `colorDelPoemario` (lib/color.ts) los reescribe en el
+     contenedor de su sección. Todo lo de la vitrina y la ficha lee estas dos y
+     no los colores fijos, así que teñir un poemario entero no toca este
+     archivo. `--acento-texto` va oscurecido: sobre papel hace falta 4.5:1. */
+  --acento: var(--terciario);
+  --acento-texto: var(--tinta-acento);
+
   --alto-cabecera: 3.75rem;
 }
 
@@ -2522,4 +2530,666 @@ h2.tit .sigue {
   height: 20px;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LA VITRINA — el carrusel de poemarios de la portada
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.marco-vitrina {
+  min-height: 78vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1rem 3rem;
+}
+
+.vitrina {
+  width: 100%;
+  max-width: 1180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.vitrina-rotulo {
+  text-align: center;
+}
+
+.vitrina-rotulo h1 {
+  margin: 0.4rem 0 0;
+  font-family: var(--tipo-display);
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--primario);
+  text-wrap: balance;
+}
+
+/* ── las láminas ─────────────────────────────────────────────────────────── */
+
+.vitrina-pista {
+  position: relative;
+  width: 100%;
+  height: clamp(340px, 52vh, 520px);
+  display: grid;
+  place-items: center;
+  /* La perspectiva vive aquí y no en cada lámina: si la pusiera cada una,
+     todas se verían desde su propio centro y el conjunto no cuadraría. */
+  perspective: 1600px;
+  perspective-origin: 50% 50%;
+}
+
+.lamina {
+  position: absolute;
+  width: clamp(210px, 24vw, 300px);
+  height: 100%;
+  transform-style: preserve-3d;
+  /* --d es la distancia al centro con signo: -2, -1, 0, 1, 2. De ahí salen a la
+     vez el desplazamiento, el giro, la escala y el retranqueo, para que las
+     cinco posiciones sean coherentes sin escribir cinco reglas. */
+  transform: translateX(calc(var(--d) * clamp(150px, 17vw, 232px)))
+    translateZ(calc(abs(var(--d)) * -110px)) rotateY(calc(var(--d) * -34deg))
+    scale(calc(1 - abs(var(--d)) * 0.06));
+  transition:
+    transform 0.55s cubic-bezier(0.22, 0.61, 0.36, 1),
+    opacity 0.4s ease;
+  cursor: pointer;
+}
+
+.lamina.al-frente {
+  width: clamp(280px, 32vw, 400px);
+  cursor: default;
+}
+
+.lamina > a {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid color-mix(in oklab, var(--acento) 26%, transparent);
+  background: color-mix(in oklab, var(--secundario) 70%, #000);
+  box-shadow: 0 26px 60px rgba(0, 0, 0, 0.5);
+  text-decoration: none;
+}
+
+.lamina img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Las de los lados se apagan para que la del centro mande. */
+  filter: brightness(0.62) saturate(0.85);
+  transition: filter 0.55s ease;
+}
+
+.lamina.al-frente img {
+  filter: none;
+}
+
+.lamina-sin-imagen {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  font-family: var(--tipo-display);
+  font-size: 6rem;
+  color: color-mix(in oklab, var(--acento) 50%, transparent);
+}
+
+.lamina-pie {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 2.6rem 1.2rem 1.1rem;
+  background: linear-gradient(to top, rgba(10, 5, 18, 0.94), transparent);
+}
+
+.lamina-pie h2 {
+  margin: 0;
+  font-family: var(--tipo-display);
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--primario);
+}
+
+.lamina.al-frente .lamina-pie h2 {
+  font-size: 1.5rem;
+}
+
+.lamina-pie p {
+  margin: 0.2rem 0 0;
+  font-family: var(--tipo-ui);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--acento) 78%, white);
+}
+
+/* ── la ficha de abajo ───────────────────────────────────────────────────── */
+
+.vitrina-ficha {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--acento) 22%, transparent);
+  background: color-mix(in oklab, var(--secundario) 55%, transparent);
+  backdrop-filter: blur(14px);
+}
+
+.vitrina-ficha button {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid color-mix(in oklab, var(--acento) 24%, transparent);
+  background: none;
+  color: var(--primario);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.vitrina-ficha button:hover,
+.vitrina-ficha button:focus-visible {
+  background: color-mix(in oklab, var(--acento) 22%, transparent);
+  border-color: var(--acento);
+}
+
+.vitrina-ficha-cuerpo {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0 1rem;
+  min-width: min(320px, 60vw);
+  text-decoration: none;
+}
+
+.vitrina-ficha-cuerpo img {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid color-mix(in oklab, var(--acento) 30%, transparent);
+}
+
+.vitrina-ficha-cuerpo span {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.vitrina-ficha-cuerpo strong {
+  font-family: var(--tipo-display);
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--primario);
+}
+
+.vitrina-ficha-cuerpo em {
+  font-family: var(--tipo-ui);
+  font-style: normal;
+  font-size: 0.78rem;
+  color: var(--neutro);
+}
+
+.vitrina-puntos {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.vitrina-puntos button {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--neutro) 60%, transparent);
+  cursor: pointer;
+  transition:
+    width 0.3s ease,
+    background 0.3s ease;
+}
+
+.vitrina-puntos button.activo {
+  width: 26px;
+  background: var(--acento);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LA FICHA DEL POEMARIO — portada a la izquierda, capítulos a la derecha
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.marco-poemario {
+  padding: 1.5rem clamp(1rem, 4vw, 3rem) 3rem;
+}
+
+.ficha-poemario {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: clamp(1rem, 2.5vw, 2rem);
+  align-items: start;
+}
+
+.ficha-portada {
+  position: relative;
+  min-height: clamp(420px, 68vh, 660px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 1.4rem;
+  padding: clamp(1.5rem, 3vw, 2.6rem);
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklab, var(--acento) 22%, transparent);
+  background: color-mix(in oklab, var(--secundario) 60%, #000);
+}
+
+.ficha-fondo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* El texto va encima: sin este velo, un cielo claro se lo come. */
+  mask-image: linear-gradient(to top, transparent 8%, black 62%);
+  filter: brightness(0.8);
+}
+
+.ficha-texto {
+  position: relative;
+}
+
+.ficha-texto h1 {
+  margin: 0;
+  font-family: var(--tipo-display);
+  font-size: clamp(2.4rem, 6vw, 4.2rem);
+  font-weight: 600;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  color: #fff;
+  text-shadow: 0 2px 30px rgba(0, 0, 0, 0.6);
+  text-wrap: balance;
+}
+
+.ficha-lema {
+  margin: 0.5rem 0 0;
+  font-family: var(--tipo-ui);
+  font-size: 0.76rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--acento) 82%, white);
+}
+
+.ficha-descripcion {
+  margin: 1rem 0 0;
+  max-width: 42ch;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: color-mix(in oklab, var(--primario) 88%, transparent);
+}
+
+.ficha-cifras {
+  margin: 1rem 0 0;
+  font-family: var(--tipo-ui);
+  font-size: 0.82rem;
+  color: var(--neutro);
+}
+
+.ficha-abrir {
+  position: relative;
+  align-self: flex-start;
+  padding: 0.85rem 1.7rem;
+  border-radius: 999px;
+  background: var(--acento);
+  color: #1a0f28;
+  font-family: var(--tipo-ui);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+
+.ficha-abrir:hover {
+  transform: translateY(-2px);
+}
+
+/* ── la lista de capítulos ───────────────────────────────────────────────── */
+
+.ficha-capitulos > header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding: 0 0.3rem;
+}
+
+.ficha-capitulos h2 {
+  margin: 0;
+  font-family: var(--tipo-display);
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--primario);
+}
+
+.lista-capitulos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.lista-capitulos li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 14px;
+  border: 1px solid color-mix(in oklab, var(--acento) 14%, transparent);
+  background: color-mix(in oklab, var(--secundario) 42%, transparent);
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.lista-capitulos li:hover {
+  border-color: color-mix(in oklab, var(--acento) 45%, transparent);
+  background: color-mix(in oklab, var(--secundario) 65%, transparent);
+}
+
+.lista-capitulos li > a {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.7rem;
+  text-decoration: none;
+}
+
+.miniatura {
+  flex: none;
+  width: 78px;
+  height: 78px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  overflow: hidden;
+  background: color-mix(in oklab, var(--secundario) 80%, #000);
+}
+
+.miniatura img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.miniatura-numero {
+  font-family: var(--tipo-display);
+  font-size: 1.9rem;
+  color: color-mix(in oklab, var(--acento) 55%, transparent);
+}
+
+.lista-texto {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.lista-texto strong {
+  font-family: var(--tipo-display);
+  font-size: 1.12rem;
+  font-weight: 500;
+  color: var(--primario);
+  /* Un título largo no puede empujar la miniatura ni desbordar la tarjeta. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lista-texto em {
+  font-family: var(--tipo-ui);
+  font-style: normal;
+  font-size: 0.76rem;
+  letter-spacing: 0.06em;
+  color: var(--neutro);
+}
+
+/* ── móvil ───────────────────────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .ficha-poemario {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ficha-portada {
+    min-height: clamp(340px, 52vh, 440px);
+  }
+
+  /* Sin perspectiva: en una pantalla estrecha las láminas giradas quedan a dos
+     dedos de ancho y no se distingue ninguna. Se ve solo la del centro. */
+  .vitrina-pista {
+    perspective: none;
+    height: clamp(300px, 46vh, 420px);
+  }
+
+  .lamina {
+    transform: translateX(calc(var(--d) * 78vw));
+    width: 70vw;
+  }
+
+  .lamina.al-frente {
+    width: 74vw;
+  }
+
+  .vitrina-ficha-cuerpo {
+    min-width: 0;
+  }
+}
+
+/* La legibilidad manda sobre el efecto, aquí como en el lector. */
+@media (prefers-reduced-motion: reduce) {
+  .lamina,
+  .lamina img,
+  .vitrina-puntos button {
+    transition: none;
+  }
+}
+
+/* ── el panel: los poemarios ─────────────────────────────────────────────── */
+
+.rejilla-poemarios {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 1rem;
+}
+
+.tarjeta-poemario {
+  display: flex;
+  gap: 1rem;
+  padding: 0.8rem;
+  border-radius: 14px;
+  border: 1px solid color-mix(in oklab, var(--acento) 18%, transparent);
+  background: color-mix(in oklab, var(--secundario) 45%, transparent);
+  text-decoration: none;
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.tarjeta-poemario:hover {
+  border-color: var(--acento);
+  transform: translateY(-2px);
+}
+
+/* Oculto en el sitio: se atenúa, pero se sigue viendo. Esconderlo aquí también
+   dejaría al poeta sin saber que existe. */
+.tarjeta-poemario.oculto {
+  opacity: 0.62;
+  border-style: dashed;
+}
+
+.tp-imagen {
+  flex: none;
+  width: 88px;
+  height: 88px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  overflow: hidden;
+  background: color-mix(in oklab, var(--secundario) 80%, #000);
+}
+
+.tp-imagen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tp-inicial {
+  font-family: var(--tipo-display);
+  font-size: 2.4rem;
+  color: color-mix(in oklab, var(--acento) 55%, transparent);
+}
+
+.tp-texto {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  justify-content: center;
+}
+
+.tp-texto strong {
+  font-family: var(--tipo-display);
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--primario);
+}
+
+.tp-texto em {
+  font-family: var(--tipo-ui);
+  font-style: normal;
+  font-size: 0.76rem;
+  color: var(--neutro);
+}
+
+.tp-estado {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.2rem;
+}
+
+/* La ficha dentro del panel: algo más baja, porque arriba hay navegación. */
+.ficha-panel .ficha-portada {
+  min-height: clamp(330px, 48vh, 460px);
+}
+
+.ficha-panel .ficha-texto h1 {
+  font-size: clamp(1.9rem, 4vw, 3rem);
+}
+
+.ficha-botones {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.ficha-capitulos > header .bt {
+  flex: none;
+}
+
+/* El botón de publicar/retirar, colgado de cada capítulo de la lista. */
+.lista-capitulos .fila-acciones {
+  flex: none;
+  padding-right: 0.7rem;
+}
+
+.miga {
+  margin: 0 0 1rem;
+  font-family: var(--tipo-ui);
+  font-size: 0.8rem;
+  color: var(--neutro);
+}
+
+.miga a {
+  color: var(--acento);
+}
+
+/* ── la tira de capítulos bajo la vitrina ────────────────────────────────── */
+
+.vitrina-tira {
+  width: 100%;
+  display: flex;
+  gap: 0.7rem;
+  padding: 0.2rem 0.2rem 0.8rem;
+  /* Con muchos capítulos se desplaza en horizontal; el cuerpo de la página
+     nunca se mueve de lado. */
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+}
+
+.tira-capitulo {
+  flex: none;
+  width: 116px;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  text-decoration: none;
+}
+
+.tira-capitulo img,
+.tira-numero {
+  width: 116px;
+  height: 78px;
+  border-radius: 9px;
+  object-fit: cover;
+  border: 1px solid color-mix(in oklab, var(--acento) 18%, transparent);
+  filter: brightness(0.78);
+  transition:
+    filter 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.tira-numero {
+  display: grid;
+  place-items: center;
+  background: color-mix(in oklab, var(--secundario) 78%, #000);
+  font-family: var(--tipo-display);
+  font-size: 1.6rem;
+  color: color-mix(in oklab, var(--acento) 55%, transparent);
+}
+
+.tira-capitulo:hover img,
+.tira-capitulo:focus-visible img,
+.tira-capitulo:hover .tira-numero {
+  filter: none;
+  border-color: var(--acento);
+}
+
+.tira-titulo {
+  font-family: var(--tipo-ui);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  line-height: 1.35;
+  color: var(--neutro);
+}
+
+.tira-capitulo:hover .tira-titulo {
+  color: var(--primario);
 }

@@ -1,19 +1,36 @@
 import { obtenerLibros } from '@/lib/datos'
-import { Anaquel } from '@/componentes/Anaquel'
+import { agruparEnPoemarios } from '@/lib/poemarios'
+import { CarruselPoemarios } from '@/componentes/CarruselPoemarios'
+import { Cabecera } from '@/componentes/Cabecera'
+import { Pie } from '@/componentes/Pie'
+import { AUTOR, OBRA } from '@/lib/contenido/pentapoemario'
 
 /**
- * El anaquel: la puerta de entrada. Primero se ven los volúmenes, luego se abre
- * uno. Es un Server Component — los datos se resuelven en el servidor y viajan
- * al cliente ya listos.
+ * La portada: la vitrina de poemarios.
+ *
+ * Antes se entraba directamente al anaquel de capítulos. Ahora la puerta es el
+ * poemario —el nivel que la obra tiene de verdad— y desde ahí se baja a los
+ * capítulos y de ahí al poema. Tres escalones, uno por cada nivel, en lugar de
+ * saltarse el primero.
+ *
+ * Es un componente de servidor: los datos se resuelven aquí y el carrusel los
+ * recibe ya listos, así que el navegador no consulta nada.
  */
 
-// Revalidación por tiempo. Al publicar desde el panel (Fase 5) se llamará
-// además a revalidatePath para que el cambio salga al momento.
 export const revalidate = 3600
 
-export default async function PaginaAnaquel() {
-  const libros = await obtenerLibros()
-  // El año se calcula en build y viaja como prop: llamar a `new Date()` dentro
-  // de un componente cliente provocaría un desajuste de hidratación.
-  return <Anaquel libros={libros} anio={new Date().getFullYear()} />
+export default async function PaginaInicio() {
+  const poemarios = agruparEnPoemarios(await obtenerLibros())
+
+  return (
+    <>
+      <Cabecera />
+      <main className="marco-vitrina">
+        <CarruselPoemarios poemarios={poemarios} titulo={OBRA} autor={AUTOR} />
+      </main>
+      {/* El año se calcula en el servidor: `new Date()` dentro de un componente
+          cliente desajusta la hidratación. */}
+      <Pie anio={new Date().getFullYear()} />
+    </>
+  )
 }

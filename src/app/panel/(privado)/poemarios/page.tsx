@@ -77,7 +77,7 @@ export default async function PaginaPoemarios() {
             <div className="campo">
               <label htmlFor="nombre">Nombre</label>
               <input id="nombre" name="nombre" type="text" placeholder="Multiversos" required />
-              <span className="pista">Es lo que se lee en la barra del anaquel.</span>
+              <span className="pista">Es el título grande de su ficha y del carrusel.</span>
             </div>
             <div className="campo">
               <label htmlFor="orden">Orden</label>
@@ -87,8 +87,46 @@ export default async function PaginaPoemarios() {
           </div>
 
           <div className="campo">
+            <label htmlFor="lema">Lema</label>
+            <input
+              id="lema"
+              name="lema"
+              type="text"
+              placeholder="Ocho capítulos · cuarenta poemas"
+            />
+            <span className="pista">
+              La línea corta bajo el nombre. Si la dejas vacía se cuenta lo que hay.
+            </span>
+          </div>
+
+          <div className="campo">
             <label htmlFor="descripcion">Descripción</label>
             <input id="descripcion" name="descripcion" type="text" />
+            <span className="pista">Un par de líneas dentro de la ficha del poemario.</span>
+          </div>
+
+          <div className="fila">
+            <div className="campo">
+              <label htmlFor="portadaUrl">Imagen del poemario</label>
+              <input
+                id="portadaUrl"
+                name="portadaUrl"
+                type="text"
+                placeholder="/portadas/capitulo-2.jpg"
+              />
+              <span className="pista">
+                Es la lámina del carrusel. Si la dejas vacía se usa la del primer capítulo
+                que tenga una.
+              </span>
+            </div>
+            <div className="campo">
+              <label htmlFor="colorAcento">Color del poemario</label>
+              <input id="colorAcento" name="colorAcento" type="text" placeholder="#C9A6E8" />
+              <span className="pista">
+                Tiñe su carrusel y su ficha. Vacío = el lila del sitio. El tono para texto se
+                calcula solo, oscurecido hasta que se lea sobre el papel.
+              </span>
+            </div>
           </div>
 
           <div className="campo interruptor">

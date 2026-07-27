@@ -17,7 +17,12 @@ export interface Categoria {
   id: string
   slug: string
   nombre: string
+  /** La línea corta bajo el nombre en el carrusel. */
+  lema: string | null
   descripcion: string | null
+  portadaUrl: string | null
+  /** Nulo = la paleta del sitio. Ver `colorDelPoemario` en lib/color.ts. */
+  colorAcento: string | null
   orden: number
   /** Si está en false, ni ella ni sus capítulos aparecen en el sitio. */
   visible: boolean

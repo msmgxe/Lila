@@ -177,15 +177,23 @@ type FilaLibro = typeof libros.$inferSelect & {
   categoria: typeof categorias.$inferSelect | null
 }
 
-function mapearCategoria(
-  c: { id: string; slug: string; nombre: string; descripcion: string | null; orden: number; visible: boolean } | null,
-): Categoria | null {
+/**
+ * De fila de `categorias` a `Categoria`.
+ *
+ * El parámetro se tipa DESDE el esquema, no con la forma escrita a mano que
+ * había: así, al añadir una columna, el compilador señala este punto en vez de
+ * dejar que la columna nueva se pierda por el camino en silencio.
+ */
+function mapearCategoria(c: typeof categorias.$inferSelect | null): Categoria | null {
   return c
     ? {
         id: c.id,
         slug: c.slug,
         nombre: c.nombre,
+        lema: c.lema,
         descripcion: c.descripcion,
+        portadaUrl: c.portadaUrl,
+        colorAcento: c.colorAcento,
         orden: c.orden,
         visible: c.visible,
       }

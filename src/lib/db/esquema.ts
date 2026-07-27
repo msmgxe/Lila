@@ -58,7 +58,18 @@ export const categorias = pgTable(
     id: uuid('id').primaryKey().defaultRandom(),
     slug: text('slug').notNull(),
     nombre: text('nombre').notNull(),
+    /** La línea corta bajo el nombre en el carrusel. «Ocho capítulos, cuarenta poemas». */
+    lema: text('lema'),
     descripcion: text('descripcion'),
+    /** La imagen con la que el poemario se presenta en el carrusel de la portada. */
+    portadaUrl: text('portada_url'),
+    /**
+     * El color del poemario. Nulo significa «el del sitio», que es lo que hay
+     * hoy: la paleta Lila manda mientras nadie diga otra cosa. Cuando lleva
+     * valor, el carrusel y la ficha del poemario se tiñen con él sin que haya
+     * que tocar una sola regla de CSS — se inyecta como variable.
+     */
+    colorAcento: text('color_acento'),
     orden: integer('orden').notNull().default(0),
     visible: boolean('visible').notNull().default(true),
     creadoEn: timestamp('creado_en', { withTimezone: true }).notNull().defaultNow(),

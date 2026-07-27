@@ -6,6 +6,7 @@ import { AuthError } from 'next-auth'
 import { exigirSesion, signIn, signOut } from '@/auth'
 import * as panel from '@/lib/db/panel'
 import { aCuerpo, aEstrofas } from '@/lib/texto'
+import { esColorValido } from '@/lib/color'
 
 /**
  * Acciones del panel.
@@ -241,9 +242,17 @@ export async function guardarCategoria(datos: FormData) {
   const nombre = texto(datos, 'nombre')
   if (!nombre) throw new Error('El poemario necesita un nombre.')
 
+  // Un color mal escrito se descarta en vez de guardarse: acabaría en el
+  // `style` del contenedor y dejaría la sección entera sin teñir o rota. Sin
+  // color válido manda la paleta Lila, que es el comportamiento de siempre.
+  const color = textoONulo(datos, 'colorAcento')
+
   const campos = {
     nombre,
+    lema: textoONulo(datos, 'lema'),
     descripcion: textoONulo(datos, 'descripcion'),
+    portadaUrl: textoONulo(datos, 'portadaUrl'),
+    colorAcento: esColorValido(color) ? color : null,
     orden: numeroONulo(datos, 'orden') ?? 0,
     visible: datos.get('visible') === 'on',
   }

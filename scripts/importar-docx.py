@@ -44,7 +44,13 @@ CATEGORIA = {
     'id': 'cat-pentapoemario-lila',
     'slug': 'pentapoemario-lila',
     'nombre': 'Pentapoemario lila',
+    'lema': 'Ocho capítulos · cuarenta poemas',
     'descripcion': 'Cinco poemas por capítulo, cinco versos por poema.',
+    # La imagen con la que el poemario se presenta en el carrusel de la portada.
+    'portadaUrl': '/portadas/capitulo-2.jpg',
+    # None = la paleta Lila del sitio. Un poemario puede traer el suyo y teñir
+    # su vitrina y su ficha sin tocar una sola regla de CSS: ver lib/color.ts.
+    'colorAcento': None,
     'orden': 0,
     'visible': True,
 }

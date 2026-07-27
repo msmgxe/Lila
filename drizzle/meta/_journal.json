@@ -15,6 +15,13 @@
       "when": 1785146979321,
       "tag": "0001_portadas",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1785148678877,
+      "tag": "0002_poemarios",
+      "breakpoints": true
     }
   ]
 }
