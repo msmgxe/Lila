@@ -105,10 +105,10 @@ export function Salas({ libros }: { libros: Libro[] }) {
           <span className="et">Así suena</span>
           <h2>Una voz que respeta el verso</h2>
           <p className="texto-sala">
-            La lectura en voz alta no se detiene al final de cada línea: solo donde hay
-            puntuación. Los versos que quedan abiertos se leen de corrido con el
-            siguiente, como una frase. Es lo que separa una lectura de poesía de una
-            lectura de lista.
+            Cada verso se lee como lo que es: una frase entera, y después un
+            silencio antes del siguiente. La pausa se alarga donde hay punto o coma
+            y se hace más larga aún al cerrar la estrofa. Es lo que separa una
+            lectura de poesía de una lectura de lista.
           </p>
           <Link
             className="enlace-sala"

@@ -10,37 +10,39 @@
  *
  * Al compartir estas funciones, la maqueta y el audio final respiran igual.
  *
- * ── La decisión que lo cambia todo ──────────────────────────────────────────
- * La voz NO se corta al final de cada verso. Se corta **donde hay puntuación**.
+ * ── Cómo se reparte la lectura ──────────────────────────────────────────────
+ * **Cada verso es una frase y se lee como tal**: se dice entero y después la
+ * voz calla antes de empezar el siguiente. Es la decisión del poeta, y en esta
+ * obra tiene sentido — son poemas de cinco versos donde cada línea se sostiene
+ * sola, y la mayoría no llevan puntuación ninguna.
  *
- * Es lo contrario de lo que parece natural al programarlo. Un verso es una
- * unidad tipográfica, no sintáctica: cuando no cierra con puntuación, la frase
- * continúa en el siguiente —es un encabalgamiento— y ahí no se para.
+ * Cuánto calla depende de cómo cierre el verso:
+ *   · con punto o similar → la pausa más larga dentro de la estrofa;
+ *   · con coma o inciso   → intermedia;
+ *   · sin puntuación      → la de respiración, que es la de por defecto;
+ *   · fin de estrofa      → la más larga de todas.
  *
- * Y no basta con acortar la pausa. Cada emisión que se le entrega al
- * sintetizador se pronuncia como una oración completa, con su curva de
- * entonación descendente al final. Diez versos = diez emisiones = diez frases
- * que caen, aunque las pausas sean de milisegundos. Por eso los versos
- * encabalgados se **unen en una sola emisión** y se le entregan juntos al
- * motor, que entonces los lee como lo que son: una frase.
- *
- * En esta obra la mayoría de los poemas no llevan puntuación ninguna, así que
- * una estrofa entera suele ser una sola emisión.
+ * Hubo una versión que unía los versos sin puntuación en una sola emisión, para
+ * que el motor no cerrara cada línea con entonación de final. Sonaba más
+ * continuo, pero se perdía el silencio entre versos, que es lo que hace que un
+ * poema se oiga como un poema. Se ha vuelto a verso por verso a propósito.
  */
 
 import { limpiarMarcas, marcaDePausa } from '../texto'
 
 export const PAUSA = {
   /** Tras punto, exclamación, interrogación o puntos suspensivos. */
-  frase: 320,
+  frase: 620,
   /** Tras coma, punto y coma, dos puntos o raya. */
-  coma: 220,
+  coma: 520,
+  /** Fin de verso sin puntuación: la pausa de respiración. */
+  verso: 420,
   /** Al terminar una estrofa. */
-  estrofa: 700,
+  estrofa: 950,
   /** Después del título. */
-  titulo: 700,
+  titulo: 800,
   /** Corte forzado por longitud, no por sentido: el mínimo audible. */
-  tecnica: 100,
+  tecnica: 200,
   /** Cesura interior de un alejandrino. Solo se usa en SSML. */
   cesura: 160,
 } as const
@@ -92,20 +94,19 @@ export function pausaTrasVerso(verso: string, finDeEstrofa: boolean): number {
   const t = limpiarMarcas(verso).trim()
   if (CIERRA_FRASE.test(t)) return PAUSA.frase
   if (CIERRA_INCISO.test(t)) return PAUSA.coma
-  return PAUSA.tecnica
+  // Un verso que no cierra con puntuación también se para: menos, pero se para.
+  return PAUSA.verso
 }
 
 /**
- * ¿Se cierra la emisión al acabar este verso?
+ * ¿Se cierra la emisión al acabar este verso? **Siempre.**
  *
- * Sí cuando hay puntuación —punto, coma, punto y coma, dos puntos…— o una marca
- * manual del poeta. **No** cuando el verso queda abierto: eso es un
- * encabalgamiento y la frase sigue.
+ * Cada verso es una frase: se dice entero, la voz calla, y empieza el
+ * siguiente. La función se mantiene por claridad y porque el generador de SSML
+ * de la Fase 4 la usa para decidir dónde va cada `<break>`.
  */
-export function cierraEmision(verso: string): boolean {
-  if (marcaDePausa(verso)) return true
-  const t = limpiarMarcas(verso).trim()
-  return CIERRA_FRASE.test(t) || CIERRA_INCISO.test(t)
+export function cierraEmision(_verso: string): boolean {
+  return true
 }
 
 /**
@@ -181,11 +182,8 @@ export function construirFrases(
       largo = inicio + limpio.length
       indice++
 
-      // Se cierra por puntuación, por marca del poeta o por fin de estrofa.
-      // Si no, la frase sigue en el verso siguiente: es un encabalgamiento.
-      if (finDeEstrofa || cierraEmision(verso)) {
-        cerrar(pausaTrasVerso(verso, finDeEstrofa))
-      }
+      // Un verso, una emisión. Se cierra siempre.
+      cerrar(pausaTrasVerso(verso, finDeEstrofa))
     })
   })
   cerrar(PAUSA.estrofa)
