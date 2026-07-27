@@ -21,14 +21,34 @@ async function autorizar() {
   await exigirSesion()
 }
 
-/** Refresca lo que el visitante ve. Se llama tras cada cambio publicable. */
+/**
+ * Refresca lo que el visitante ve. Se llama tras cada cambio publicable.
+ *
+ * ── Por qué se revalida el layout entero y no ruta por ruta ─────────────────
+ * Antes esto listaba las rutas a mano: `/`, el capítulo y el poema. Funcionaba
+ * hasta que apareció `/poemario/[slug]`, que no estaba en la lista — y como
+ * todas las páginas públicas llevan `revalidate = 3600`, subir una portada
+ * desde el panel se veía al momento en el panel y tardaba UNA HORA en salir en
+ * el sitio. El síntoma desde fuera: «hago los cambios y no se refresca».
+ *
+ * El problema de fondo es que la lista hay que acordarse de ampliarla cada vez
+ * que nace una ruta, y olvidarse no rompe nada de forma visible: solo deja el
+ * sitio desfasado un rato. Es el peor tipo de fallo.
+ *
+ * `revalidatePath('/', 'layout')` invalida TODO lo que cuelga del layout raíz.
+ * Es un mazazo, y aquí es el correcto: son unas decenas de páginas, las escribe
+ * una sola persona y los cambios son contados. El coste de regenerarlas de más
+ * no se acerca al de que la obra se vea vieja.
+ */
 function refrescarSitio(libroSlug?: string, poemaSlug?: string) {
-  revalidatePath('/')
+  revalidatePath('/', 'layout')
+
+  // Y además las concretas: `layout` cubre las rutas ya generadas, pero estas
+  // dos son dinámicas y conviene nombrarlas para que caigan seguro.
   if (libroSlug) {
     revalidatePath(`/${libroSlug}`)
     if (poemaSlug) revalidatePath(`/${libroSlug}/${poemaSlug}`)
   }
-  revalidatePath('/panel')
 }
 
 /* ─────────────────────────────── sesión ─────────────────────────────────── */
@@ -386,7 +406,11 @@ export async function subirCapitulo(
   }
 
   refrescarSitio(slug)
-  revalidatePath(`/panel/libros/${slug}`)
+  // `libro`, en singular: la carpeta es (privado)/libro/[slug]. Con `libros`
+  // esto revalidaba una ruta que no existe — no falla, simplemente no hace
+  // nada, que es la clase de error que sobrevive meses.
+  revalidatePath(`/panel/libro/${slug}`)
+  revalidatePath('/panel')
   return estado
 }
 
