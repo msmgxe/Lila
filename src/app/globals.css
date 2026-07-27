@@ -539,9 +539,39 @@ button {
      entera por detrás. */
   background: linear-gradient(90deg, var(--fondo2) 0 248px, transparent 248px);
 }
-.biblioteca.sin-lateral {
-  grid-template-columns: 1fr;
-  background: none;
+/* El índice de capítulos de la barra lateral. Va siempre, con filtros o sin
+   ellos: es lo que le da contenido cuando solo hay un poemario. */
+.nav-capitulos {
+  list-style: none;
+  flex: 1;
+  padding: 0 0 1rem;
+  overflow-y: auto;
+}
+.nav-capitulos li a {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  padding: 0.5rem 1.5rem;
+  color: #a99bb8;
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: 0.2s;
+}
+.nav-capitulos li a:hover {
+  color: var(--primario);
+  background: rgba(244, 238, 248, 0.05);
+  border-left-color: var(--terciario);
+}
+.nav-capitulos .tt {
+  font-family: var(--display);
+  font-size: 0.95rem;
+  flex: 1;
+}
+.nav-capitulos .cn {
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  color: var(--neutro);
+  font-variant-numeric: tabular-nums;
 }
 
 .lateral {
@@ -567,7 +597,10 @@ button {
 
 .nav {
   list-style: none;
-  flex: 1;
+  flex: none;
+  border-bottom: 1px solid var(--linea);
+  padding-bottom: 0.6rem;
+  margin-bottom: 0.6rem;
 }
 .nav button {
   width: 100%;
@@ -2133,6 +2166,9 @@ h2.tit .sigue {
     border-bottom-color: var(--primario);
   }
   .nav svg {
+    display: none;
+  }
+  .nav-capitulos {
     display: none;
   }
 

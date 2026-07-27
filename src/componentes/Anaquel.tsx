@@ -43,33 +43,43 @@ export function Anaquel({ libros, anio }: { libros: Libro[]; anio: number }) {
       {/* La puerta de entrada — dirección «La galería». El anaquel sigue justo
           debajo, entero: esto no sustituye nada, añade lo que faltaba. */}
       <Portada libros={alaVista} />
-      {/* Sin categorías que filtrar, la barra lateral se queda con un título y
-          poco más. En vez de dejar 248 px vacíos, desaparece y la estantería
-          ocupa el ancho entero. Vuelve sola al crear el segundo poemario. */}
-      <section className={`biblioteca${categorias.length === 0 ? ' sin-lateral' : ''}`} id="anaquel">
-      {categorias.length > 0 && (
+      <section className="biblioteca" id="anaquel">
       <aside className="lateral">
         <h2>Índice general</h2>
         <div className="et sub">{OBRA}</div>
 
-        {/* Con una sola categoría el filtro no filtraría nada, y `categoriasDe`
-            devuelve una lista vacía: la barra se queda solo con los enlaces. */}
-        <ul className="nav">
-          {categorias.map((c) => (
-            <li key={c.clave}>
-              <button
-                type="button"
-                onClick={() => setFiltro(c.clave)}
-                aria-current={c.clave === filtro}
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3">
-                  <path d={c.icono} />
-                </svg>
-                {c.nombre}
-              </button>
+        {/* Los filtros solo aparecen con más de un poemario: con uno solo no
+            filtrarían nada. El índice de capítulos, en cambio, va siempre —
+            es lo que impide que la barra se quede vacía. */}
+        {categorias.length > 0 && (
+          <ul className="nav">
+            {categorias.map((c) => (
+              <li key={c.clave}>
+                <button
+                  type="button"
+                  onClick={() => setFiltro(c.clave)}
+                  aria-current={c.clave === filtro}
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3">
+                    <path d={c.icono} />
+                  </svg>
+                  {c.nombre}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <ol className="nav-capitulos">
+          {visibles.map((libro) => (
+            <li key={libro.id}>
+              <Link href={`/${libro.slug}`}>
+                <span className="tt">{libro.titulo}</span>
+                <span className="cn">{libro.poemas.filter((p) => p.publicado).length}</span>
+              </Link>
             </li>
           ))}
-        </ul>
+        </ol>
 
         <div className="abajo">
           <button className="cta" type="button">
@@ -81,7 +91,6 @@ export function Anaquel({ libros, anio }: { libros: Libro[]; anio: number }) {
           </div>
         </div>
       </aside>
-      )}
 
       <main className="anaquel" id="contenido">
         <h2 className="titulo-anaquel">El anaquel del poeta</h2>
