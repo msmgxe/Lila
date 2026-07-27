@@ -154,8 +154,14 @@ configuración `spanish_unaccent` de la que depende la columna `poemas.busqueda`
 
 ## Sobre el diseño
 
-La base es la **dirección E (Biblioteca)**: anaquel oscuro, y pliego con la
-plancha a la izquierda y el poema sobre papel crema a la derecha.
+La base es la **dirección E (Biblioteca)** con la paleta **«Lila»** (propuesta 2
+de `propuestas/01-colores-y-estilos.html`): el color que la obra lleva en el
+nombre. Anaquel oscuro en violeta, y pliego con la plancha a la izquierda y el
+poema sobre papel malva a la derecha.
+
+La portada del sitio es la dirección **«La galería»** (propuesta 2 de
+`propuestas/02-portadas.html`): mosaico a sangre con las portadas de capítulo.
+Va **encima** del anaquel, no en su lugar — `src/componentes/Portada.tsx`.
 
 Se le han integrado las funcionalidades de las otras dos:
 
@@ -168,16 +174,17 @@ Se le han integrado las funcionalidades de las otras dos:
 Paleta (no inventar colores nuevos sin motivo):
 
 ```
---primario   #F5F5F0   crema, el papel
---secundario #2D1B1B   marrón casi negro, la tinta
---terciario  #FDF2F3   rosa pálido, acento cálido
---neutro     #787776   etiquetas
---fondo      #0E0C0C   la sala oscura
+--primario   #F4EEF8   malva claro, el papel
+--secundario #2A1B3D   violeta casi negro, la tinta
+--terciario  #C9A6E8   lila, resaltado
+--neutro     #8A7E99   etiquetas
+--fondo      #150C22   la sala violeta
 ```
 
-**Cuidado con el rosa `--terciario`:** sobre crema **no cumple contraste como
-texto**. Se usa solo como fondo de resaltado. Para texto acentuado sobre papel va
-`--tinta-acento` (`#8A3D33`), que sí cumple AA.
+**Cuidado con el lila `--terciario`:** sobre el papel da **1.8:1** — no cumple ni
+de lejos. Se usa solo como fondo de resaltado y como texto sobre el fondo oscuro
+(9.1:1). Para texto acentuado sobre papel va `--tinta-acento` (`#7B3FA8`, 5.9:1).
+El cuerpo del poema es `#2A1B3D` sobre `#F4EEF8`: **13.9:1**.
 
 Tipografía: Playfair Display para titulares y poemas (en cursiva), Archivo para
 la interfaz en versalitas muy interletradas. **No usar Inter, Roboto ni fuentes

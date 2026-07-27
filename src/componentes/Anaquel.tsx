@@ -6,6 +6,7 @@ import { AUTOR, OBRA } from '@/lib/contenido/pentapoemario'
 import { categoriasDe, librosVisibles } from '@/lib/categorias'
 import { Cabecera } from './Cabecera'
 import { Pie } from './Pie'
+import { Portada, Salas } from './Portada'
 import type { Libro } from '@/lib/tipos'
 
 /**
@@ -39,7 +40,14 @@ export function Anaquel({ libros, anio }: { libros: Libro[]; anio: number }) {
   return (
     <>
       <Cabecera />
-      <section className="biblioteca">
+      {/* La puerta de entrada — dirección «La galería». El anaquel sigue justo
+          debajo, entero: esto no sustituye nada, añade lo que faltaba. */}
+      <Portada libros={alaVista} />
+      {/* Sin categorías que filtrar, la barra lateral se queda con un título y
+          poco más. En vez de dejar 248 px vacíos, desaparece y la estantería
+          ocupa el ancho entero. Vuelve sola al crear el segundo poemario. */}
+      <section className={`biblioteca${categorias.length === 0 ? ' sin-lateral' : ''}`} id="anaquel">
+      {categorias.length > 0 && (
       <aside className="lateral">
         <h2>Índice general</h2>
         <div className="et sub">{OBRA}</div>
@@ -73,9 +81,10 @@ export function Anaquel({ libros, anio }: { libros: Libro[]; anio: number }) {
           </div>
         </div>
       </aside>
+      )}
 
       <main className="anaquel" id="contenido">
-        <h1>El anaquel del poeta</h1>
+        <h2 className="titulo-anaquel">El anaquel del poeta</h2>
         <p className="intro">
           Un lugar para la palabra escrita. Cada capítulo reúne cinco poemas de cinco
           versos, con la plancha que los acompaña. Elige uno y ábrelo: se lee, se busca y
@@ -171,6 +180,7 @@ export function Anaquel({ libros, anio }: { libros: Libro[]; anio: number }) {
         </div>
       </main>
       </section>
+      <Salas libros={alaVista} />
       <Pie anio={anio} />
     </>
   )

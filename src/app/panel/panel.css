@@ -44,7 +44,7 @@
   font-size: 0.66rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #b8b3ad;
+  color: #a99bb8;
   text-decoration: none;
 }
 .panel-barra nav a:hover {
@@ -78,7 +78,7 @@
   margin-bottom: 0.9rem;
 }
 .panel .sub {
-  color: #a49f99;
+  color: #a99bb8;
   font-size: 0.92rem;
   margin-bottom: 2rem;
 }
@@ -167,7 +167,7 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
   padding: 0.5rem 0.9rem;
-  border: 1px solid rgba(245, 245, 240, 0.28);
+  border: 1px solid rgba(244, 238, 248, 0.28);
   background: none;
   color: var(--primario);
   cursor: pointer;
@@ -177,7 +177,7 @@
   line-height: 1.4;
 }
 .bt:hover {
-  background: rgba(245, 245, 240, 0.1);
+  background: rgba(244, 238, 248, 0.1);
 }
 .bt.fuerte {
   background: var(--primario);
@@ -306,7 +306,7 @@
   margin-bottom: 0.5rem;
 }
 .recuadro p {
-  color: #a49f99;
+  color: #a99bb8;
   line-height: 1.7;
   font-size: 0.92rem;
   max-width: 62ch;
@@ -343,7 +343,7 @@
   display: grid;
   place-items: center;
   padding: 2rem 1.2rem;
-  background: radial-gradient(70% 60% at 50% 0%, #191515, var(--fondo) 70%);
+  background: radial-gradient(70% 60% at 50% 0%, #221434, var(--fondo) 70%);
 }
 .entrar .caja {
   width: min(24rem, 100%);
@@ -374,7 +374,7 @@
   gap: 0.7rem;
   align-items: baseline;
   font-size: 0.78rem;
-  color: #a49f99;
+  color: #a99bb8;
   border-bottom: 1px solid var(--linea);
   padding-bottom: 0.35rem;
 }
@@ -400,7 +400,7 @@
 .tabla-reg td {
   padding: 0.5rem 0.7rem 0.5rem 0;
   border-bottom: 1px solid var(--linea);
-  color: #a49f99;
+  color: #a99bb8;
 }
 .tabla-reg td:first-child {
   color: var(--neutro);
