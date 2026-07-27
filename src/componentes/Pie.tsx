@@ -30,7 +30,7 @@ export function Pie({ anio }: { anio: number }) {
           <span className="et">Navegar</span>
           <ul>
             <li>
-              <Link href="/">El anaquel</Link>
+              <Link href="/">Inicio</Link>
             </li>
             <li>
               <Link href="/sobre-la-obra">Sobre la obra</Link>

@@ -35,7 +35,7 @@ export default function NoEncontrado() {
           className="cta"
           style={{ display: 'inline-block', width: 'auto', padding: '.72rem 1.6rem', textDecoration: 'none' }}
         >
-          Volver al anaquel
+          Volver al inicio
         </Link>
       </div>
     </main>
