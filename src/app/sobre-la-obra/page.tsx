@@ -56,7 +56,12 @@ export default async function SobreLaObra() {
           Los poemas se pueden escuchar. La lectura respeta la forma del verso: cada línea
           se dice entera y después la voz calla, porque en esta obra cada verso se sostiene
           solo. El silencio se alarga donde hay punto o coma, y más aún al cerrar la
-          estrofa. Es lo que separa una lectura de poesía de una lectura de lista.
+          estrofa.
+        </p>
+        <p>
+          Y cada verso se dice como pide lo que dice. Una exclamación se lanza —más alta y
+          algo más rápida, como se lanza una proclama—; una pregunta se deja en el aire, un
+          poco más lenta. Es lo que separa una lectura de poesía de una lectura de lista.
         </p>
 
         <h2>Las planchas</h2>

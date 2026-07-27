@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { construirFrases, type Frase } from '@/lib/voz/prosodia'
+import { construirFrases, type Frase , ENTONACION} from '@/lib/voz/prosodia'
 import { elegirVoz, vocesEnEspanol, type VozDelSistema } from '@/lib/voz/voces'
 import type { Voz } from '@/lib/tipos'
 
@@ -131,10 +131,24 @@ export function useNarracion({ voz, velocidad, vozPreferida, alAvisar }: Opcione
         const u = new SpeechSynthesisUtterance(frase.texto)
         if (elegida) u.voice = elegida
         u.lang = elegida?.lang ?? 'es-ES'
-        u.rate = velocidadRef.current
         // Sin voz del género pedido, el tono es lo único que queda. No todos los
         // motores lo atienden, de ahí el aviso de arriba.
-        u.pitch = acorde ? 1 : vozRef.current === 'femenina' ? 1.35 : 0.6
+        const base = acorde ? 1 : vozRef.current === 'femenina' ? 1.35 : 0.6
+
+        /*
+         * Y encima, la entonación de ESTE verso.
+         *
+         * Web Speech no entiende de curvas: aplica un `pitch` plano a toda la
+         * emisión. Pero como cada verso es su propia emisión, subir el tono en
+         * una exclamación basta para que se oiga como lo que es —una proclama—
+         * en vez de como una línea más de una lista. Es el ajuste que separa
+         * «¡qué maravillosa estación la breve primavera!» de leerla de carrerilla.
+         */
+        const entonacion = ENTONACION[frase.tono]
+        u.rate = velocidadRef.current * entonacion.rate
+        // El tope de `pitch` es 2 en la especificación; la voz masculina parte
+        // de 0.6 y no llega, pero la femenina de 1.35 sí se pasaría.
+        u.pitch = Math.min(2, base * entonacion.pitch)
 
         u.onboundary = (e) => {
           if (!activo.current || frase.tramos.length === 0) return

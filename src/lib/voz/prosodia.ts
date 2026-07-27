@@ -59,6 +59,84 @@ const UMBRAL_ALEJANDRINO = 34
 const CIERRA_FRASE = /[.!?…]["»)\]]?$/
 const CIERRA_INCISO = /[,;:—–]["»)\]]?$/
 
+/* ────────────────────────── entonación de la frase ──────────────────────── */
+
+/**
+ * Cómo se dice un verso, no solo dónde se calla.
+ *
+ * Un verso como «¡qué maravillosa estación la breve primavera!» no es una línea
+ * más: es una proclama, y dicha con el mismo tono que la anterior suena a
+ * recitado de memoria. El sintetizador recibe los signos —nunca se le han
+ * quitado—, pero con `pitch` y `rate` fijos los pronuncia todos igual.
+ */
+export type Tono = 'exclamativa' | 'interrogativa' | 'enunciativa'
+
+/**
+ * Multiplicadores sobre el tono y la velocidad de base.
+ *
+ * Son suaves a propósito. Web Speech no sabe de curvas de entonación: aplica un
+ * `pitch` PLANO a toda la emisión, así que pasarse convierte la exclamación en
+ * un grito agudo de principio a fin, que suena peor que leerla lisa. Lo que se
+ * busca es que se note que ese verso es otra cosa, no hacer teatro.
+ *
+ * La exclamación además se dice un poco más rápida —así se lanza una proclama—
+ * y la pregunta un poco más lenta, que es como se deja una pregunta en el aire.
+ */
+export const ENTONACION: Record<Tono, { pitch: number; rate: number }> = {
+  exclamativa: { pitch: 1.14, rate: 1.05 },
+  interrogativa: { pitch: 1.09, rate: 0.97 },
+  enunciativa: { pitch: 1, rate: 1 },
+}
+
+/** Detecta el tono por los signos que el poeta escribió. */
+export function tonoDelVerso(verso: string): Tono {
+  const t = limpiarMarcas(verso).trim()
+  // Vale tanto el par completo «¡…!» como el signo suelto al final: en esta
+  // obra hay versos que abren interrogación y no la cierran hasta más abajo.
+  if (/[¡!]/.test(t)) return 'exclamativa'
+  if (/[¿?]/.test(t)) return 'interrogativa'
+  return 'enunciativa'
+}
+
+/**
+ * El texto tal y como hay que entregárselo al sintetizador.
+ *
+ * En español la entonación se decide por el signo de APERTURA: sin el «¿», el
+ * motor no sabe que viene una pregunta hasta que ya la ha dicho entera y llana.
+ * El poeta abre interrogación en un verso y a veces no la cierra —«¿por qué ya
+ * nada ni nadie se encuentran en su lugar,»—, y como ahora cada verso es su
+ * propia emisión, al motor le llega un signo huérfano y se atraganta o lo lee
+ * plano.
+ *
+ * Aquí se cierra lo que quedó abierto, y se abre lo que llega cerrado sin
+ * abrir. **Solo para la voz**: el verso impreso conserva la puntuación del
+ * poeta, letra por letra. Nadie ve esto; solo se oye.
+ */
+export function textoParaVoz(verso: string): string {
+  let t = limpiarMarcas(verso).trim()
+  if (t === '') return t
+
+  for (const [abre, cierra] of [
+    ['¿', '?'],
+    ['¡', '!'],
+  ] as const) {
+    const tieneApertura = t.includes(abre)
+    const tieneCierre = t.includes(cierra)
+    if (tieneApertura && !tieneCierre) {
+      // Abre y no cierra: se cierra al final. Si el verso terminaba en coma,
+      // la coma SE SUSTITUYE en vez de conservarse — «…en su lugar?,» hace
+      // tropezar al motor, y la coma solo decía «esto sigue», que ya lo dice
+      // la pausa entre versos.
+      t = t.replace(/[,;:]$/, '') + cierra
+    } else if (!tieneApertura && tieneCierre) {
+      // Cierra sin abrir: la frase venía del verso anterior. Se abre al
+      // principio para que el motor entone la parte que le toca decir.
+      t = abre + t
+    }
+  }
+  return t
+}
+
 /** Qué trozo del texto pronunciado corresponde a qué verso de la página. */
 export interface Tramo {
   inicio: number
@@ -78,6 +156,8 @@ export interface Frase {
   tramos: Tramo[]
   /** El título del poema no es un verso: no se resalta ni se cuenta. */
   esTitulo?: boolean
+  /** Cómo se dice: exclamación, pregunta o enunciado. Ver `ENTONACION`. */
+  tono: Tono
 }
 
 /**
@@ -146,6 +226,7 @@ export function construirFrases(
       versos: [],
       tramos: [],
       esTitulo: true,
+      tono: tonoDelVerso(opciones.titulo),
     })
   }
 
@@ -155,20 +236,28 @@ export function construirFrases(
   let versos: number[] = []
   let largo = 0
 
+  // El tono de la emisión en curso. Al agrupar varios versos —solo pasa cuando
+  // uno se pasa del tope de caracteres— manda el primero que no sea neutro:
+  // una exclamación partida en dos sigue siendo una exclamación.
+  let tono: Tono = 'enunciativa'
+
   const cerrar = (pausaMs: number) => {
     if (piezas.length === 0) return
-    frases.push({ texto: piezas.join(' '), pausaMs, versos, tramos })
+    frases.push({ texto: piezas.join(' '), pausaMs, versos, tramos, tono })
     piezas = []
     tramos = []
     versos = []
     largo = 0
+    tono = 'enunciativa'
   }
 
   let indice = 0
   estrofas.forEach((estrofa) => {
     estrofa.forEach((verso, j) => {
       const finDeEstrofa = j === estrofa.length - 1
-      const limpio = limpiarMarcas(verso).trim()
+      // `textoParaVoz` y no `limpiarMarcas`: cierra los signos que el poeta
+      // dejó abiertos, para que el motor sepa entonar. Solo afecta a la voz.
+      const limpio = textoParaVoz(verso)
 
       // Un verso que se pasa del tope se emite solo: unirlo agravaría el problema.
       if (largo > 0 && largo + limpio.length + 1 > MAX_CARACTERES) {
@@ -177,6 +266,8 @@ export function construirFrases(
 
       const inicio = largo === 0 ? 0 : largo + 1
       piezas.push(limpio)
+      const suyo = tonoDelVerso(verso)
+      if (tono === 'enunciativa') tono = suyo
       tramos.push({ inicio, fin: inicio + limpio.length, verso: indice })
       versos.push(indice)
       largo = inicio + limpio.length
@@ -213,7 +304,21 @@ export function aSSML(frases: Frase[], opciones: { idioma?: string } = {}): stri
           : escapar(verso)
       })
       const texto = partes.length > 0 ? partes.join(' ') : escapar(f.texto)
-      return `<s>${texto}</s><break time="${f.pausaMs}ms"/>`
+
+      // Aquí sí hay curva de entonación de verdad: un proveedor de pago sabe
+      // qué hacer con `<prosody>` y con `<emphasis>`, mientras que Web Speech
+      // solo puede subir el tono de la emisión entera. El porcentaje sale del
+      // mismo `ENTONACION`, para que la maqueta y el audio final no se separen.
+      const e = ENTONACION[f.tono]
+      const dicho =
+        f.tono === 'enunciativa'
+          ? `<s>${texto}</s>`
+          : `<prosody pitch="+${Math.round((e.pitch - 1) * 100)}%" rate="${Math.round(e.rate * 100)}%">` +
+            (f.tono === 'exclamativa'
+              ? `<emphasis level="strong"><s>${texto}</s></emphasis>`
+              : `<s>${texto}</s>`) +
+            `</prosody>`
+      return `${dicho}<break time="${f.pausaMs}ms"/>`
     })
     .join('\n')
 
