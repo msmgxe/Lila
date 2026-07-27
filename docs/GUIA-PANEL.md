@@ -63,6 +63,32 @@ de crear. La sesión dura doce horas.
 
 ## 3. Lo que puedes hacer
 
+En corto: **todo lo que hay en el sitio se edita desde aquí**, sin tocar código ni
+volver a desplegar. Tres niveles, de mayor a menor:
+
+```
+Poemario  (Pentapoemario lila, Multiversos…)
+   └── Capítulo  (Capítulo primero, segundo…)
+          └── Poema  (Provocaciones fuera de tiempo…)
+                 └── Plancha  (la obra que lo acompaña)
+```
+
+### Poemarios
+
+Un poemario agrupa capítulos. Es lo que se ve en la barra lateral del anaquel.
+
+- **Crear** los que hagas falta: hoy hay uno, mañana puede haber cinco.
+- **Ordenarlos** entre sí.
+- **Mostrar u ocultar** uno entero. Ocultarlo lo retira del sitio con todos sus
+  capítulos dentro, **sin despublicarlos**: cuando lo vuelves a mostrar, todo
+  reaparece igual que estaba. Es la forma de tener un poemario terminándose sin
+  que nadie lo vea todavía.
+- **Borrar** uno **no borra sus capítulos**: se quedan sin poemario asignado y
+  los reasignas cuando quieras.
+
+Con un solo poemario, la barra de filtros del anaquel no aparece — no filtraría
+nada. En cuanto crees el segundo, vuelve sola.
+
 ### Volúmenes
 
 La portada del panel lista los volúmenes con una franja de color a la izquierda:
@@ -92,6 +118,7 @@ En el editor de un poema:
 | **Dedicatoria** | Se ve, pero **no se lee en voz alta** |
 | **Nota del autor** | Tampoco se lee |
 | **Temas** | Separados por comas. Entran en la búsqueda |
+| **Poemario** | A cuál pertenece el capítulo |
 
 > ### Cómo se escriben los versos
 >

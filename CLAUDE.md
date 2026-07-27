@@ -85,6 +85,7 @@ src/
     db/consultas.ts         SQL público: SOLO lee lo publicado
     db/panel.ts             SQL del panel: ve borradores y escribe
     categorias.ts           la barra del anaquel, derivada de los datos
+    voz/voces.ts            reconoce el género de las voces del sistema
     sitio.ts                nombre y lema del sitio ← cámbialos AQUÍ, en un sitio
     datos.ts                capa que decide Neon o archivo
     paginar.ts              reparto en pliegos ← la pieza delicada
