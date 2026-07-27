@@ -71,8 +71,12 @@ export default async function PaginaPoemarioPanel({
         <section className="ficha-capitulos">
           <header>
             <h2>Capítulos</h2>
-            <Link className="bt fuerte" href="/panel/libro/nuevo">
-              Nuevo
+            {/* El poemario viaja en la dirección para que el formulario llegue
+                con él ya elegido: se entra aquí desde un poemario concreto, y
+                obligar a volver a seleccionarlo en un desplegable es pedir que
+                alguien se equivoque tarde o temprano. */}
+            <Link className="bt fuerte" href={`/panel/libro/nuevo?poemario=${categoria.id}`}>
+              Nuevo capítulo aquí
             </Link>
           </header>
 

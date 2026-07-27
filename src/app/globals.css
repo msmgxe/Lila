@@ -3388,3 +3388,31 @@ body {
   border-radius: 8px;
   border: 1px solid color-mix(in oklab, var(--acento) 28%, transparent);
 }
+
+/* ── avisos del panel: que se vean ───────────────────────────────────────── */
+
+.aviso-bien {
+  border-color: color-mix(in oklab, #4fbf80 55%, transparent);
+  background: color-mix(in oklab, #4fbf80 10%, transparent);
+}
+
+.aviso-error {
+  border-color: color-mix(in oklab, #e06a6a 60%, transparent);
+  background: color-mix(in oklab, #e06a6a 10%, transparent);
+}
+
+.aviso-bien p,
+.aviso-error p {
+  margin: 0;
+}
+
+.aviso-bien + form,
+.aviso-error + form {
+  margin-top: 1rem;
+}
+
+/* Un botón apagado tiene que parecerlo: si no, se pulsa y se cree que falla. */
+.bt:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

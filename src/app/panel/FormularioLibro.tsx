@@ -5,9 +5,12 @@ import type { Categoria, Libro } from '@/lib/tipos'
 export function FormularioLibro({
   libro,
   categorias,
+  categoriaPorDefecto,
 }: {
   libro?: Libro
   categorias: Categoria[]
+  /** Id del poemario con el que llega el alta desde la ficha de un poemario. */
+  categoriaPorDefecto?: string
 }) {
   return (
     <>
@@ -48,7 +51,7 @@ export function FormularioLibro({
             <select
               id="categoriaId"
               name="categoriaId"
-              defaultValue={libro?.categoria?.id ?? categorias[0]?.id ?? ''}
+              defaultValue={libro?.categoria?.id ?? categoriaPorDefecto ?? ''}
             >
               <option value="">— Sin poemario —</option>
               {categorias.map((c) => (
