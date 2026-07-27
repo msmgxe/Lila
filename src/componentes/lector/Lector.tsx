@@ -539,9 +539,20 @@ export function Lector({ libro, pliegos, inicial }: Props) {
               </li>
             ))}
           </ol>
-          <Link className="volver" href="/">
-            ← Volver al anaquel
-          </Link>
+          {/* Dos salidas, no una. Desde un capítulo se sube al poemario que lo
+              contiene —el escalón inmediato— o se va al inicio. Antes solo
+              había «volver al anaquel», que saltaba dos niveles de golpe y
+              además nombraba una pantalla que ya no se llama así. */}
+          <nav className="salidas">
+            {libro.categoria && (
+              <Link className="volver" href={`/poemario/${libro.categoria.slug}`}>
+                ← {libro.categoria.nombre}
+              </Link>
+            )}
+            <Link className="volver" href="/">
+              ⌂ Inicio
+            </Link>
+          </nav>
         </aside>
 
         <div className="mesa" ref={mesaRef} id="contenido">

@@ -57,7 +57,9 @@ export function FichaPoemario({ poemario }: { poemario: Poemario }) {
  * lector, dentro a la pantalla de edición. `extra` deja al panel colgar sus
  * botones sin duplicar la lista entera.
  */
-export function ListaCapitulos<T extends { id: string; slug: string; titulo: string }>({
+export function ListaCapitulos<
+  T extends { id: string; slug: string; titulo: string; orden: number },
+>({
   capitulos,
   destino,
   subtitulo,
@@ -88,9 +90,12 @@ export function ListaCapitulos<T extends { id: string; slug: string; titulo: str
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={capitulo.portadaUrl} alt="" loading="lazy" />
                 ) : (
-                  // Sin imagen, el número. Un hueco gris en una lista de
-                  // portadas se lee como «esto está roto».
-                  <span className="miniatura-numero">{i + 1}</span>
+                  // Sin imagen, el número del capítulo. Y es `orden + 1`, NO la
+                  // posición en la lista: el sitio oculta los capítulos en
+                  // borrador, así que con el tercero sin publicar el cuarto
+                  // caía en la posición 3 y la ficha decía «3 · Capítulo
+                  // cuarto». Un número que contradice al título de al lado.
+                  <span className="miniatura-numero">{capitulo.orden + 1}</span>
                 )}
               </span>
               <span className="lista-texto">

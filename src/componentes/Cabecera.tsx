@@ -16,7 +16,7 @@ export function Cabecera() {
       </Link>
       <span className="et sep">{AUTOR}</span>
       <nav>
-        <Link href="/">Anaquel</Link>
+        <Link href="/">Inicio</Link>
         <Link href="/sobre-la-obra">Sobre la obra</Link>
       </nav>
       <AccesoPanel />

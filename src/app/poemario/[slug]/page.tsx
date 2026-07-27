@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { obtenerLibros } from '@/lib/datos'
@@ -53,6 +54,9 @@ export default async function PaginaPoemario({
     <>
       <Cabecera />
       <main className="marco-poemario">
+        <p className="miga">
+          <Link href="/">Inicio</Link> › {poemario.categoria.nombre}
+        </p>
         <FichaPoemario poemario={poemario} />
       </main>
       <Pie anio={new Date().getFullYear()} />

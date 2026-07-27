@@ -1,6 +1,7 @@
 'use client'
 
-import { useActionState, useRef, useState } from 'react'
+import { useActionState, useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { subirCapitulo, type EstadoImportacion } from './acciones'
 
 /**
@@ -25,6 +26,21 @@ export function SubirCapitulo({ libroId, slug }: { libroId: string; slug: string
   const [nombreImg, setNombreImg] = useState('')
   const [previa, setPrevia] = useState<string | null>(null)
   const formulario = useRef<HTMLFormElement>(null)
+  const router = useRouter()
+
+  /*
+   * Refrescar en cuanto el envío sale bien.
+   *
+   * La acción de servidor guarda la portada y deja el capítulo apuntando a
+   * ella, pero esta página ya está pintada: sin refrescar, el campo «Portada»
+   * de más abajo sigue enseñando el valor viejo y la miniatura no cambia. Se
+   * ve como si la subida no hubiera hecho nada, cuando sí la ha hecho — y ese
+   * malentendido es justo el que lleva a escribir el nombre del archivo a mano
+   * en un campo que espera una dirección.
+   */
+  useEffect(() => {
+    if (estado && !estado.error) router.refresh()
+  }, [estado, router])
 
   const hecho =
     estado && !estado.error && (estado.altas || estado.ediciones || estado.portada)
@@ -80,9 +96,15 @@ export function SubirCapitulo({ libroId, slug }: { libroId: string; slug: string
           </figure>
         )}
 
-        <div className="acciones">
-          <button className="btn primario" type="submit" disabled={pendiente}>
-            {pendiente ? 'Leyendo…' : 'Subir'}
+        {/* `acciones-form` y no `acciones`: esta última NO EXISTE en el CSS, y sin
+            regla el botón y la advertencia salían pegados en la misma línea —
+            «SubirNo se borra ningún poema…»—. El botón dejaba de parecer un
+            botón, así que el archivo se elegía y no se llegaba a enviar nunca.
+            Y clase `bt fuerte`, que es la del resto del panel: `btn primario`
+            tampoco existía. */}
+        <div className="acciones-form">
+          <button className="bt fuerte" type="submit" disabled={pendiente}>
+            {pendiente ? 'Leyendo…' : 'Subir al capítulo'}
           </button>
           <span className="pista">
             No se borra ningún poema. Los que ya estaban se actualizan por su título; los

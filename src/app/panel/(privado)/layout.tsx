@@ -26,7 +26,7 @@ export default async function LayoutPrivado({ children }: { children: React.Reac
         <span className="et">panel</span>
         <div className="sep" />
         <nav>
-          <Link href="/panel">Capítulos</Link>
+          <Link href="/panel">Inicio del panel</Link>
           <Link href="/panel/poemarios">Poemarios</Link>
           <Link href="/" target="_blank" rel="noopener">
             Ver el sitio ↗

@@ -3365,3 +3365,26 @@ body {
     scroll-padding-inline: 1rem;
   }
 }
+
+/* Las salidas del lector: al poemario y al inicio. */
+.salidas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* La miniatura de lo que hay guardado ahora mismo, junto a su campo. */
+.previa-campo {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-top: 0.5rem;
+}
+
+.previa-campo img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid color-mix(in oklab, var(--acento) 28%, transparent);
+}

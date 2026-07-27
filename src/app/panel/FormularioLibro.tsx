@@ -107,17 +107,32 @@ export function FormularioLibro({
 
         <div className="fila">
           <div className="campo">
-            <label htmlFor="portadaUrl">Portada</label>
+            <label htmlFor="portadaUrl">Dirección de la portada</label>
             <input
               id="portadaUrl"
               name="portadaUrl"
               type="text"
+              /* La clave hace que el campo se rellene con el valor nuevo cuando
+                 la subida de arriba lo cambia. Sin ella, React conserva el
+                 `defaultValue` del primer pintado y el campo sigue enseñando lo
+                 anterior aunque la portada ya haya cambiado. */
+              key={libro?.portadaUrl ?? 'sin-portada'}
               defaultValue={libro?.portadaUrl ?? ''}
               placeholder="/portadas/capitulo-2.jpg"
             />
+            {libro?.portadaUrl && (
+              <span className="previa-campo">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={libro.portadaUrl} alt="" />
+                <span className="pista">Esto es lo que hay ahora mismo.</span>
+              </span>
+            )}
             <span className="pista">
-              Se rellena sola al subir una imagen ahí arriba. También admite una
-              dirección de fuera si prefieres alojarla en otro sitio.
+              <strong>No hace falta tocarlo.</strong> Se rellena solo al subir una imagen
+              ahí arriba con «Subir al capítulo». Escribir aquí el nombre de un archivo
+              —«cap03.jpeg»— no sube nada y deja el capítulo sin imagen: esto es una
+              dirección, y tiene que empezar por <code>/</code> o por{' '}
+              <code>https://</code>.
             </span>
           </div>
           <div className="campo">

@@ -106,7 +106,7 @@ export async function guardarLibro(datos: FormData) {
     categoriaId: textoONulo(datos, 'categoriaId'),
     orden: numeroONulo(datos, 'orden') ?? 0,
     colorAcento: textoONulo(datos, 'colorAcento'),
-    portadaUrl: textoONulo(datos, 'portadaUrl'),
+    portadaUrl: direccionDeImagen(datos, 'portadaUrl'),
     anio: numeroONulo(datos, 'anio'),
     paginaBase: numeroONulo(datos, 'paginaBase') ?? 1,
     publicado: datos.get('publicado') === 'on',
@@ -410,4 +410,30 @@ function explicar(error: unknown, haciendo: string): string {
     return 'No hay conexión con la base de datos. Revisa DATABASE_URL.'
   }
   return `No se ha podido ${haciendo}: ${texto}`
+}
+
+/**
+ * Una dirección de imagen, o un error que explique por qué no lo es.
+ *
+ * Guardar «cap03.jpeg» tal cual parecía inofensivo y no lo era: el navegador lo
+ * resuelve contra la página actual, así que el capítulo acababa apuntando a
+ * `/panel/libro/cap03.jpeg`, que no existe. No fallaba nada — simplemente la
+ * portada no salía en ningún sitio, y desde fuera eso se lee como «la subida no
+ * funciona».
+ *
+ * Escribir un nombre de archivo ahí es lo natural cuando uno acaba de elegir
+ * ese archivo dos campos más arriba. Así que en vez de aceptarlo en silencio,
+ * se para y se dice qué hacer.
+ */
+function direccionDeImagen(datos: FormData, campo: string): string | null {
+  const valor = textoONulo(datos, campo)
+  if (!valor) return null
+  if (valor.startsWith('/') || /^https?:\/\//i.test(valor)) return valor
+
+  throw new Error(
+    `«${valor}» no es una dirección, es un nombre de archivo, y así el capítulo se ` +
+      'queda sin imagen. Para poner una portada usa «Subir al capítulo» ahí arriba: ' +
+      'elige la imagen y pulsa el botón, y este campo se rellena solo. Si la imagen ' +
+      'ya está en otro sitio, pega su dirección completa (empieza por / o por https://).',
+  )
 }
