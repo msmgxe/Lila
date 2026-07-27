@@ -20,7 +20,30 @@ export function cifrarClave(clave: string): string {
   return `${sal.toString('hex')}:${hash.toString('hex')}`
 }
 
-export function comprobarClave(clave: string, guardado: string): boolean {
+/**
+ * Un hash guardado son 32 caracteres hex, dos puntos, y 128 más: 161 en total.
+ *
+ * Existe porque los dos fallos de configuración más probables —pegar la clave
+ * en vez del hash, o pegarlo con comillas— hacían que `comprobarClave`
+ * devolviera `false`, exactamente igual que una clave equivocada. Mismo
+ * mensaje, causa opuesta, y a buscar el problema donde no está.
+ */
+export function formatoDeHashValido(guardado: string): boolean {
+  return /^[0-9a-f]{32}:[0-9a-f]{128}$/i.test(limpiarGuardado(guardado))
+}
+
+/**
+ * Quita lo que sobra de un copiar y pegar: espacios, saltos de línea y comillas
+ * alrededor. En un hash hexadecimal ninguna de las tres cosas puede ser
+ * legítima, así que quitarlas no enmascara nada — y el panel de Vercel guarda
+ * el valor tal cual se pega, comillas incluidas.
+ */
+function limpiarGuardado(guardado: string): string {
+  return guardado.trim().replace(/^["']|["']$/g, '')
+}
+
+export function comprobarClave(clave: string, guardadoBruto: string): boolean {
+  const guardado = limpiarGuardado(guardadoBruto)
   const [salHex, hashHex] = guardado.split(':')
   if (!salHex || !hashHex) return false
 

@@ -52,13 +52,19 @@ export async function entrar(
   } catch (error) {
     if (error instanceof AuthError) {
       // `code` llega desde `CredentialsSignin` en auth.ts.
-      const sinConfigurar = (error as { code?: string }).code === 'sin-configurar'
-      return {
-        error: sinConfigurar
-          ? 'El panel no tiene configuradas sus variables. Si acabas de cambiarlas: en local reinicia el servidor, y en Vercel vuelve a desplegar — las variables no se aplican a un despliegue ya hecho.'
-          : 'Usuario o clave incorrectos.',
-        usuario,
+      const codigo = (error as { code?: string }).code
+      const motivos: Record<string, string> = {
+        'sin-configurar':
+          'El panel no tiene configuradas sus variables. Si acabas de cambiarlas: ' +
+          'en local reinicia el servidor, y en Vercel vuelve a desplegar — las ' +
+          'variables no se aplican a un despliegue que ya estaba hecho.',
+        'hash-invalido':
+          'ADMIN_CLAVE_HASH no contiene un hash válido, así que ninguna clave puede ' +
+          'funcionar. Tiene que ser «sal:hash» en hexadecimal, 161 caracteres, tal y ' +
+          'como lo imprime «npm run panel:clave» — no tu clave escrita directamente, ' +
+          'y sin comillas alrededor.',
       }
+      return { error: motivos[codigo ?? ''] ?? 'Usuario o clave incorrectos.', usuario }
     }
     // signIn lanza un redirect por diseño; hay que dejarlo pasar.
     throw error

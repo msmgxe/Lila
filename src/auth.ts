@@ -1,7 +1,7 @@
 import NextAuth from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 import { CredentialsSignin } from 'next-auth'
-import { comprobarClave } from '@/lib/auth/clave'
+import { comprobarClave, formatoDeHashValido } from '@/lib/auth/clave'
 
 /**
  * Auth.js v5 con un único administrador.
@@ -44,6 +44,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         // ya hecho, y en local hay que reiniciar el servidor.
         if (!esperado || !hash) {
           throw new CredentialsSignin('sin-configurar')
+        }
+        // Un hash mal pegado no es una clave equivocada, y decir «incorrectos»
+        // en ese caso manda a cambiar la clave una y otra vez sin arreglar nada.
+        if (!formatoDeHashValido(hash)) {
+          throw new CredentialsSignin('hash-invalido')
         }
         if (usuario.trim().toLowerCase() !== esperado.trim().toLowerCase()) return null
         if (!comprobarClave(clave, hash)) return null

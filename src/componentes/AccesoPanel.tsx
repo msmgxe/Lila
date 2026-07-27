@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { entrar } from '@/app/panel/acciones'
+import { CampoClave } from './CampoClave'
 
 /**
  * Acceso al panel desde la cabecera del sitio.
@@ -112,16 +113,7 @@ export function AccesoPanel() {
                   />
                 </div>
 
-                <div className="campo-acceso">
-                  <label htmlFor="acc-clave">Clave</label>
-                  <input
-                    id="acc-clave"
-                    name="clave"
-                    type="password"
-                    autoComplete="current-password"
-                    required
-                  />
-                </div>
+                <CampoClave id="acc-clave" />
 
                 {estado?.error && <p className="error-acceso">{estado.error}</p>}
 

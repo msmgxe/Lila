@@ -2,6 +2,7 @@
 
 import { useActionState } from 'react'
 import { entrar } from '../acciones'
+import { CampoClave } from '@/componentes/CampoClave'
 
 export function FormularioEntrada() {
   const [estado, accion, pendiente] = useActionState(entrar, undefined)
@@ -25,16 +26,7 @@ export function FormularioEntrada() {
         />
       </div>
 
-      <div className="campo">
-        <label htmlFor="clave">Clave</label>
-        <input
-          id="clave"
-          name="clave"
-          type="password"
-          autoComplete="current-password"
-          required
-        />
-      </div>
+      <CampoClave id="clave" />
 
       {estado?.error && <p className="error">{estado.error}</p>}
 

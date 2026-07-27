@@ -2483,3 +2483,43 @@ h2.tit .sigue {
 .avisos-subida {
   border-color: color-mix(in oklab, #d9a441 55%, transparent);
 }
+
+/* ── ojito para ver la clave ─────────────────────────────────────────────── */
+
+.clave-con-ojo {
+  position: relative;
+  display: flex;
+}
+
+.clave-con-ojo input {
+  width: 100%;
+  /* Sitio para el botón: sin esto, una clave larga pasa por debajo del ojo. */
+  padding-right: 3rem;
+}
+
+.ojo {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 3rem;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: none;
+  color: var(--neutro);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.ojo:hover,
+.ojo:focus-visible {
+  color: var(--terciario);
+}
+
+.ojo svg {
+  width: 20px;
+  height: 20px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
