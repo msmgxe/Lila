@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "module": "esnext",
+    "moduleResolution": "bundler"
+  },
+  "include": [
+    "scripts/**/*.ts",
+    "drizzle.config.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

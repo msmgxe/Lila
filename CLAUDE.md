@@ -143,6 +143,22 @@ npm run panel:clave      # da de alta al administrador
 npm run contenido:importar   # relee los .docx de origen/
 ```
 
+**Node en el despliegue** lo fija el ajuste del proyecto en Vercel (24.x), no
+`engines` en package.json: un rango abierto ahí hace que Vercel avise de que
+saltará solo de major, y fijarlo a `24.x` haría que npm avisara en local, donde
+se usa Node 26. En desarrollo vale Node 20.9 o superior.
+
+**Las herramientas locales no se despliegan.** `vercel.json` instala con
+`npm ci --omit=dev`, así que drizzle-kit, pglite, tsx, dotenv y ws se quedan
+fuera del despliegue: son 35 MB y ninguno interviene en la compilación. Lo que
+sí necesita `next build` —typescript, los @types y tailwind— está en
+`dependencies` a propósito. Si añades una herramienta que haga falta al
+compilar, va en `dependencies`, no en `devDependencies`.
+
+Los scripts y `drizzle.config.ts` quedan fuera del `tsconfig.json` de la
+aplicación —importan herramientas que no están en el despliegue— y se comprueban
+con `tsconfig.scripts.json`. `npm run tipos` pasa los dos.
+
 **`npm run db:probar` antes de tocar el esquema.** Levanta un Postgres real en
 memoria y aplica la migración de verdad. Ya cazó un `array_to_string` que no era
 IMMUTABLE y habría tumbado la primera migración contra Neon.
