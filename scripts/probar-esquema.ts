@@ -68,8 +68,15 @@ async function principal() {
 
   /* 3. La columna generada se rellena y respeta los saltos del poema. */
   await db.query(
-    `INSERT INTO libros (slug, volumen, titulo, categoria, publicado, pagina_base)
-     VALUES ('prueba','Obra','Volumen de prueba','pentapoemas',true,1)`,
+    `INSERT INTO categorias (slug, nombre, visible) VALUES ('prueba-poemario','Poemario de prueba',true)`,
+  )
+  const { rows: [cat] } = await db.query<{ id: string }>(
+    `SELECT id FROM categorias WHERE slug='prueba-poemario'`,
+  )
+  await db.query(
+    `INSERT INTO libros (slug, volumen, titulo, categoria_id, publicado, pagina_base)
+     VALUES ('prueba','Obra','Volumen de prueba',$1,true,1)`,
+    [cat.id],
   )
   const { rows: [libro] } = await db.query<{ id: string }>(
     `SELECT id FROM libros WHERE slug='prueba'`,
@@ -142,6 +149,15 @@ async function principal() {
   } catch {
     ok('el slug es único dentro de cada volumen')
   }
+
+  // Borrar el poemario NO puede llevarse los capítulos: solo los desasigna.
+  await db.query(`DELETE FROM categorias WHERE id = $1`, [cat.id])
+  const { rows: [tras] } = await db.query<{ n: number; sinCat: number }>(
+    `SELECT count(*)::int AS n, count(*) FILTER (WHERE categoria_id IS NULL)::int AS "sinCat" FROM libros`,
+  )
+  tras.n === 1 && tras.sinCat === 1
+    ? ok('borrar un poemario deja sus capítulos sin categoría, no los borra')
+    : mal(`al borrar el poemario quedaron ${tras.n} capítulos (${tras.sinCat} sin categoría)`)
 
   await db.query(`DELETE FROM libros WHERE id = $1`, [libro.id])
   const { rows: [quedan] } = await db.query<{ n: number }>(

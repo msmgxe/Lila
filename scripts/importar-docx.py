@@ -37,6 +37,18 @@ PORTADAS = RAIZ / 'public' / 'portadas'
 AUTOR = 'José Andrés Saldarriaga Medina'
 OBRA = 'Pentapoemario lila'
 
+# La categoría es el poemario al que pertenecen estos capítulos. Cuando llegue
+# otro poemario, se añade aquí (o se crea desde el panel) y los capítulos
+# nuevos apuntan a él.
+CATEGORIA = {
+    'id': 'cat-pentapoemario-lila',
+    'slug': 'pentapoemario-lila',
+    'nombre': 'Pentapoemario lila',
+    'descripcion': 'Cinco poemas por capítulo, cinco versos por poema.',
+    'orden': 0,
+    'visible': True,
+}
+
 ORDINALES = [
     '', 'primero', 'segundo', 'tercero', 'cuarto', 'quinto', 'sexto',
     'séptimo', 'octavo', 'noveno', 'décimo', 'undécimo', 'duodécimo',
@@ -185,7 +197,7 @@ def main():
             'titulo': f'Capítulo {ORDINALES[n]}',
             'subtitulo': f'{len(ps)} poemas · capítulo {ROMANOS[n]}',
             'descripcion': 'Cinco versos por poema. Todos los títulos empiezan por la misma letra.',
-            'categoria': 'pentapoemas',
+            'categoria': CATEGORIA,
             'orden': n - 1,
             'colorAcento': '#8B5CF6',
             'portadaUrl': f'/portadas/capitulo-{n}.jpg' if n in disponibles else None,
@@ -225,10 +237,13 @@ def main():
  * {len(libros)} capítulos · {total_poemas} poemas
  */
 
-import type {{ Libro }} from '../tipos'
+import type {{ Categoria, Libro }} from '../tipos'
 
 export const AUTOR = '{AUTOR}'
 export const OBRA = '{OBRA}'
+
+/** El poemario al que pertenecen estos capítulos. */
+export const CATEGORIA_PENTAPOEMARIO: Categoria = {ts(CATEGORIA)}
 
 export const LIBROS_PENTAPOEMARIO: Libro[] = '''
 

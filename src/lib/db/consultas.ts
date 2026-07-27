@@ -2,7 +2,7 @@ import 'server-only'
 
 import { and, asc, eq, sql } from 'drizzle-orm'
 import { db } from './cliente'
-import { libros, poemas, planchas, audios } from './esquema'
+import { categorias, libros, poemas, planchas, audios } from './esquema'
 import { aEstrofas } from '../texto'
 import type { Categoria, Libro, Poema, ResultadoBusqueda, Voz } from '../tipos'
 
@@ -15,6 +15,7 @@ export async function traerLibrosPublicados(): Promise<Libro[]> {
     where: eq(libros.publicado, true),
     orderBy: [asc(libros.orden), asc(libros.titulo)],
     with: {
+      categoria: true,
       poemas: {
         where: eq(poemas.publicado, true),
         orderBy: [asc(poemas.orden)],
@@ -35,6 +36,7 @@ export async function traerLibro(slug: string): Promise<Libro | null> {
   const fila = await db.query.libros.findFirst({
     where: and(eq(libros.slug, slug), eq(libros.publicado, true)),
     with: {
+      categoria: true,
       poemas: {
         where: eq(poemas.publicado, true),
         orderBy: [asc(poemas.orden)],
@@ -170,7 +172,25 @@ type FilaPoema = typeof poemas.$inferSelect & {
   planchas: (typeof planchas.$inferSelect)[]
   audios: (typeof audios.$inferSelect)[]
 }
-type FilaLibro = typeof libros.$inferSelect & { poemas: FilaPoema[] }
+type FilaLibro = typeof libros.$inferSelect & {
+  poemas: FilaPoema[]
+  categoria: typeof categorias.$inferSelect | null
+}
+
+function mapearCategoria(
+  c: { id: string; slug: string; nombre: string; descripcion: string | null; orden: number; visible: boolean } | null,
+): Categoria | null {
+  return c
+    ? {
+        id: c.id,
+        slug: c.slug,
+        nombre: c.nombre,
+        descripcion: c.descripcion,
+        orden: c.orden,
+        visible: c.visible,
+      }
+    : null
+}
 
 function mapearLibro(fila: FilaLibro): Libro {
   return {
@@ -180,7 +200,7 @@ function mapearLibro(fila: FilaLibro): Libro {
     titulo: fila.titulo,
     subtitulo: fila.subtitulo,
     descripcion: fila.descripcion,
-    categoria: fila.categoria as Categoria,
+    categoria: mapearCategoria(fila.categoria),
     orden: fila.orden,
     colorAcento: fila.colorAcento,
     portadaUrl: fila.portadaUrl,

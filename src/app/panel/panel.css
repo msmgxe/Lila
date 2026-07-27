@@ -256,6 +256,9 @@
   outline: 0;
   border-color: var(--terciario);
 }
+.campo .pista a {
+  color: var(--terciario);
+}
 .campo .pista {
   font-size: 0.72rem;
   color: var(--neutro);

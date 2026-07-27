@@ -1,7 +1,14 @@
 import { guardarLibro, eliminarLibro } from './acciones'
-import type { Libro } from '@/lib/tipos'
+import Link from 'next/link'
+import type { Categoria, Libro } from '@/lib/tipos'
 
-export function FormularioLibro({ libro }: { libro?: Libro }) {
+export function FormularioLibro({
+  libro,
+  categorias,
+}: {
+  libro?: Libro
+  categorias: Categoria[]
+}) {
   return (
     <>
       <form action={guardarLibro} className="form">
@@ -37,16 +44,23 @@ export function FormularioLibro({ libro }: { libro?: Libro }) {
             />
           </div>
           <div className="campo">
-            <label htmlFor="categoria">Categoría</label>
-            <input
-              id="categoria"
-              name="categoria"
-              type="text"
-              defaultValue={libro?.categoria ?? 'pentapoemas'}
-            />
+            <label htmlFor="categoriaId">Poemario</label>
+            <select
+              id="categoriaId"
+              name="categoriaId"
+              defaultValue={libro?.categoria?.id ?? categorias[0]?.id ?? ''}
+            >
+              <option value="">— Sin poemario —</option>
+              {categorias.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.nombre}
+                  {c.visible ? '' : ' (oculto)'}
+                </option>
+              ))}
+            </select>
             <span className="pista">
-              Agrupa la estantería. La barra lateral del anaquel se arma sola con las que
-              haya; si solo hay una, no se muestra el filtro.
+              El poemario al que pertenece este capítulo. Se crean y se ocultan desde{' '}
+              <Link href="/panel/poemarios">Poemarios</Link>.
             </span>
           </div>
         </div>

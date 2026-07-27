@@ -10,8 +10,11 @@
 import { drizzle } from 'drizzle-orm/neon-serverless'
 import { eq } from 'drizzle-orm'
 import { conexionDirecta, ok } from './_conexion'
-import { libros, poemas, planchas } from '../src/lib/db/esquema'
-import { LIBROS_PENTAPOEMARIO } from '../src/lib/contenido/pentapoemario'
+import { categorias, libros, poemas, planchas } from '../src/lib/db/esquema'
+import {
+  CATEGORIA_PENTAPOEMARIO,
+  LIBROS_PENTAPOEMARIO,
+} from '../src/lib/contenido/pentapoemario'
 import { aCuerpo } from '../src/lib/texto'
 
 async function principal() {
@@ -20,6 +23,27 @@ async function principal() {
 
   console.log('\n  Sembrando la obra…\n')
   try {
+    // Primero el poemario: los capítulos apuntan a él.
+    const [cat] = await db
+      .insert(categorias)
+      .values({
+        slug: CATEGORIA_PENTAPOEMARIO.slug,
+        nombre: CATEGORIA_PENTAPOEMARIO.nombre,
+        descripcion: CATEGORIA_PENTAPOEMARIO.descripcion,
+        orden: CATEGORIA_PENTAPOEMARIO.orden,
+        visible: CATEGORIA_PENTAPOEMARIO.visible,
+      })
+      .onConflictDoUpdate({
+        target: categorias.slug,
+        set: {
+          nombre: CATEGORIA_PENTAPOEMARIO.nombre,
+          descripcion: CATEGORIA_PENTAPOEMARIO.descripcion,
+          actualizadoEn: new Date(),
+        },
+      })
+      .returning({ id: categorias.id })
+    ok(`poemario «${CATEGORIA_PENTAPOEMARIO.nombre}»`)
+
     for (const libro of LIBROS_PENTAPOEMARIO) {
       const [fila] = await db
         .insert(libros)
@@ -29,7 +53,7 @@ async function principal() {
           titulo: libro.titulo,
           subtitulo: libro.subtitulo,
           descripcion: libro.descripcion,
-          categoria: libro.categoria,
+          categoriaId: cat.id,
           orden: libro.orden,
           colorAcento: libro.colorAcento,
           portadaUrl: libro.portadaUrl,
@@ -44,7 +68,7 @@ async function principal() {
             titulo: libro.titulo,
             subtitulo: libro.subtitulo,
             descripcion: libro.descripcion,
-            categoria: libro.categoria,
+            categoriaId: cat.id,
             orden: libro.orden,
             paginaBase: libro.paginaBase,
             publicado: libro.publicado,

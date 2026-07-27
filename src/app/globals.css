@@ -38,6 +38,8 @@
      El rosa --terciario NO se usa nunca como texto sobre crema: solo como
      fondo de resaltado, que es donde sí funciona. */
   --tinta-acento: #8a3d33;
+
+  --alto-cabecera: 3.75rem;
 }
 
 * {
@@ -56,8 +58,13 @@ body {
   color: var(--primario);
   font-family: var(--ui);
   font-weight: 300;
-  overflow: hidden;
   -webkit-font-smoothing: antialiased;
+}
+/* Solo el LECTOR ocupa la pantalla entera y bloquea el desplazamiento: es un
+   libro abierto, no un documento. El anaquel sí desplaza, porque tiene
+   cabecera y pie. */
+body:has(.lector) {
+  overflow: hidden;
 }
 
 button {
@@ -106,12 +113,172 @@ button {
   top: 0.6rem;
 }
 
+
+/* ═══════════════════════ CABECERA Y PIE DEL SITIO ══════════════════════════ */
+
+.cabecera-sitio {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  height: var(--alto-cabecera);
+  padding: 0 clamp(1rem, 3vw, 2rem);
+  border-bottom: 1px solid var(--linea);
+  background: rgba(14, 12, 12, 0.92);
+  backdrop-filter: blur(8px);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+.cabecera-sitio .marca {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.2rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--primario);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.cabecera-sitio .sep {
+  flex: 1;
+  border-left: 1px solid var(--linea);
+  padding-left: 1.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cabecera-sitio nav {
+  display: flex;
+  gap: 1.4rem;
+}
+.cabecera-sitio nav a {
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #b8b3ad;
+  text-decoration: none;
+  transition: 0.2s;
+  white-space: nowrap;
+}
+.cabecera-sitio nav a:hover {
+  color: var(--primario);
+}
+
+.pie-sitio {
+  border-top: 1px solid var(--linea);
+  background: var(--fondo2);
+  padding: clamp(2.4rem, 6vh, 3.6rem) clamp(1rem, 3vw, 2rem) 1.6rem;
+}
+.pie-sitio .columnas {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: clamp(1.6rem, 4vw, 3rem);
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.pie-sitio .marca {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 0.7rem;
+}
+.pie-sitio p {
+  color: #a49f99;
+  font-size: 0.88rem;
+  line-height: 1.7;
+  max-width: 46ch;
+}
+.pie-sitio .et {
+  display: block;
+  margin-bottom: 0.8rem;
+}
+.pie-sitio ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.pie-sitio li,
+.pie-sitio li a {
+  font-size: 0.85rem;
+  color: #a49f99;
+  text-decoration: none;
+}
+.pie-sitio li a:hover {
+  color: var(--primario);
+}
+.pie-sitio .linea-final {
+  max-width: 1100px;
+  margin: clamp(2rem, 5vh, 3rem) auto 0;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--linea);
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--neutro);
+}
+
+/* ═══════════════════════ PÁGINA DE TEXTO ═══════════════════════════════════ */
+
+.pagina-texto {
+  max-width: 62ch;
+  margin: 0 auto;
+  padding: clamp(2.4rem, 8vh, 5rem) clamp(1.2rem, 4vw, 2rem) clamp(3rem, 9vh, 5rem);
+}
+.pagina-texto h1 {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  line-height: 1.08;
+  margin: 0.8rem 0 1.4rem;
+  text-wrap: balance;
+}
+.pagina-texto h2 {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 1.4rem;
+  margin: 2.4rem 0 0.8rem;
+}
+.pagina-texto p {
+  color: #a49f99;
+  line-height: 1.8;
+  margin-bottom: 1rem;
+}
+.pagina-texto em {
+  font-style: italic;
+  color: var(--primario);
+}
+.pagina-texto .volver {
+  display: inline-block;
+  width: auto;
+  margin: 2.4rem 0 0;
+}
+
+@media (max-width: 860px) {
+  .cabecera-sitio .sep {
+    display: none;
+  }
+  .pie-sitio .columnas {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ═══════════════════════════ ANAQUEL ═══════════════════════════════════════ */
 
 .biblioteca {
-  height: 100dvh;
+  min-height: calc(100dvh - var(--alto-cabecera));
   display: grid;
   grid-template-columns: 248px 1fr;
+  /* La barra lateral es pegajosa y mide una pantalla; sin esto su fondo se
+     corta a media página y deja un escalón. El degradado pinta la columna
+     entera por detrás. */
+  background: linear-gradient(90deg, var(--fondo2) 0 248px, transparent 248px);
 }
 
 .lateral {
@@ -120,6 +287,9 @@ button {
   display: flex;
   flex-direction: column;
   padding: 1.5rem 0 1.2rem;
+  position: sticky;
+  top: var(--alto-cabecera);
+  height: calc(100dvh - var(--alto-cabecera));
   overflow-y: auto;
 }
 .lateral h2 {
@@ -214,7 +384,6 @@ button {
 }
 
 .anaquel {
-  overflow-y: auto;
   padding: clamp(2rem, 5vw, 4rem) clamp(1.2rem, 4vw, 3.4rem) 5rem;
   background: radial-gradient(80% 60% at 20% 0%, #1a1616, var(--fondo) 65%);
 }
@@ -1135,15 +1304,17 @@ h2.tit .sigue {
   opacity: 0.3;
   cursor: default;
 }
-.tempo {
+/* ── pasar página ── */
+.paginar {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.35rem;
   border: 1px solid var(--linea);
   border-radius: 999px;
-  padding: 0.3rem 0.5rem;
+  padding: 0.28rem 0.5rem;
+  flex: none;
 }
-.tempo > button:not(.hbtn) {
+.paginar button {
   background: none;
   border: 0;
   color: var(--primario);
@@ -1151,15 +1322,114 @@ h2.tit .sigue {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  font-size: 1rem;
+  font-size: 1.05rem;
   line-height: 1;
 }
-.tempo > button:not(.hbtn):hover {
+.paginar button:hover:not(:disabled) {
   background: rgba(245, 245, 240, 0.1);
 }
-.tempo > button:disabled {
+.paginar button:disabled {
   opacity: 0.25;
   cursor: default;
+}
+.paginar .folio-bar {
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  color: var(--neutro);
+  min-width: 2.6em;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── velocidad de lectura ── */
+.tempo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--linea);
+  border-radius: 999px;
+  padding: 0.28rem 0.75rem 0.28rem 0.9rem;
+  flex: none;
+}
+.tempo .et {
+  color: var(--neutro);
+}
+.tempo .paso {
+  background: none;
+  border: 1px solid var(--linea);
+  color: var(--primario);
+  cursor: pointer;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 0.9rem;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+.tempo .paso:hover:not(:disabled) {
+  background: rgba(245, 245, 240, 0.12);
+}
+.tempo .paso:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+.tempo .valor {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--primario);
+  min-width: 3em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* El deslizador se dibuja a mano: el nativo desentona con todo lo demás. */
+.tempo input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 110px;
+  height: 2px;
+  background: rgba(245, 245, 240, 0.22);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  flex: none;
+}
+.tempo input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--primario);
+  cursor: pointer;
+  border: 0;
+}
+.tempo input[type='range']::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--primario);
+  cursor: pointer;
+  border: 0;
+}
+
+/* ── qué voz suena ── */
+.sel-voz {
+  font-family: var(--ui);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: rgba(245, 245, 240, 0.04);
+  border: 1px solid var(--linea);
+  color: #b8b3ad;
+  padding: 0.26rem 0.4rem;
+  max-width: 12rem;
+  cursor: pointer;
+}
+.sel-voz:hover {
+  color: var(--primario);
 }
 
 /* ── barra de progreso — dirección B (Sala blanca) ── */
@@ -1219,11 +1489,29 @@ h2.tit .sigue {
 .lector[data-sala='true'] .hbtn[aria-pressed='true'] {
   color: #e2371f;
 }
-.lector[data-sala='true'] .tempo {
+.lector[data-sala='true'] .tempo,
+.lector[data-sala='true'] .paginar,
+.lector[data-sala='true'] .tempo .paso,
+.lector[data-sala='true'] .sel-voz {
   border-color: #e4e1db;
 }
-.lector[data-sala='true'] .tempo > button:not(.hbtn) {
+.lector[data-sala='true'] .paginar button,
+.lector[data-sala='true'] .tempo .paso,
+.lector[data-sala='true'] .tempo .valor {
   color: #16150f;
+}
+.lector[data-sala='true'] .sel-voz {
+  color: #56534c;
+  background: transparent;
+}
+.lector[data-sala='true'] .tempo input[type='range'] {
+  background: #cfcbc3;
+}
+.lector[data-sala='true'] .tempo input[type='range']::-webkit-slider-thumb {
+  background: #e2371f;
+}
+.lector[data-sala='true'] .tempo input[type='range']::-moz-range-thumb {
+  background: #e2371f;
 }
 .lector[data-sala='true'] .indice {
   background: #fbfaf8;
@@ -1545,6 +1833,7 @@ h2.tit .sigue {
     grid-template-columns: 1fr;
     height: auto;
     min-height: 100dvh;
+    background: none;
   }
   .lateral {
     flex-direction: row;
@@ -1552,10 +1841,12 @@ h2.tit .sigue {
     gap: 0.6rem;
     padding: 0.7rem 0.9rem;
     overflow-x: auto;
+    overflow-y: hidden;
     border-right: 0;
     border-bottom: 1px solid var(--linea);
     position: sticky;
-    top: 0;
+    top: var(--alto-cabecera);
+    height: auto;
     z-index: 10;
   }
   .lateral h2,
@@ -1640,17 +1931,23 @@ h2.tit .sigue {
     width: 19px;
     height: 19px;
   }
+  .paginar {
+    gap: 0.15rem;
+    padding: 0.22rem 0.35rem;
+  }
   .tempo {
-    flex: none;
-    gap: 0.2rem;
-    padding: 0.25rem 0.35rem;
+    gap: 0.4rem;
+    padding: 0.22rem 0.5rem 0.22rem 0.6rem;
   }
-  .tempo .hbtn {
-    min-width: 48px !important;
+  /* La etiqueta sobra en móvil: el «×» del valor ya dice qué es. */
+  .tempo .et {
+    display: none;
   }
-  .tempo .hbtn span {
-    display: block;
-    font-size: 0.54rem;
+  .tempo input[type='range'] {
+    width: 78px;
+  }
+  .sel-voz {
+    max-width: 7rem;
   }
   .lector[data-sala='true'] .plancha {
     aspect-ratio: 16 / 9;

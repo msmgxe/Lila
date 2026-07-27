@@ -89,7 +89,7 @@ export async function guardarLibro(datos: FormData) {
     titulo,
     subtitulo: textoONulo(datos, 'subtitulo'),
     descripcion: textoONulo(datos, 'descripcion'),
-    categoria: texto(datos, 'categoria') || 'sin clasificar',
+    categoriaId: textoONulo(datos, 'categoriaId'),
     orden: numeroONulo(datos, 'orden') ?? 0,
     colorAcento: textoONulo(datos, 'colorAcento'),
     portadaUrl: textoONulo(datos, 'portadaUrl'),
@@ -218,4 +218,46 @@ export async function eliminarPlancha(datos: FormData) {
   await autorizar()
   await panel.borrarPlancha(texto(datos, 'id'))
   refrescarSitio(texto(datos, 'libroSlug'), texto(datos, 'poemaSlug'))
+}
+
+/* ────────────────────────────── poemarios ───────────────────────────────── */
+
+export async function guardarCategoria(datos: FormData) {
+  await autorizar()
+  const id = texto(datos, 'id')
+  const nombre = texto(datos, 'nombre')
+  if (!nombre) throw new Error('El poemario necesita un nombre.')
+
+  const campos = {
+    nombre,
+    descripcion: textoONulo(datos, 'descripcion'),
+    orden: numeroONulo(datos, 'orden') ?? 0,
+    visible: datos.get('visible') === 'on',
+  }
+
+  if (id) {
+    await panel.actualizarCategoria(id, campos)
+  } else {
+    await panel.crearCategoria({ ...campos, slug: await panel.slugLibreCategoria(nombre) })
+  }
+  refrescarSitio()
+  revalidatePath('/panel/poemarios')
+  redirect('/panel/poemarios')
+}
+
+/** Enseña u oculta el poemario entero, con todos sus capítulos. */
+export async function alternarCategoria(datos: FormData) {
+  await autorizar()
+  await panel.alternarVisibilidadCategoria(texto(datos, 'id'))
+  refrescarSitio()
+  revalidatePath('/panel/poemarios')
+}
+
+export async function eliminarCategoria(datos: FormData) {
+  await autorizar()
+  // Los capítulos NO se borran: se quedan sin poemario asignado.
+  await panel.borrarCategoria(texto(datos, 'id'))
+  refrescarSitio()
+  revalidatePath('/panel/poemarios')
+  redirect('/panel/poemarios')
 }

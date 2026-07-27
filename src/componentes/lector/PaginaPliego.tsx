@@ -58,7 +58,8 @@ export function PaginaPliego({
             </ul>
             <div className="pie-pag">
               <span>
-                {entradas.length} {entradas.length === 1 ? 'pieza' : 'piezas'} · {libro.categoria}
+                {entradas.length} {entradas.length === 1 ? 'pieza' : 'piezas'}
+                {libro.categoria ? ` · ${libro.categoria.nombre}` : ''}
               </span>
             </div>
           </>
@@ -196,7 +197,7 @@ function PoemaPliego({
             nunca se queda vacío. */}
         <span>
           {pliego.partes && pliego.partes > 1
-            ? `Fragmento ${romano((pliego.parte ?? 0) + 1)} de ${pliego.partes} · ${libro.categoria}`
+            ? `Fragmento ${romano((pliego.parte ?? 0) + 1)} de ${pliego.partes}`
             : poema.temas.length > 0
               ? poema.temas.slice(0, 3).join(' · ')
               : `${libro.volumen} · ${libro.titulo}`}

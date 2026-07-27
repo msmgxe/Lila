@@ -25,6 +25,8 @@ const FEMENINAS =
 export interface VozDelSistema {
   uri: string
   nombre: string
+  /** El nombre sin el paréntesis del idioma: «Flo», no «Flo (español (España))». */
+  corto: string
   idioma: string
   /** null cuando el nombre no permite deducirlo. */
   genero: Voz | null
@@ -45,6 +47,7 @@ export function vocesEnEspanol(todas: SpeechSynthesisVoice[]): VozDelSistema[] {
     .map((v) => ({
       uri: v.voiceURI,
       nombre: v.name,
+      corto: v.name.split('(')[0].trim() || v.name,
       idioma: v.lang,
       genero: generoDe(v.name),
       local: v.localService,

@@ -9,10 +9,20 @@
  * 8 capítulos · 40 poemas
  */
 
-import type { Libro } from '../tipos'
+import type { Categoria, Libro } from '../tipos'
 
 export const AUTOR = 'José Andrés Saldarriaga Medina'
 export const OBRA = 'Pentapoemario lila'
+
+/** El poemario al que pertenecen estos capítulos. */
+export const CATEGORIA_PENTAPOEMARIO: Categoria = {
+  id: 'cat-pentapoemario-lila',
+  slug: 'pentapoemario-lila',
+  nombre: 'Pentapoemario lila',
+  descripcion: 'Cinco poemas por capítulo, cinco versos por poema.',
+  orden: 0,
+  visible: true,
+}
 
 export const LIBROS_PENTAPOEMARIO: Libro[] = [
   {
@@ -22,7 +32,14 @@ export const LIBROS_PENTAPOEMARIO: Libro[] = [
     titulo: 'Capítulo primero',
     subtitulo: '5 poemas · capítulo I',
     descripcion: 'Cinco versos por poema. Todos los títulos empiezan por la misma letra.',
-    categoria: 'pentapoemas',
+    categoria: {
+      id: 'cat-pentapoemario-lila',
+      slug: 'pentapoemario-lila',
+      nombre: 'Pentapoemario lila',
+      descripcion: 'Cinco poemas por capítulo, cinco versos por poema.',
+      orden: 0,
+      visible: true,
+    },
     orden: 0,
     colorAcento: '#8B5CF6',
     portadaUrl: null,
@@ -154,7 +171,14 @@ export const LIBROS_PENTAPOEMARIO: Libro[] = [
     titulo: 'Capítulo segundo',
     subtitulo: '5 poemas · capítulo II',
     descripcion: 'Cinco versos por poema. Todos los títulos empiezan por la misma letra.',
-    categoria: 'pentapoemas',
+    categoria: {
+      id: 'cat-pentapoemario-lila',
+      slug: 'pentapoemario-lila',
+      nombre: 'Pentapoemario lila',
+      descripcion: 'Cinco poemas por capítulo, cinco versos por poema.',
+      orden: 0,
+      visible: true,
+    },
     orden: 1,
     colorAcento: '#8B5CF6',
     portadaUrl: '/portadas/capitulo-2.jpg',
@@ -286,7 +310,14 @@ export const LIBROS_PENTAPOEMARIO: Libro[] = [
     titulo: 'Capítulo tercero',
     subtitulo: '5 poemas · capítulo III',
     descripcion: 'Cinco versos por poema. Todos los títulos empiezan por la misma letra.',
-    categoria: 'pentapoemas',
+    categoria: {
+      id: 'cat-pentapoemario-lila',
+      slug: 'pentapoemario-lila',
+      nombre: 'Pentapoemario lila',
+      descripcion: 'Cinco poemas por capítulo, cinco versos por poema.',
+      orden: 0,
+      visible: true,
+    },
     orden: 2,
     colorAcento: '#8B5CF6',
     portadaUrl: null,
@@ -418,7 +449,14 @@ export const LIBROS_PENTAPOEMARIO: Libro[] = [
     titulo: 'Capítulo cuarto',
     subtitulo: '5 poemas · capítulo IV',
     descripcion: 'Cinco versos por poema. Todos los títulos empiezan por la misma letra.',
-    categoria: 'pentapoemas',
+    categoria: {
+      id: 'cat-pentapoemario-lila',
+      slug: 'pentapoemario-lila',
+      nombre: 'Pentapoemario lila',
+      descripcion: 'Cinco poemas por capítulo, cinco versos por poema.',
+      orden: 0,
+      visible: true,
+    },
     orden: 3,
     colorAcento: '#8B5CF6',
     portadaUrl: null,
@@ -550,7 +588,14 @@ export const LIBROS_PENTAPOEMARIO: Libro[] = [
     titulo: 'Capítulo quinto',
     subtitulo: '5 poemas · capítulo V',
     descripcion: 'Cinco versos por poema. Todos los títulos empiezan por la misma letra.',
-    categoria: 'pentapoemas',
+    categoria: {
+      id: 'cat-pentapoemario-lila',
+      slug: 'pentapoemario-lila',
+      nombre: 'Pentapoemario lila',
+      descripcion: 'Cinco poemas por capítulo, cinco versos por poema.',
+      orden: 0,
+      visible: true,
+    },
     orden: 4,
     colorAcento: '#8B5CF6',
     portadaUrl: '/portadas/capitulo-5.jpg',
@@ -682,7 +727,14 @@ export const LIBROS_PENTAPOEMARIO: Libro[] = [
     titulo: 'Capítulo sexto',
     subtitulo: '5 poemas · capítulo VI',
     descripcion: 'Cinco versos por poema. Todos los títulos empiezan por la misma letra.',
-    categoria: 'pentapoemas',
+    categoria: {
+      id: 'cat-pentapoemario-lila',
+      slug: 'pentapoemario-lila',
+      nombre: 'Pentapoemario lila',
+      descripcion: 'Cinco poemas por capítulo, cinco versos por poema.',
+      orden: 0,
+      visible: true,
+    },
     orden: 5,
     colorAcento: '#8B5CF6',
     portadaUrl: null,
@@ -814,7 +866,14 @@ export const LIBROS_PENTAPOEMARIO: Libro[] = [
     titulo: 'Capítulo séptimo',
     subtitulo: '5 poemas · capítulo VII',
     descripcion: 'Cinco versos por poema. Todos los títulos empiezan por la misma letra.',
-    categoria: 'pentapoemas',
+    categoria: {
+      id: 'cat-pentapoemario-lila',
+      slug: 'pentapoemario-lila',
+      nombre: 'Pentapoemario lila',
+      descripcion: 'Cinco poemas por capítulo, cinco versos por poema.',
+      orden: 0,
+      visible: true,
+    },
     orden: 6,
     colorAcento: '#8B5CF6',
     portadaUrl: '/portadas/capitulo-7.jpg',
@@ -946,7 +1005,14 @@ export const LIBROS_PENTAPOEMARIO: Libro[] = [
     titulo: 'Capítulo octavo',
     subtitulo: '5 poemas · capítulo VIII',
     descripcion: 'Cinco versos por poema. Todos los títulos empiezan por la misma letra.',
-    categoria: 'pentapoemas',
+    categoria: {
+      id: 'cat-pentapoemario-lila',
+      slug: 'pentapoemario-lila',
+      nombre: 'Pentapoemario lila',
+      descripcion: 'Cinco poemas por capítulo, cinco versos por poema.',
+      orden: 0,
+      visible: true,
+    },
     orden: 7,
     colorAcento: '#8B5CF6',
     portadaUrl: '/portadas/capitulo-8.jpg',

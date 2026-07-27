@@ -39,6 +39,30 @@ const tsvector = customType<{ data: string }>({
   },
 })
 
+/* ───────────────────────────── categorías ───────────────────────────────── */
+
+/**
+ * Un poemario. Agrupa capítulos y se puede ocultar entero del sitio con
+ * `visible`, sin tener que despublicar sus capítulos uno a uno.
+ */
+export const categorias = pgTable(
+  'categorias',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    slug: text('slug').notNull(),
+    nombre: text('nombre').notNull(),
+    descripcion: text('descripcion'),
+    orden: integer('orden').notNull().default(0),
+    visible: boolean('visible').notNull().default(true),
+    creadoEn: timestamp('creado_en', { withTimezone: true }).notNull().defaultNow(),
+    actualizadoEn: timestamp('actualizado_en', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex('categorias_slug_idx').on(t.slug),
+    index('categorias_orden_idx').on(t.orden),
+  ],
+)
+
 /* ─────────────────────────────── libros ─────────────────────────────────── */
 
 export const libros = pgTable(
@@ -50,7 +74,11 @@ export const libros = pgTable(
     titulo: text('titulo').notNull(),
     subtitulo: text('subtitulo'),
     descripcion: text('descripcion'),
-    categoria: text('categoria').notNull(),
+    // ON DELETE SET NULL y no CASCADE: borrar un poemario por error no puede
+    // llevarse por delante los capítulos con todos sus poemas dentro.
+    categoriaId: uuid('categoria_id').references(() => categorias.id, {
+      onDelete: 'set null',
+    }),
     orden: integer('orden').notNull().default(0),
     colorAcento: text('color_acento'),
     portadaUrl: text('portada_url'),
@@ -63,7 +91,7 @@ export const libros = pgTable(
   },
   (t) => [
     uniqueIndex('libros_slug_idx').on(t.slug),
-    index('libros_categoria_idx').on(t.categoria),
+    index('libros_categoria_idx').on(t.categoriaId),
     index('libros_orden_idx').on(t.orden),
   ],
 )
@@ -166,7 +194,15 @@ export const registro = pgTable(
 
 /* ────────────────────────────── relaciones ──────────────────────────────── */
 
-export const librosRel = relations(libros, ({ many }) => ({
+export const categoriasRel = relations(categorias, ({ many }) => ({
+  libros: many(libros),
+}))
+
+export const librosRel = relations(libros, ({ one, many }) => ({
+  categoria: one(categorias, {
+    fields: [libros.categoriaId],
+    references: [categorias.id],
+  }),
   poemas: many(poemas),
 }))
 
@@ -185,6 +221,8 @@ export const audiosRel = relations(audios, ({ one }) => ({
 }))
 
 export const esquema = {
+  categorias,
+  categoriasRel,
   libros,
   poemas,
   planchas,

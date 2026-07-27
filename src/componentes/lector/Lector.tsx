@@ -24,18 +24,6 @@ interface Props {
   inicial: number
 }
 
-function hayGenero(genero: 'masculina' | 'femenina'): boolean {
-  if (typeof window === 'undefined') return false;
-  const voces = window.speechSynthesis?.getVoices() ?? [];
-  return voces.some((v) => {
-    const nombre = v.name.toLowerCase();
-    if (genero === 'masculina') {
-      return nombre.includes('male') || nombre.includes('hombre') || nombre.includes('masculin');
-    }
-    return nombre.includes('female') || nombre.includes('mujer') || nombre.includes('femenin');
-  });
-}
-
 export function Lector({ libro, pliegos, inicial }: Props) {
   /* ── estado de navegación ────────────────────────────────────────────── */
   const [n, setN] = useState(inicial)
@@ -79,6 +67,15 @@ export function Lector({ libro, pliegos, inicial }: Props) {
 
   const { narrando, versosActivos, narrar, parar, disponible, voces, vozActual } =
     useNarracion({ voz, velocidad, vozPreferida, alAvisar: avisar })
+
+  /** ¿Tiene este sistema alguna voz en español de ese género?
+   *  Se resuelve con la lista ya clasificada en `lib/voz/voces`, que conoce los
+   *  nombres reales de macOS, Windows y Android — no buscando la palabra
+   *  «male» dentro del nombre, que no la lleva casi ninguna. */
+  const hayGenero = useCallback(
+    (genero: Voz) => voces.some((v) => v.genero === genero),
+    [voces],
+  )
 
   /* ── lectura del entorno y de las preferencias guardadas ─────────────── */
 
@@ -500,13 +497,12 @@ export function Lector({ libro, pliegos, inicial }: Props) {
               title={vozActual ? `Suena «${vozActual.nombre}»` : undefined}
             >
               <option value="">
-                {vozActual ? vozActual.nombre : 'Automática'}
-                {vozActual && !hayGenero(voz) ? ' (no es del género pedido)' : ''}
+                {vozActual ? `${vozActual.corto} · ${vozActual.idioma}` : 'Automática'}
               </option>
               {voces.map((v) => (
                 <option key={v.uri} value={v.uri}>
-                  {v.nombre}
-                  {v.genero ? ` · ${v.genero}` : ' · género desconocido'}
+                  {v.corto} · {v.idioma}
+                  {v.genero ? ` · ${v.genero === 'masculina' ? 'M' : 'F'}` : ' · ?'}
                 </option>
               ))}
             </select>
@@ -522,7 +518,7 @@ export function Lector({ libro, pliegos, inicial }: Props) {
         <aside className={`indice${indiceAbierto ? '' : ' cerrado'}`} aria-label="Índice del volumen">
           <h3>{libro.titulo}</h3>
           <div className="et sub">
-            {libro.volumen} · {libro.categoria}
+            {libro.categoria?.nombre ?? libro.volumen}
           </div>
           <ol>
             {entradas.map((e) => (
@@ -610,23 +606,13 @@ export function Lector({ libro, pliegos, inicial }: Props) {
           <span>{narrando ? 'Detener' : 'Narrar'}</span>
         </button>
 
-        <div className="tempo">
+        {/* Pasar página. Antes compartía píldora con el tempo y los dos se
+            confundían: las flechas parecían del control de velocidad. */}
+        <div className="paginar" role="group" aria-label="Pasar página">
           <button type="button" onClick={() => ir(n - 1)} disabled={n === 0} aria-label="Pliego anterior">
             ‹
           </button>
-          <button
-            className="hbtn"
-            type="button"
-            onClick={() => cambiarVelocidad(velocidad + VELOCIDAD_PASO)}
-            style={{ minWidth: 66 }}
-            aria-label={`Tempo de lectura: ${velocidad.toFixed(1)} por uno. Pulsa para cambiar.`}
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
-              <circle cx="12" cy="12" r="9" />
-              <path d="M12 7v5l3 2" />
-            </svg>
-            <span>{velocidad.toFixed(1)}×</span>
-          </button>
+          <span className="folio-bar">{String(pliego.folio).padStart(3, '0')}</span>
           <button
             type="button"
             onClick={() => ir(n + 1)}
@@ -635,6 +621,40 @@ export function Lector({ libro, pliegos, inicial }: Props) {
           >
             ›
           </button>
+        </div>
+
+        {/* Velocidad de lectura: control propio y visible, de 0,5× a 1,5×. */}
+        <div className="tempo">
+          <span className="et">Velocidad</span>
+          <button
+            type="button"
+            className="paso"
+            onClick={() => cambiarVelocidad(velocidad - VELOCIDAD_PASO)}
+            disabled={velocidad <= VELOCIDAD_MIN}
+            aria-label="Más despacio"
+          >
+            −
+          </button>
+          <input
+            type="range"
+            min={VELOCIDAD_MIN}
+            max={VELOCIDAD_MAX}
+            step={VELOCIDAD_PASO}
+            value={velocidad}
+            onChange={(e) => cambiarVelocidad(Number(e.target.value))}
+            aria-label="Velocidad de lectura"
+            aria-valuetext={`${velocidad.toFixed(1)} por uno`}
+          />
+          <button
+            type="button"
+            className="paso"
+            onClick={() => cambiarVelocidad(velocidad + VELOCIDAD_PASO)}
+            disabled={velocidad >= VELOCIDAD_MAX}
+            aria-label="Más deprisa"
+          >
+            +
+          </button>
+          <span className="valor">{velocidad.toFixed(1)}×</span>
         </div>
 
         <button

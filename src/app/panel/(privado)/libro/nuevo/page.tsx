@@ -1,9 +1,11 @@
 import Link from 'next/link'
+import { panelCategorias } from '@/lib/db/panel'
 import { FormularioLibro } from '../../../FormularioLibro'
 
 export const dynamic = 'force-dynamic'
 
-export default function NuevoLibro() {
+export default async function NuevoLibro() {
+  const categorias = await panelCategorias()
   return (
     <>
       <p className="et" style={{ marginBottom: '.7rem' }}>
@@ -11,12 +13,12 @@ export default function NuevoLibro() {
           ← Volúmenes
         </Link>
       </p>
-      <h1>Nuevo volumen</h1>
+      <h1>Nuevo capítulo</h1>
       <p className="sub">
-        Un volumen agrupa poemas y se abre como un libro, con su portada, su índice y su
-        colofón.
+        Un capítulo agrupa poemas y se abre como un libro, con su portada, su índice y su
+        colofón. Pertenece a un poemario.
       </p>
-      <FormularioLibro />
+      <FormularioLibro categorias={categorias} />
     </>
   )
 }

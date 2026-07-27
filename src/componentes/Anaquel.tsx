@@ -3,7 +3,9 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { AUTOR, OBRA } from '@/lib/contenido/pentapoemario'
-import { categoriasDe } from '@/lib/categorias'
+import { categoriasDe, librosVisibles } from '@/lib/categorias'
+import { Cabecera } from './Cabecera'
+import { Pie } from './Pie'
 import type { Libro } from '@/lib/tipos'
 
 /**
@@ -11,21 +13,33 @@ import type { Libro } from '@/lib/tipos'
  * no hay acceso a datos, solo el filtro por categoría, que es puro estado de
  * interfaz y no merece un viaje al servidor.
  */
-export function Anaquel({ libros }: { libros: Libro[] }) {
+export function Anaquel({ libros, anio }: { libros: Libro[]; anio: number }) {
   const [filtro, setFiltro] = useState<string>('todos')
 
   const categorias = useMemo(() => categoriasDe(libros), [libros])
+  // Un poemario oculto no aparece en el anaquel aunque sus capítulos estén
+  // publicados: ocultarlo es justamente eso.
+  const alaVista = useMemo(() => librosVisibles(libros), [libros])
   const visibles = useMemo(
-    () => libros.filter((l) => filtro === 'todos' || l.categoria === filtro),
-    [libros, filtro],
+    () =>
+      alaVista.filter((l) =>
+        filtro === 'todos'
+          ? true
+          : filtro === 'sin-clasificar'
+            ? l.categoria === null
+            : l.categoria?.slug === filtro,
+      ),
+    [alaVista, filtro],
   )
 
   // La «nueva incorporación» es el último volumen del orden, que es como el
   // poeta los ordena: el más reciente va al final.
-  const nuevo = libros[libros.length - 1]
+  const nuevo = alaVista[alaVista.length - 1]
 
   return (
-    <section className="biblioteca">
+    <>
+      <Cabecera />
+      <section className="biblioteca">
       <aside className="lateral">
         <h2>Índice general</h2>
         <div className="et sub">{OBRA}</div>
@@ -128,8 +142,8 @@ export function Anaquel({ libros }: { libros: Libro[] }) {
             </div>
             <h3>Sala de lectura</h3>
             <p>Entra en el modo de estudio sin distracciones.</p>
-            {libros[0] && (
-              <Link className="btn" href={`/${libros[0].slug}?sala=1`}>
+            {alaVista[0] && (
+              <Link className="btn" href={`/${alaVista[0].slug}?sala=1`}>
                 Entrar
               </Link>
             )}
@@ -145,10 +159,10 @@ export function Anaquel({ libros }: { libros: Libro[] }) {
             </div>
             <h3>Recital</h3>
             <p>Escucha los poemas leídos en voz alta, verso a verso.</p>
-            {libros[0]?.poemas[0] && (
+            {alaVista[0]?.poemas[0] && (
               <Link
                 className="btn"
-                href={`/${libros[0].slug}/${libros[0].poemas[0].slug}?narrar=1`}
+                href={`/${alaVista[0].slug}/${alaVista[0].poemas[0].slug}?narrar=1`}
               >
                 Escuchar
               </Link>
@@ -156,6 +170,8 @@ export function Anaquel({ libros }: { libros: Libro[] }) {
           </div>
         </div>
       </main>
-    </section>
+      </section>
+      <Pie anio={anio} />
+    </>
   )
 }

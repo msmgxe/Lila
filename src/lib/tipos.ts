@@ -5,14 +5,23 @@
  */
 
 /**
- * Categoría del volumen: la que agrupa la estantería del anaquel.
+ * Una categoría agrupa capítulos: en la práctica, **un poemario**.
  *
- * Es texto libre a propósito. Era una unión cerrada mientras las categorías
- * estaban escritas a mano, pero ahora el poeta las crea desde el panel y la
- * barra lateral se deriva de lo que hay publicado (`lib/categorias.ts`). Una
- * unión cerrada obligaría a tocar el código para añadir una forma nueva.
+ * Empezó siendo una simple cadena en cada volumen, pero eso no permite ni
+ * nombrarlas bien, ni ordenarlas, ni —sobre todo— **ocultar una entera** sin
+ * tocar uno por uno sus capítulos. Ahora es una entidad con su propia tabla,
+ * que es lo que hace falta para tener varios poemarios a la vez y decidir
+ * cuáles se ven.
  */
-export type Categoria = string
+export interface Categoria {
+  id: string
+  slug: string
+  nombre: string
+  descripcion: string | null
+  orden: number
+  /** Si está en false, ni ella ni sus capítulos aparecen en el sitio. */
+  visible: boolean
+}
 
 export type Voz = 'masculina' | 'femenina'
 
@@ -62,7 +71,8 @@ export interface Libro {
   titulo: string
   subtitulo: string | null
   descripcion: string | null
-  categoria: Categoria
+  /** Null mientras el capítulo no se ha asignado a ningún poemario. */
+  categoria: Categoria | null
   orden: number
   colorAcento: string | null
   portadaUrl: string | null

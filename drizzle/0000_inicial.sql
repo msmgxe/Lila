@@ -9,6 +9,17 @@ CREATE TABLE "audios" (
 	"creado_en" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "categorias" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"slug" text NOT NULL,
+	"nombre" text NOT NULL,
+	"descripcion" text,
+	"orden" integer DEFAULT 0 NOT NULL,
+	"visible" boolean DEFAULT true NOT NULL,
+	"creado_en" timestamp with time zone DEFAULT now() NOT NULL,
+	"actualizado_en" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "libros" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"slug" text NOT NULL,
@@ -16,7 +27,7 @@ CREATE TABLE "libros" (
 	"titulo" text NOT NULL,
 	"subtitulo" text,
 	"descripcion" text,
-	"categoria" text NOT NULL,
+	"categoria_id" uuid,
 	"orden" integer DEFAULT 0 NOT NULL,
 	"color_acento" text,
 	"portada_url" text,
@@ -67,11 +78,14 @@ CREATE TABLE "registro" (
 );
 --> statement-breakpoint
 ALTER TABLE "audios" ADD CONSTRAINT "audios_poema_id_poemas_id_fk" FOREIGN KEY ("poema_id") REFERENCES "public"."poemas"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "libros" ADD CONSTRAINT "libros_categoria_id_categorias_id_fk" FOREIGN KEY ("categoria_id") REFERENCES "public"."categorias"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "planchas" ADD CONSTRAINT "planchas_poema_id_poemas_id_fk" FOREIGN KEY ("poema_id") REFERENCES "public"."poemas"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "poemas" ADD CONSTRAINT "poemas_libro_id_libros_id_fk" FOREIGN KEY ("libro_id") REFERENCES "public"."libros"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE UNIQUE INDEX "audios_poema_voz_idx" ON "audios" USING btree ("poema_id","voz");--> statement-breakpoint
+CREATE UNIQUE INDEX "categorias_slug_idx" ON "categorias" USING btree ("slug");--> statement-breakpoint
+CREATE INDEX "categorias_orden_idx" ON "categorias" USING btree ("orden");--> statement-breakpoint
 CREATE UNIQUE INDEX "libros_slug_idx" ON "libros" USING btree ("slug");--> statement-breakpoint
-CREATE INDEX "libros_categoria_idx" ON "libros" USING btree ("categoria");--> statement-breakpoint
+CREATE INDEX "libros_categoria_idx" ON "libros" USING btree ("categoria_id");--> statement-breakpoint
 CREATE INDEX "libros_orden_idx" ON "libros" USING btree ("orden");--> statement-breakpoint
 CREATE INDEX "planchas_poema_orden_idx" ON "planchas" USING btree ("poema_id","orden");--> statement-breakpoint
 CREATE UNIQUE INDEX "poemas_libro_slug_idx" ON "poemas" USING btree ("libro_id","slug");--> statement-breakpoint

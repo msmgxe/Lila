@@ -2,9 +2,9 @@ import 'server-only'
 
 import { and, asc, eq, sql } from 'drizzle-orm'
 import { exigirDb } from './cliente'
-import { libros, poemas, planchas, registro } from './esquema'
+import { categorias, libros, poemas, planchas, registro } from './esquema'
 import { aCuerpo, aEstrofas, slugificar } from '../texto'
-import type { Libro, Poema } from '../tipos'
+import type { Categoria, Libro, Poema } from '../tipos'
 
 /**
  * Consultas del panel.
@@ -22,6 +22,7 @@ export async function panelLibros(): Promise<Libro[]> {
   const filas = await db.query.libros.findMany({
     orderBy: [asc(libros.orden), asc(libros.titulo)],
     with: {
+      categoria: true,
       poemas: {
         orderBy: [asc(poemas.orden)],
         with: { planchas: { orderBy: [asc(planchas.orden)] }, audios: true },
@@ -36,6 +37,7 @@ export async function panelLibro(slug: string): Promise<Libro | null> {
   const fila = await db.query.libros.findFirst({
     where: eq(libros.slug, slug),
     with: {
+      categoria: true,
       poemas: {
         orderBy: [asc(poemas.orden)],
         with: { planchas: { orderBy: [asc(planchas.orden)] }, audios: true },
@@ -53,7 +55,7 @@ export interface DatosLibro {
   titulo: string
   subtitulo: string | null
   descripcion: string | null
-  categoria: string
+  categoriaId: string | null
   orden: number
   colorAcento: string | null
   portadaUrl: string | null
@@ -168,6 +170,81 @@ export async function moverPoema(id: string, direccion: -1 | 1) {
       await db.update(poemas).set({ orden: n }).where(eq(poemas.id, p.id))
     }
   }
+}
+
+/* ────────────────────────────── categorías ──────────────────────────────── */
+
+export async function panelCategorias(): Promise<Array<Categoria & { cuantos: number }>> {
+  const db = exigirDb()
+  const filas = await db.query.categorias.findMany({
+    orderBy: [asc(categorias.orden), asc(categorias.nombre)],
+    with: { libros: { columns: { id: true } } },
+  })
+  return filas.map((c) => ({
+    id: c.id,
+    slug: c.slug,
+    nombre: c.nombre,
+    descripcion: c.descripcion,
+    orden: c.orden,
+    visible: c.visible,
+    cuantos: c.libros.length,
+  }))
+}
+
+export interface DatosCategoria {
+  slug: string
+  nombre: string
+  descripcion: string | null
+  orden: number
+  visible: boolean
+}
+
+export async function crearCategoria(datos: DatosCategoria) {
+  const db = exigirDb()
+  const [fila] = await db.insert(categorias).values(datos).returning({ id: categorias.id })
+  await anotar('categoria', fila.id, 'alta', { nombre: datos.nombre })
+  return fila.id
+}
+
+export async function actualizarCategoria(id: string, datos: Partial<DatosCategoria>) {
+  const db = exigirDb()
+  await db
+    .update(categorias)
+    .set({ ...datos, actualizadoEn: new Date() })
+    .where(eq(categorias.id, id))
+  await anotar('categoria', id, 'edición', datos)
+}
+
+/** Enseña u oculta el poemario entero en el sitio. */
+export async function alternarVisibilidadCategoria(id: string) {
+  const db = exigirDb()
+  const [fila] = await db
+    .update(categorias)
+    .set({ visible: sql`NOT ${categorias.visible}`, actualizadoEn: new Date() })
+    .where(eq(categorias.id, id))
+    .returning({ visible: categorias.visible })
+  await anotar('categoria', id, fila.visible ? 'mostrada' : 'ocultada', null)
+  return fila.visible
+}
+
+/** Los capítulos NO se borran: se quedan sin categoría (ON DELETE SET NULL). */
+export async function borrarCategoria(id: string) {
+  const db = exigirDb()
+  await db.delete(categorias).where(eq(categorias.id, id))
+  await anotar('categoria', id, 'baja', null)
+}
+
+export async function slugLibreCategoria(nombre: string, excluirId?: string) {
+  const db = exigirDb()
+  const base = slugificar(nombre) || 'poemario'
+  const usados = new Set(
+    (await db.query.categorias.findMany({ columns: { slug: true, id: true } }))
+      .filter((c) => c.id !== excluirId)
+      .map((c) => c.slug),
+  )
+  if (!usados.has(base)) return base
+  for (let n = 2; n < 500; n++) if (!usados.has(`${base}-${n}`)) return `${base}-${n}`
+  return `${base}-${Date.now()}`
 }
 
 /* ─────────────────────────────── planchas ───────────────────────────────── */
@@ -289,7 +366,25 @@ type FilaPoema = typeof poemas.$inferSelect & {
   planchas: (typeof planchas.$inferSelect)[]
   audios: { id: string; voz: string; url: string; duracionMs: number | null }[]
 }
-type FilaLibro = typeof libros.$inferSelect & { poemas: FilaPoema[] }
+type FilaLibro = typeof libros.$inferSelect & {
+  poemas: FilaPoema[]
+  categoria: typeof categorias.$inferSelect | null
+}
+
+function mapearCategoria(
+  c: { id: string; slug: string; nombre: string; descripcion: string | null; orden: number; visible: boolean } | null,
+): Categoria | null {
+  return c
+    ? {
+        id: c.id,
+        slug: c.slug,
+        nombre: c.nombre,
+        descripcion: c.descripcion,
+        orden: c.orden,
+        visible: c.visible,
+      }
+    : null
+}
 
 function mapear(fila: FilaLibro): Libro {
   return {
@@ -299,7 +394,7 @@ function mapear(fila: FilaLibro): Libro {
     titulo: fila.titulo,
     subtitulo: fila.subtitulo,
     descripcion: fila.descripcion,
-    categoria: fila.categoria,
+    categoria: mapearCategoria(fila.categoria),
     orden: fila.orden,
     colorAcento: fila.colorAcento,
     portadaUrl: fila.portadaUrl,

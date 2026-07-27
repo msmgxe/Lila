@@ -13,7 +13,7 @@ export default async function PaginaPanel() {
 
   return (
     <>
-      <h1>Volúmenes</h1>
+      <h1>Capítulos</h1>
       <p className="sub">
         {libros.length} {libros.length === 1 ? 'volumen' : 'volúmenes'} · {poemas.length}{' '}
         {poemas.length === 1 ? 'poema' : 'poemas'} · {publicados} en el sitio
@@ -22,7 +22,10 @@ export default async function PaginaPanel() {
 
       <div className="acciones-form" style={{ border: 0, margin: '0 0 1.4rem', padding: 0 }}>
         <Link className="bt fuerte" href="/panel/libro/nuevo">
-          Nuevo volumen
+          Nuevo capítulo
+        </Link>
+        <Link className="bt" href="/panel/poemarios">
+          Poemarios
         </Link>
       </div>
 
@@ -40,7 +43,7 @@ export default async function PaginaPanel() {
                   {libro.titulo}
                 </Link>
                 <div className="meta">
-                  {libro.volumen} · {libro.categoria} · {n} {n === 1 ? 'poema' : 'poemas'}
+                  {libro.categoria?.nombre ?? 'sin poemario'} · {n} {n === 1 ? 'poema' : 'poemas'}
                   {pub !== n && ` (${pub} publicados)`} · desde la página {libro.paginaBase}
                 </div>
               </div>

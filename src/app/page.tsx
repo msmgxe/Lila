@@ -13,5 +13,7 @@ export const revalidate = 3600
 
 export default async function PaginaAnaquel() {
   const libros = await obtenerLibros()
-  return <Anaquel libros={libros} />
+  // El año se calcula en build y viaja como prop: llamar a `new Date()` dentro
+  // de un componente cliente provocaría un desajuste de hidratación.
+  return <Anaquel libros={libros} anio={new Date().getFullYear()} />
 }
