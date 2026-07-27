@@ -41,3 +41,5 @@ drizzle/meta/_journal.json.bak
 
 # base de datos local de pruebas
 .pglite/
+.env*
+.env.local.respaldo

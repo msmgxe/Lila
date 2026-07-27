@@ -15,7 +15,7 @@
  * los fallos de SQL antes de que cuesten nada.
  */
 
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { PGlite } from '@electric-sql/pglite'
 import { unaccent } from '@electric-sql/pglite/contrib/unaccent'
@@ -48,12 +48,19 @@ async function principal() {
   )
   acentos[0].c ? ok('«cancion» encuentra «canción»') : mal('la configuración no quita acentos')
 
-  /* 2. La migración generada, tal cual está en el repositorio. */
-  const sql = readFileSync(join(RAIZ, 'drizzle', '0000_inicial.sql'), 'utf8')
-  for (const sentencia of sql.split('--> statement-breakpoint')) {
-    if (sentencia.trim()) await db.exec(sentencia)
+  /* 2. TODAS las migraciones del repositorio, en orden y tal cual están.
+        No solo la primera: lo que Neon va a ejecutar es la cadena entera, y una
+        migración posterior puede chocar con lo que dejó la anterior. */
+  const migraciones = readdirSync(join(RAIZ, 'drizzle'))
+    .filter((f) => f.endsWith('.sql'))
+    .sort()
+  for (const nombre of migraciones) {
+    const sql = readFileSync(join(RAIZ, 'drizzle', nombre), 'utf8')
+    for (const sentencia of sql.split('--> statement-breakpoint')) {
+      if (sentencia.trim()) await db.exec(sentencia)
+    }
+    ok(`drizzle/${nombre} se aplica sin errores`)
   }
-  ok('drizzle/0000_inicial.sql se aplica sin errores')
 
   const { rows: idx } = await db.query<{ indexname: string }>(
     `SELECT indexname FROM pg_indexes WHERE tablename = 'poemas'`,
@@ -159,6 +166,28 @@ async function principal() {
     ? ok('borrar un poemario deja sus capítulos sin categoría, no los borra')
     : mal(`al borrar el poemario quedaron ${tras.n} capítulos (${tras.sinCat} sin categoría)`)
 
+  /* ── portadas: los bytes tienen que volver idénticos ─────────────────────
+     bytea es el sitio donde una imagen se corrompe en silencio: basta con que
+     el driver la trate como texto en algún tramo y la imagen sale rota sin que
+     nada falle. Se comprueba byte a byte, con un PNG de verdad. */
+  const png = Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+    'base64',
+  )
+  await db.query(`INSERT INTO portadas (libro_id, mime, bytes) VALUES ($1, $2, $3)`, [
+    libro.id,
+    'image/png',
+    png,
+  ])
+  const { rows: [portada] } = await db.query<{ bytes: Uint8Array; mime: string }>(
+    `SELECT bytes, mime FROM portadas WHERE libro_id = $1`,
+    [libro.id],
+  )
+  const vuelta = Buffer.from(portada.bytes)
+  vuelta.equals(png)
+    ? ok(`la portada vuelve byte a byte (${png.length} B, ${portada.mime})`)
+    : mal(`la portada volvió cambiada: ${vuelta.length} B frente a ${png.length} B`)
+
   await db.query(`DELETE FROM libros WHERE id = $1`, [libro.id])
   const { rows: [quedan] } = await db.query<{ n: number }>(
     `SELECT count(*)::int AS n FROM poemas`,
@@ -166,6 +195,13 @@ async function principal() {
   quedan.n === 0
     ? ok('al borrar un volumen caen sus poemas (ON DELETE CASCADE)')
     : mal(`quedaron ${quedan.n} poemas huérfanos`)
+
+  const { rows: [portadasQuedan] } = await db.query<{ n: number }>(
+    `SELECT count(*)::int AS n FROM portadas`,
+  )
+  portadasQuedan.n === 0
+    ? ok('y también su portada')
+    : mal(`quedaron ${portadasQuedan.n} portadas huérfanas`)
 
   await db.close()
   console.log(fallos === 0 ? '\n  Esquema correcto.\n' : `\n  ${fallos} fallo(s).\n`)

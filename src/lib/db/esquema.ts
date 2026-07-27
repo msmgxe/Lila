@@ -39,6 +39,13 @@ const tsvector = customType<{ data: string }>({
   },
 })
 
+/** `bytea` para los bytes de una imagen. Ver la tabla `portadas`. */
+const bytea = customType<{ data: Buffer; driverData: Buffer }>({
+  dataType() {
+    return 'bytea'
+  },
+})
+
 /* ───────────────────────────── categorías ───────────────────────────────── */
 
 /**
@@ -198,6 +205,39 @@ export const categoriasRel = relations(categorias, ({ many }) => ({
   libros: many(libros),
 }))
 
+/* ───────────────────────────── portadas ─────────────────────────────────── */
+
+/**
+ * Los bytes de la portada de un capítulo, subida desde el panel.
+ *
+ * Guardar imágenes en Postgres es, en general, mala idea, y así se dijo cuando
+ * se diseñó `planchas` —que sigue guardando solo URLs—. Aquí se hace lo
+ * contrario a propósito, y conviene dejar escrito por qué:
+ *
+ *   · Son OCHO imágenes, una por capítulo, no una biblioteca creciente.
+ *   · La alternativa era Vercel Blob, que obliga a enlazar un almacén a mano
+ *     desde la web. Eso dejaba la función muerta hasta que alguien hiciera ese
+ *     clic, y lo que se pidió fue poder subir la imagen.
+ *   · Van en TABLA APARTE, no en una columna de `libros`. Ninguna consulta del
+ *     anaquel ni del lector las toca: solo la ruta `/portadas/[slug]`, que las
+ *     sirve con caché de un año. Al CDN llegan una vez por región.
+ *
+ * `libros.portadaUrl` sigue siendo una URL de texto y sigue mandando: al subir
+ * una imagen se le pone `/portadas/<slug>`, y quien prefiera alojarla fuera solo
+ * tiene que pegar ahí otra dirección. El día que haya un almacén de verdad, se
+ * cambian las URLs y esta tabla se vacía sin tocar nada más.
+ */
+export const portadas = pgTable('portadas', {
+  // El libro ES la clave: un capítulo tiene una portada, no varias.
+  libroId: uuid('libro_id')
+    .primaryKey()
+    .references(() => libros.id, { onDelete: 'cascade' }),
+  mime: text('mime').notNull(),
+  bytes: bytea('bytes').notNull(),
+  /** Para el ETag: cambia la portada, cambia el ETag, se recarga la caché. */
+  actualizadoEn: timestamp('actualizado_en', { withTimezone: true }).notNull().defaultNow(),
+})
+
 export const librosRel = relations(libros, ({ one, many }) => ({
   categoria: one(categorias, {
     fields: [libros.categoriaId],
@@ -220,10 +260,16 @@ export const audiosRel = relations(audios, ({ one }) => ({
   poema: one(poemas, { fields: [audios.poemaId], references: [poemas.id] }),
 }))
 
+export const portadasRel = relations(portadas, ({ one }) => ({
+  libro: one(libros, { fields: [portadas.libroId], references: [libros.id] }),
+}))
+
 export const esquema = {
   categorias,
   categoriasRel,
   libros,
+  portadas,
+  portadasRel,
   poemas,
   planchas,
   audios,

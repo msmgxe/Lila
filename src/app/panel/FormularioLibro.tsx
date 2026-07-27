@@ -116,7 +116,8 @@ export function FormularioLibro({
               placeholder="/portadas/capitulo-2.jpg"
             />
             <span className="pista">
-              Ruta dentro de <code>public/</code> o dirección completa.
+              Se rellena sola al subir una imagen ahí arriba. También admite una
+              dirección de fuera si prefieres alojarla en otro sitio.
             </span>
           </div>
           <div className="campo">

@@ -2418,3 +2418,68 @@ h2.tit .sigue {
     box-shadow: none;
   }
 }
+
+/* ── subir un capítulo desde Word ───────────────────────────────────────── */
+
+.subir-capitulo input[type='file'] {
+  width: 100%;
+  padding: 0.7rem;
+  border: 1px dashed color-mix(in oklab, var(--terciario) 45%, transparent);
+  border-radius: 8px;
+  background: color-mix(in oklab, var(--secundario) 22%, transparent);
+  color: var(--primario);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.subir-capitulo input[type='file']:hover,
+.subir-capitulo input[type='file']:focus-visible {
+  border-color: var(--terciario);
+  border-style: solid;
+}
+
+.subir-capitulo input[type='file']::file-selector-button {
+  margin-right: 0.9rem;
+  padding: 0.35rem 0.8rem;
+  border: 0;
+  border-radius: 5px;
+  background: var(--tinta-acento);
+  color: #fff;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.previa-portada {
+  margin: 0 0 1.2rem;
+  display: flex;
+  gap: 0.9rem;
+  align-items: center;
+}
+
+.previa-portada img {
+  width: 128px;
+  height: 128px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid color-mix(in oklab, var(--terciario) 30%, transparent);
+}
+
+.resultado-subida ul,
+.avisos-subida ul {
+  margin: 0.2rem 0 1rem 1.1rem;
+  padding: 0;
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+
+.resultado-subida .et {
+  display: block;
+  margin-top: 0.9rem;
+}
+
+/* Un aviso no es un error: el documento se ha leído. Ámbar, no rojo. */
+.avisos-subida {
+  border-color: color-mix(in oklab, #d9a441 55%, transparent);
+}

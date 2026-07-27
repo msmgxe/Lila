@@ -2,7 +2,7 @@ import 'server-only'
 
 import { and, asc, eq, sql } from 'drizzle-orm'
 import { exigirDb } from './cliente'
-import { categorias, libros, poemas, planchas, registro } from './esquema'
+import { categorias, libros, poemas, planchas, portadas, registro } from './esquema'
 import { aCuerpo, aEstrofas, slugificar } from '../texto'
 import type { Categoria, Libro, Poema } from '../tipos'
 
@@ -434,3 +434,160 @@ function mapear(fila: FilaLibro): Libro {
 }
 
 export { and }
+
+/* ──────────────────── importar un capítulo desde Word ───────────────────── */
+
+/** Un poema tal y como sale del .docx, listo para guardar. */
+export interface PoemaImportado {
+  titulo: string
+  estrofas: string[][]
+}
+
+export interface ResumenImportacion {
+  altas: string[]
+  ediciones: string[]
+  intactos: string[]
+}
+
+/**
+ * Vuelca en un capítulo los poemas leídos de un documento de Word.
+ *
+ * Es la operación delicada del panel, así que conviene ser explícito con las
+ * dos decisiones que la gobiernan:
+ *
+ * **1. Empareja por título, no por posición.** Si el poeta reordena los poemas
+ * dentro del documento, o mete uno nuevo en medio, emparejar por posición
+ * machacaría el poema equivocado. Por título, cada uno va a su sitio.
+ *
+ * **2. No borra nada.** Un poema que está en el sitio y ya no está en el
+ * documento se queda como está, y se informa de ello. Un .docx incompleto —el
+ * poeta abrió el de otro capítulo por error— no puede vaciar un capítulo
+ * entero. Para quitar un poema está su propio botón, que pregunta.
+ *
+ * El orden sí se rehace según el documento: es lo que el poeta acaba de decidir
+ * al escribirlo.
+ */
+export async function importarCapitulo(
+  libroId: string,
+  leidos: PoemaImportado[],
+): Promise<ResumenImportacion> {
+  const db = exigirDb()
+
+  const existentes = await db
+    .select({ id: poemas.id, titulo: poemas.titulo, slug: poemas.slug, cuerpo: poemas.cuerpo })
+    .from(poemas)
+    .where(eq(poemas.libroId, libroId))
+
+  // La comparación de títulos ignora mayúsculas, tildes y espacios de más:
+  // «Púrpura Letanía» y «púrpura letanía» son el mismo poema.
+  const llave = (s: string) =>
+    s
+      .normalize('NFD')
+      // \u0300-\u036f son los diacríticos que NFD separa de su letra.
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/\s+/g, ' ')
+      .trim()
+
+  const porTitulo = new Map(existentes.map((p) => [llave(p.titulo), p]))
+  const vistos = new Set<string>()
+  const resumen: ResumenImportacion = { altas: [], ediciones: [], intactos: [] }
+
+  for (const [i, leido] of leidos.entries()) {
+    const cuerpo = aCuerpo(leido.estrofas)
+    const previo = porTitulo.get(llave(leido.titulo))
+
+    if (previo) {
+      vistos.add(previo.id)
+      // Si el texto no ha cambiado, no se toca: así el registro del panel no se
+      // llena de «edición» falsas cada vez que se resube el mismo documento.
+      if (previo.cuerpo === cuerpo && previo.titulo === leido.titulo) {
+        await db.update(poemas).set({ orden: i }).where(eq(poemas.id, previo.id))
+        resumen.intactos.push(leido.titulo)
+        continue
+      }
+      await db
+        .update(poemas)
+        .set({ titulo: leido.titulo, cuerpo, orden: i, actualizadoEn: new Date() })
+        .where(eq(poemas.id, previo.id))
+      await anotar('poema', previo.id, 'edición', { desde: 'word', titulo: leido.titulo })
+      resumen.ediciones.push(leido.titulo)
+      continue
+    }
+
+    const slug = await slugLibre(libroId, leido.titulo)
+    const [fila] = await db
+      .insert(poemas)
+      .values({
+        libroId,
+        slug,
+        titulo: leido.titulo,
+        cuerpo,
+        forma: 'libre',
+        dedicatoria: null,
+        notaAutor: null,
+        anio: null,
+        temas: [],
+        orden: i,
+        // Entra como borrador: el poeta lo revisa y lo publica cuando quiera.
+        publicado: false,
+      })
+      .returning({ id: poemas.id })
+    await anotar('poema', fila.id, 'alta', { desde: 'word', slug })
+    resumen.altas.push(leido.titulo)
+  }
+
+  for (const p of existentes) {
+    if (!vistos.has(p.id)) resumen.intactos.push(`${p.titulo} (no venía en el documento)`)
+  }
+
+  return resumen
+}
+
+/* ─────────────────────────── portada del capítulo ───────────────────────── */
+
+/**
+ * Guarda los bytes de la portada y apunta el capítulo a ella.
+ *
+ * Las dos cosas van juntas a propósito: una portada guardada a la que nadie
+ * apunta no la ve nadie, y un `portadaUrl` que apunta a bytes que no existen da
+ * un 404 en el anaquel.
+ */
+export async function guardarPortada(
+  libroId: string,
+  slug: string,
+  mime: string,
+  bytes: Buffer,
+) {
+  const db = exigirDb()
+  await db
+    .insert(portadas)
+    .values({ libroId, mime, bytes, actualizadoEn: new Date() })
+    .onConflictDoUpdate({
+      target: portadas.libroId,
+      set: { mime, bytes, actualizadoEn: new Date() },
+    })
+  // La marca de tiempo en la dirección obliga al navegador a pedirla de nuevo:
+  // sin ella, la caché de un año le seguiría enseñando la portada anterior.
+  await db
+    .update(libros)
+    .set({ portadaUrl: `/portadas/${slug}?v=${Date.now()}`, actualizadoEn: new Date() })
+    .where(eq(libros.id, libroId))
+  await anotar('libro', libroId, 'portada', { bytes: bytes.length, mime })
+}
+
+/** Los bytes de una portada, para la ruta que la sirve. */
+export async function leerPortada(slug: string) {
+  const db = exigirDb()
+  const [fila] = await db
+    .select({
+      mime: portadas.mime,
+      bytes: portadas.bytes,
+      actualizadoEn: portadas.actualizadoEn,
+    })
+    .from(portadas)
+    .innerJoin(libros, eq(libros.id, portadas.libroId))
+    .where(eq(libros.slug, slug))
+    .limit(1)
+  return fila ?? null
+}

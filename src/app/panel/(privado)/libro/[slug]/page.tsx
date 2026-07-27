@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { panelCategorias, panelLibro } from '@/lib/db/panel'
 import { paginarLibro } from '@/lib/paginar'
 import { FormularioLibro } from '../../../FormularioLibro'
+import { SubirCapitulo } from '../../../SubirCapitulo'
 import { alternarPoema, moverPoema } from '../../../acciones'
 
 export const dynamic = 'force-dynamic'
@@ -129,6 +130,8 @@ export default async function PaginaLibroPanel({ params }: Props) {
           )}
         </div>
       </section>
+
+      <SubirCapitulo libroId={libro.id} slug={libro.slug} />
 
       <section>
         <h2>Datos del volumen</h2>

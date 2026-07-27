@@ -268,3 +268,131 @@ export async function eliminarCategoria(datos: FormData) {
   revalidatePath('/panel/poemarios')
   redirect('/panel/poemarios')
 }
+
+/* ─────────────────── subir un capítulo desde un Word ────────────────────── */
+
+export interface EstadoImportacion {
+  error?: string
+  aviso?: string[]
+  /** Qué se hizo con cada poema, para enseñarlo tras guardar. */
+  altas?: string[]
+  ediciones?: string[]
+  intactos?: string[]
+  portada?: string
+}
+
+/** Word rara vez pasa de unos cientos de kB; el tope corta un envío absurdo. */
+const TOPE_DOCX = 4 * 1024 * 1024
+const TOPE_IMAGEN = 6 * 1024 * 1024
+const IMAGENES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif']
+
+/**
+ * Lee un .docx y vuelca sus poemas en un capítulo. Opcionalmente, su portada.
+ *
+ * Las dos cosas van en la misma acción porque van en el mismo formulario: el
+ * poeta sube el capítulo entero de una vez. Cada una puede ir sola.
+ *
+ * Nada de esto borra poemas — ver `importarCapitulo`—, así que equivocarse de
+ * documento se arregla subiendo el bueno.
+ */
+export async function subirCapitulo(
+  _previo: EstadoImportacion | undefined,
+  datos: FormData,
+): Promise<EstadoImportacion> {
+  await autorizar()
+
+  const libroId = String(datos.get('libroId') ?? '')
+  const slug = String(datos.get('slug') ?? '')
+  if (!libroId || !slug) return { error: 'Falta el capítulo al que subir.' }
+
+  const documento = datos.get('documento')
+  const imagen = datos.get('portada')
+  const hayDocumento = documento instanceof File && documento.size > 0
+  const hayImagen = imagen instanceof File && imagen.size > 0
+
+  if (!hayDocumento && !hayImagen) {
+    return { error: 'Elige un documento de Word, una imagen, o las dos cosas.' }
+  }
+
+  const estado: EstadoImportacion = {}
+
+  if (hayDocumento) {
+    const archivo = documento as File
+    if (archivo.size > TOPE_DOCX) {
+      return { error: `El documento pesa demasiado (máximo ${TOPE_DOCX / 1024 / 1024} MB).` }
+    }
+    if (!archivo.name.toLowerCase().endsWith('.docx')) {
+      return {
+        error:
+          'El archivo debe ser .docx. Si el tuyo es .doc, ábrelo en Word y usa ' +
+          '«Guardar como» → «Documento de Word (.docx)».',
+      }
+    }
+
+    let leidos
+    try {
+      const bytes = new Uint8Array(await archivo.arrayBuffer())
+      const { leerDocx, revisarForma } = await import('@/lib/docx')
+      const lectura = leerDocx(bytes)
+      leidos = lectura.poemas
+      estado.aviso = [...lectura.avisos, ...revisarForma(lectura.poemas)]
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'No se ha podido leer.' }
+    }
+
+    try {
+      const resumen = await panel.importarCapitulo(libroId, leidos)
+      estado.altas = resumen.altas
+      estado.ediciones = resumen.ediciones
+      estado.intactos = resumen.intactos
+    } catch (error) {
+      return { error: explicar(error, 'guardar los poemas') }
+    }
+  }
+
+  if (hayImagen) {
+    const archivo = imagen as File
+    if (archivo.size > TOPE_IMAGEN) {
+      return {
+        ...estado,
+        error: `La imagen pesa demasiado (máximo ${TOPE_IMAGEN / 1024 / 1024} MB).`,
+      }
+    }
+    if (!IMAGENES.includes(archivo.type)) {
+      return { ...estado, error: 'La imagen debe ser JPG, PNG, WebP o AVIF.' }
+    }
+    const bytes = Buffer.from(await archivo.arrayBuffer())
+    try {
+      await panel.guardarPortada(libroId, slug, archivo.type, bytes)
+    } catch (error) {
+      return { ...estado, error: explicar(error, 'guardar la portada') }
+    }
+    estado.portada = `${archivo.name} · ${(bytes.length / 1024).toFixed(0)} kB`
+  }
+
+  refrescarSitio(slug)
+  revalidatePath(`/panel/libros/${slug}`)
+  return estado
+}
+
+/**
+ * Traduce un error de base de datos a algo que se pueda leer y arreglar.
+ *
+ * Dos casos merecen mensaje propio porque tienen solución concreta y el error
+ * en crudo no la insinúa: la tabla `portadas` es de una migración posterior a
+ * la puesta en marcha, y la conexión puede no estar configurada.
+ */
+function explicar(error: unknown, haciendo: string): string {
+  const texto = error instanceof Error ? error.message : String(error)
+
+  if (/relation .*portadas.* does not exist/i.test(texto)) {
+    return (
+      'Falta aplicar la última migración de la base de datos: la tabla de portadas ' +
+      'todavía no existe. Ejecuta «npm run db:migrar» con DATABASE_URL configurada.'
+    )
+  }
+  if (/DATABASE_URL|no hay conexión/i.test(texto)) {
+    return 'No hay conexión con la base de datos. Revisa DATABASE_URL.'
+  }
+  return `No se ha podido ${haciendo}: ${texto}`
+}
