@@ -617,7 +617,7 @@ export function Lector({ libro, pliegos, inicial }: Props) {
           <button
             className="hbtn"
             type="button"
-            onClick={cambiarVelocidad}
+            onClick={() => cambiarVelocidad(velocidad + VELOCIDAD_PASO)}
             style={{ minWidth: 66 }}
             aria-label={`Tempo de lectura: ${velocidad.toFixed(1)} por uno. Pulsa para cambiar.`}
           >
