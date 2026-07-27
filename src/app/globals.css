@@ -167,6 +167,127 @@ button {
   color: var(--primario);
 }
 
+/* ── acceso al panel desde la cabecera ── */
+.acceso-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: none;
+  border: 1px solid var(--linea);
+  color: #a99bb8;
+  cursor: pointer;
+  padding: 0.42rem 0.85rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  transition: 0.2s;
+  white-space: nowrap;
+}
+.acceso-btn:hover {
+  color: var(--primario);
+  border-color: var(--linea-fuerte, rgba(244, 238, 248, 0.34));
+}
+.acceso-btn svg {
+  width: 13px;
+  height: 13px;
+  flex: none;
+}
+
+.modal-acceso {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(10, 6, 18, 0.88);
+  backdrop-filter: blur(5px);
+  display: grid;
+  place-items: center;
+  padding: 1.2rem;
+  overflow: auto;
+}
+.caja-acceso {
+  position: relative;
+  width: min(23rem, 100%);
+  background: var(--fondo2);
+  border: 1px solid var(--linea);
+  padding: clamp(1.6rem, 5vw, 2.2rem);
+}
+.caja-acceso h2 {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 1.5rem;
+  margin: 0.25rem 0 1.6rem;
+}
+.cerrar-acceso {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.7rem;
+  background: none;
+  border: 0;
+  color: var(--neutro);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+}
+.cerrar-acceso:hover {
+  color: var(--primario);
+}
+.form-acceso {
+  display: grid;
+  gap: 1rem;
+}
+.campo-acceso {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.campo-acceso label {
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--neutro);
+  font-weight: 500;
+}
+.campo-acceso input {
+  font-family: var(--ui);
+  font-size: 0.95rem;
+  background: var(--panel);
+  border: 1px solid var(--linea);
+  color: var(--primario);
+  padding: 0.6rem 0.75rem;
+  width: 100%;
+}
+.campo-acceso input:focus {
+  outline: 0;
+  border-color: var(--terciario);
+}
+.error-acceso {
+  color: #e8a0a0;
+  font-size: 0.85rem;
+  border-left: 2px solid #e8a0a0;
+  padding-left: 0.8rem;
+}
+.cta-acceso {
+  background: var(--primario);
+  color: var(--secundario);
+  border: 0;
+  cursor: pointer;
+  padding: 0.72rem;
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 500;
+  font-family: var(--ui);
+  transition: 0.2s;
+}
+.cta-acceso:hover:not(:disabled) {
+  background: var(--terciario);
+}
+.cta-acceso:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 .pie-sitio {
   border-top: 1px solid var(--linea);
   background: var(--fondo2);
@@ -266,6 +387,12 @@ button {
 @media (max-width: 860px) {
   .cabecera-sitio .sep {
     display: none;
+  }
+  /* En móvil solo el candado: la palabra no cabe junto al menú. */
+  .acceso-btn {
+    padding: 0.42rem 0.55rem;
+    font-size: 0;
+    gap: 0;
   }
   .pie-sitio .columnas {
     grid-template-columns: 1fr;

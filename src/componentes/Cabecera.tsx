@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { SITIO } from '@/lib/sitio'
 import { AUTOR } from '@/lib/contenido/pentapoemario'
+import { AccesoPanel } from './AccesoPanel'
 
 /**
  * Cabecera del sitio. Solo aparece en el anaquel y en las páginas sueltas: el
@@ -18,6 +19,7 @@ export function Cabecera() {
         <Link href="/">Anaquel</Link>
         <Link href="/sobre-la-obra">Sobre la obra</Link>
       </nav>
+      <AccesoPanel />
     </header>
   )
 }
