@@ -14,11 +14,44 @@ import type { Hito, VideoAutor } from '@/lib/db/panel'
  * orden en que se ven. Reordenar en pantalla reordena de verdad, sin una acción
  * por movimiento ni una tabla aparte.
  *
- * El estado de React solo lleva CUÁNTAS filas hay y su contenido inicial; lo
- * que se guarda es lo que haya escrito en los campos al enviar. Controlar cada
- * letra desde React aquí no aportaría nada y volvería a pintar el formulario
- * entero en cada tecla.
+ * ── Por qué los campos SÍ están controlados ────────────────────────────────
+ * La primera versión los dejaba sin controlar —`defaultValue` y a correr— para
+ * no repintar en cada tecla. Parecía sensato y estaba mal: al subir o quitar un
+ * hito, el estado se reordenaba pero **lo escrito no se movía**. React reutiliza
+ * los nodos del DOM cuando la clave es la posición, y `defaultValue` solo se
+ * mira al montarlos. Desde fuera: los botones «no funcionan».
+ *
+ * Ahora el estado es la única verdad y cada fila lleva un identificador propio
+ * que no depende de dónde esté. Con cinco filas, repintar no cuesta nada.
+ *
+ * Se puede arrastrar y también usar las flechas. Las dos cosas: arrastrar es más
+ * cómodo con el ratón, pero el arrastre de HTML no funciona en móvil ni con
+ * teclado, así que quitarlas dejaría fuera a quien no usa ratón.
  */
+/**
+ * Una fila con identificador propio.
+ *
+ * La clave de React NO puede ser la posición: al reordenar, la posición 1 pasa
+ * a contener otra cosa y React, viendo la misma clave, se limita a actualizar el
+ * nodo que ya había —conservando lo escrito en él—. Con un identificador que
+ * viaja con la fila, React mueve el nodo entero, que es lo que se pidió.
+ */
+type Fila<T> = T & { id: string }
+
+let contador = 0
+function conId<T>(filas: T[]): Fila<T>[] {
+  return filas.map((f) => ({ ...f, id: `f${contador++}` }))
+}
+
+/** Intercambia una fila con su vecina. Fuera de rango, no hace nada. */
+function mover<T>(filas: T[], i: number, paso: -1 | 1): T[] {
+  const j = i + paso
+  if (i < 0 || j < 0 || j >= filas.length) return filas
+  const copia = [...filas]
+  ;[copia[i], copia[j]] = [copia[j], copia[i]]
+  return copia
+}
+
 export function FormularioAutor({
   autor,
 }: {
@@ -32,19 +65,29 @@ export function FormularioAutor({
     visible: boolean
   } | null
 }) {
-  const [hitos, setHitos] = useState<Hito[]>(
-    autor?.hitos.length ? autor.hitos : [{ etiqueta: '', titulo: '', texto: '' }],
+  const [hitos, setHitos] = useState<Fila<Hito>[]>(() =>
+    conId(autor?.hitos.length ? autor.hitos : [{ etiqueta: '', titulo: '', texto: '' }]),
   )
-  const [videos, setVideos] = useState<VideoAutor[]>(autor?.videos ?? [])
+  const [videos, setVideos] = useState<Fila<VideoAutor>[]>(() => conId(autor?.videos ?? []))
   const [previa, setPrevia] = useState<string | null>(null)
+  const [arrastrando, setArrastrando] = useState<string | null>(null)
 
-  const quitarHito = (i: number) => setHitos((h) => h.filter((_, j) => j !== i))
-  const moverHito = (i: number, paso: -1 | 1) =>
+  const cambiarHito = (id: string, campo: keyof Hito, valor: string) =>
+    setHitos((h) => h.map((f) => (f.id === id ? { ...f, [campo]: valor } : f)))
+  const quitarHito = (id: string) => setHitos((h) => h.filter((f) => f.id !== id))
+  const moverHito = (id: string, paso: -1 | 1) =>
+    setHitos((h) => mover(h, h.findIndex((f) => f.id === id), paso))
+
+  /** Suelta la fila arrastrada justo donde está la de destino. */
+  const soltarSobre = (idDestino: string) =>
     setHitos((h) => {
-      const j = i + paso
-      if (j < 0 || j >= h.length) return h
+      if (!arrastrando || arrastrando === idDestino) return h
+      const desde = h.findIndex((f) => f.id === arrastrando)
+      const hasta = h.findIndex((f) => f.id === idDestino)
+      if (desde < 0 || hasta < 0) return h
       const copia = [...h]
-      ;[copia[i], copia[j]] = [copia[j], copia[i]]
+      const [fila] = copia.splice(desde, 1)
+      copia.splice(hasta, 0, fila)
       return copia
     })
 
@@ -112,7 +155,9 @@ export function FormularioAutor({
           <button
             type="button"
             className="bt"
-            onClick={() => setHitos((h) => [...h, { etiqueta: '', titulo: '', texto: '' }])}
+            onClick={() =>
+              setHitos((h) => [...h, ...conId([{ etiqueta: '', titulo: '', texto: '' }])])
+            }
           >
             + Añadir hito
           </button>
@@ -122,28 +167,84 @@ export function FormularioAutor({
           inicios», «Hoy»—.
         </p>
 
-        {hitos.map((hito, i) => (
-          <div className="fila-editable" key={i}>
+        {hitos.map((hito) => (
+          <div
+            className={`fila-editable${arrastrando === hito.id ? ' arrastrando' : ''}`}
+            key={hito.id}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault()
+              soltarSobre(hito.id)
+              setArrastrando(null)
+            }}
+          >
+            {/* Solo el asa arrastra, no la fila entera: si arrastrase toda,
+                seleccionar texto dentro de un campo iniciaría un arrastre. */}
+            <span
+              className="asa"
+              draggable
+              onDragStart={() => setArrastrando(hito.id)}
+              onDragEnd={() => setArrastrando(null)}
+              title="Arrastrar para ordenar"
+              aria-hidden="true"
+            >
+              ⠿
+            </span>
             <div className="campo">
               <label>Etiqueta</label>
-              <input type="text" name="hito-etiqueta" defaultValue={hito.etiqueta} placeholder="Los inicios" />
+              <input
+                type="text"
+                name="hito-etiqueta"
+                value={hito.etiqueta}
+                onChange={(e) => cambiarHito(hito.id, 'etiqueta', e.target.value)}
+                placeholder="Los inicios"
+              />
             </div>
             <div className="campo">
               <label>Título</label>
-              <input type="text" name="hito-titulo" defaultValue={hito.titulo} placeholder="El dibujo primero" />
+              <input
+                type="text"
+                name="hito-titulo"
+                value={hito.titulo}
+                onChange={(e) => cambiarHito(hito.id, 'titulo', e.target.value)}
+                placeholder="El dibujo primero"
+              />
             </div>
             <div className="campo crece">
               <label>Texto</label>
-              <input type="text" name="hito-texto" defaultValue={hito.texto} />
+              <input
+                type="text"
+                name="hito-texto"
+                value={hito.texto}
+                onChange={(e) => cambiarHito(hito.id, 'texto', e.target.value)}
+              />
             </div>
             <div className="mandos">
-              <button className="ico" type="button" onClick={() => moverHito(i, -1)} title="Subir">
+              <button
+                className="ico"
+                type="button"
+                onClick={() => moverHito(hito.id, -1)}
+                title="Subir"
+                aria-label="Subir este hito"
+              >
                 ↑
               </button>
-              <button className="ico" type="button" onClick={() => moverHito(i, 1)} title="Bajar">
+              <button
+                className="ico"
+                type="button"
+                onClick={() => moverHito(hito.id, 1)}
+                title="Bajar"
+                aria-label="Bajar este hito"
+              >
                 ↓
               </button>
-              <button className="ico" type="button" onClick={() => quitarHito(i)} title="Quitar">
+              <button
+                className="ico"
+                type="button"
+                onClick={() => quitarHito(hito.id)}
+                title="Quitar"
+                aria-label="Quitar este hito"
+              >
                 ×
               </button>
             </div>
@@ -158,7 +259,7 @@ export function FormularioAutor({
           <button
             type="button"
             className="bt"
-            onClick={() => setVideos((v) => [...v, { titulo: '', url: '' }])}
+            onClick={() => setVideos((v) => [...v, ...conId([{ titulo: '', url: '' }])])}
           >
             + Añadir vídeo
           </button>
@@ -169,22 +270,43 @@ export function FormularioAutor({
           no como archivo: un vídeo pesa megas y llenaría la base de datos.
         </p>
 
-        {videos.map((video, i) => (
-          <div className="fila-editable" key={i}>
+        {videos.map((video) => (
+          <div className="fila-editable" key={video.id}>
             <div className="campo">
               <label>Título</label>
-              <input type="text" name="video-titulo" defaultValue={video.titulo} placeholder="Dibujando" />
+              <input
+                type="text"
+                name="video-titulo"
+                value={video.titulo}
+                onChange={(e) =>
+                  setVideos((v) =>
+                    v.map((f) => (f.id === video.id ? { ...f, titulo: e.target.value } : f)),
+                  )
+                }
+                placeholder="Dibujando"
+              />
             </div>
             <div className="campo crece">
               <label>Enlace</label>
-              <input type="text" name="video-url" defaultValue={video.url} placeholder="https://youtu.be/…" />
+              <input
+                type="text"
+                name="video-url"
+                value={video.url}
+                onChange={(e) =>
+                  setVideos((v) =>
+                    v.map((f) => (f.id === video.id ? { ...f, url: e.target.value } : f)),
+                  )
+                }
+                placeholder="https://youtu.be/…"
+              />
             </div>
             <div className="mandos">
               <button
                 className="ico"
                 type="button"
-                onClick={() => setVideos((v) => v.filter((_, j) => j !== i))}
+                onClick={() => setVideos((v) => v.filter((f) => f.id !== video.id))}
                 title="Quitar"
+                aria-label="Quitar este vídeo"
               >
                 ×
               </button>

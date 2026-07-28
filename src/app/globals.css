@@ -4159,3 +4159,38 @@ body {
   border-color: var(--acento);
   background: color-mix(in oklab, var(--acento) 12%, transparent);
 }
+
+/* El asa de arrastre de las filas editables. */
+.fila-editable .asa {
+  align-self: center;
+  padding: .5rem .2rem;
+  color: color-mix(in oklab, var(--neutro) 75%, transparent);
+  cursor: grab;
+  font-size: 1.05rem;
+  letter-spacing: -2px;
+  user-select: none;
+}
+
+.fila-editable .asa:active {
+  cursor: grabbing;
+}
+
+.fila-editable:hover .asa {
+  color: var(--primario);
+}
+
+/* La fila que se está arrastrando se apaga: así se ve cuál se mueve y dónde
+   va a caer, que es lo único que hace falta saber mientras dura el gesto. */
+.fila-editable.arrastrando {
+  opacity: .4;
+}
+
+.fila-editable {
+  border-radius: 10px;
+  padding: .3rem .4rem;
+  transition: background .15s ease;
+}
+
+.fila-editable:hover {
+  background: color-mix(in oklab, var(--acento) 5%, transparent);
+}
