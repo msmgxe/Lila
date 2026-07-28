@@ -17,6 +17,10 @@ import { esColorValido } from '@/lib/color'
  * pasar por ninguna página. Confiar en el layout sería dejar la puerta abierta.
  */
 
+/** Topes de subida. Los usan el alta de capítulo y la subida desde Word. */
+const TOPE_IMAGEN = 6 * 1024 * 1024
+const IMAGENES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif']
+
 async function autorizar() {
   await exigirSesion()
 }
@@ -133,12 +137,54 @@ export async function guardarLibro(datos: FormData) {
   }
 
   let slug: string
+  let libroId: string
   if (id) {
     slug = texto(datos, 'slug') || (await panel.slugLibreLibro(titulo, id))
     await panel.actualizarLibro(id, { ...campos, slug })
+    libroId = id
   } else {
     slug = await panel.slugLibreLibro(titulo)
-    await panel.crearLibro({ ...campos, slug })
+    libroId = await panel.crearLibro({ ...campos, slug })
+  }
+
+  /*
+   * La imagen, en el mismo guardado.
+   *
+   * Tiene que ir DESPUÉS de crear el capítulo: la portada cuelga de su id por
+   * clave ajena, así que antes no hay a qué agarrarla. Por eso en la pantalla
+   * de alta no aparecía el subidor y no había dónde elegir la imagen — ahora se
+   * elige en el formulario y se guarda en cuanto el capítulo existe.
+   */
+  const imagen = datos.get('imagenPortada')
+  if (imagen instanceof File && imagen.size > 0) {
+    if (imagen.size > TOPE_IMAGEN) {
+      throw new Error(
+        `La imagen pesa ${(imagen.size / 1024 / 1024).toFixed(1)} MB y el tope son ` +
+          `${TOPE_IMAGEN / 1024 / 1024} MB. El capítulo se ha guardado; vuelve a ` +
+          'intentarlo con una imagen más ligera.',
+      )
+    }
+    if (!IMAGENES.includes(imagen.type)) {
+      throw new Error(
+        'La imagen debe ser JPG, PNG, WebP o AVIF. El capítulo se ha guardado sin ella.',
+      )
+    }
+    await panel.guardarPortada(libroId, slug, imagen.type, Buffer.from(await imagen.arrayBuffer()))
+  }
+
+  // Y el Word, si venía. Igual que la imagen: solo se puede después de crear
+  // el capítulo, porque los poemas cuelgan de él.
+  const documento = datos.get('documentoPoemas')
+  if (documento instanceof File && documento.size > 0) {
+    if (documento.size > TOPE_DOCX) {
+      throw new Error(
+        `El documento pesa ${(documento.size / 1024 / 1024).toFixed(1)} MB y el tope son ` +
+          `${TOPE_DOCX / 1024 / 1024} MB. El capítulo se ha guardado sin los poemas.`,
+      )
+    }
+    const { leerDocx } = await import('@/lib/docx')
+    const { poemas } = leerDocx(new Uint8Array(await documento.arrayBuffer()))
+    await panel.importarCapitulo(libroId, poemas)
   }
 
   refrescarSitio(slug)
@@ -318,8 +364,6 @@ export interface EstadoImportacion {
 
 /** Word rara vez pasa de unos cientos de kB; el tope corta un envío absurdo. */
 const TOPE_DOCX = 4 * 1024 * 1024
-const TOPE_IMAGEN = 6 * 1024 * 1024
-const IMAGENES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif']
 
 /**
  * Lee un .docx y vuelca sus poemas en un capítulo. Opcionalmente, su portada.

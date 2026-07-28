@@ -50,8 +50,9 @@ export default async function NuevoLibro({
 
       <div className="recuadro" style={{ marginTop: '1.4rem' }}>
         <p>
-          Guarda primero el capítulo con su título. Al hacerlo se abre su pantalla, y
-          desde ahí subes el Word con los poemas y la imagen de portada.
+          Aquí van el título y la imagen de portada. Los <strong>poemas</strong> se suben
+          después: al guardar se abre la pantalla del capítulo, y allí está «Subir desde
+          Word».
         </p>
       </div>
     </>

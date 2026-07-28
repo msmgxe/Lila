@@ -3416,3 +3416,34 @@ body {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ── el bloque plegado de opciones que casi nunca se tocan ───────────────── */
+
+.avanzado {
+  margin: 0 0 1.2rem;
+  border-radius: 10px;
+  border: 1px solid color-mix(in oklab, var(--acento) 14%, transparent);
+  background: color-mix(in oklab, var(--secundario) 30%, transparent);
+}
+
+.avanzado > summary {
+  padding: .7rem 1rem;
+  cursor: pointer;
+  font-family: var(--tipo-ui);
+  font-size: .74rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--neutro);
+}
+
+.avanzado > summary:hover {
+  color: var(--primario);
+}
+
+.avanzado[open] > summary {
+  border-bottom: 1px solid color-mix(in oklab, var(--acento) 12%, transparent);
+}
+
+.avanzado > .campo {
+  padding: 1rem;
+}

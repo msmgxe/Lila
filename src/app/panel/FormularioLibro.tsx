@@ -108,36 +108,68 @@ export function FormularioLibro({
           </div>
         </div>
 
-        <div className="fila">
-          <div className="campo">
-            <label htmlFor="portadaUrl">Dirección de la portada</label>
-            <input
-              id="portadaUrl"
-              name="portadaUrl"
-              type="text"
-              /* La clave hace que el campo se rellene con el valor nuevo cuando
-                 la subida de arriba lo cambia. Sin ella, React conserva el
-                 `defaultValue` del primer pintado y el campo sigue enseñando lo
-                 anterior aunque la portada ya haya cambiado. */
-              key={libro?.portadaUrl ?? 'sin-portada'}
-              defaultValue={libro?.portadaUrl ?? ''}
-              placeholder="/portadas/capitulo-2.jpg"
-            />
-            {libro?.portadaUrl && (
-              <span className="previa-campo">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={libro.portadaUrl} alt="" />
-                <span className="pista">Esto es lo que hay ahora mismo.</span>
+        {/* Los dos archivos, SOLO al dar de alta.
+            La portada cuelga del id del capítulo por clave ajena, así que hasta
+            ahora no había forma de elegirla antes de que el capítulo existiera:
+            en esta pantalla no aparecía ningún selector y la pregunta obvia era
+            «¿y dónde subo la imagen?». Ahora se eligen aquí y se guardan en
+            cuanto el capítulo nace, en el mismo botón.
+
+            Al EDITAR no se repiten: ahí manda «Subir desde Word», que además
+            informa de qué poema entró y cuál cambió. Dos sitios para lo mismo
+            en la misma página es peor que uno. */}
+        {!libro && (
+          <div className="fila">
+            <div className="campo">
+              <label htmlFor="imagenPortada">Imagen de portada</label>
+              <input
+                id="imagenPortada"
+                name="imagenPortada"
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/avif"
+              />
+              <span className="pista">JPG, PNG, WebP o AVIF, hasta 6 MB. Opcional.</span>
+            </div>
+
+            <div className="campo">
+              <label htmlFor="documentoPoemas">Poemas (.docx)</label>
+              <input
+                id="documentoPoemas"
+                name="documentoPoemas"
+                type="file"
+                accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              />
+              <span className="pista">
+                Cada título en negrita y los versos debajo sin negrita. Opcional: también
+                puedes subirlo después. Los poemas entran como borrador.
               </span>
-            )}
-            <span className="pista">
-              <strong>No hace falta tocarlo.</strong> Se rellena solo al subir una imagen
-              ahí arriba con «Subir al capítulo». Escribir aquí el nombre de un archivo
-              —«cap03.jpeg»— no sube nada y deja el capítulo sin imagen: esto es una
-              dirección, y tiene que empezar por <code>/</code> o por{' '}
-              <code>https://</code>.
-            </span>
+            </div>
           </div>
+        )}
+
+        <div className="fila">
+          {libro && (
+            <div className="campo">
+              <label htmlFor="imagenPortada">Cambiar la imagen de portada</label>
+              <input
+                id="imagenPortada"
+                name="imagenPortada"
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/avif"
+              />
+              <span className="pista">
+                O súbela desde «Subir desde Word», ahí arriba, junto con los poemas.
+              </span>
+              {libro.portadaUrl && (
+                <span className="previa-campo">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={libro.portadaUrl} alt="" />
+                  <span className="pista">La que tiene ahora.</span>
+                </span>
+              )}
+            </div>
+          )}
+
           <div className="campo">
             <label htmlFor="colorAcento">Color del volumen</label>
             <input
@@ -152,6 +184,30 @@ export function FormularioLibro({
             </span>
           </div>
         </div>
+
+        {/* La dirección, en segundo plano: se rellena sola y casi nunca hay que
+            tocarla. Estaba arriba y como campo de texto libre, que es lo que
+            llevó a escribir ahí el nombre del archivo. */}
+        <details className="avanzado">
+          <summary>Dirección de la portada (no hace falta tocarla)</summary>
+          <div className="campo">
+            <input
+              id="portadaUrl"
+              name="portadaUrl"
+              type="text"
+              /* La clave la refresca cuando una subida cambia el valor: sin
+                 ella React conserva el `defaultValue` del primer pintado. */
+              key={libro?.portadaUrl ?? 'sin-portada'}
+              defaultValue={libro?.portadaUrl ?? ''}
+              placeholder="/portadas/capitulo-2.jpg"
+            />
+            <span className="pista">
+              Se rellena sola al elegir una imagen arriba. Solo sirve para apuntar a una
+              imagen alojada fuera: tiene que empezar por <code>/</code> o por{' '}
+              <code>https://</code>. El nombre de un archivo —«cap03.jpeg»— no vale.
+            </span>
+          </div>
+        </details>
 
         <div className="campo interruptor">
           <input
