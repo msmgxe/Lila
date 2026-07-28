@@ -306,6 +306,23 @@ export const autor = pgTable('autor', {
   actualizadoEn: timestamp('actualizado_en', { withTimezone: true }).notNull().defaultNow(),
 })
 
+/* ─────────────────────────────── ajustes ────────────────────────────────── */
+
+/**
+ * Ajustes del sitio. Una sola fila, como `autor` y por la misma razón: con la
+ * clave fija como primaria no hay forma de acabar con dos peleándose por ser la
+ * buena.
+ *
+ * Hoy solo guarda el tema. Cuando haga falta otro ajuste global —el idioma, el
+ * aviso de cookies— entra aquí y no en una tabla nueva por cada cosa.
+ */
+export const ajustes = pgTable('ajustes', {
+  clave: text('clave').primaryKey(),
+  /** La clave de un tema de `lib/temas.ts`. Si no existe, manda el primero. */
+  tema: text('tema').notNull().default('lila'),
+  actualizadoEn: timestamp('actualizado_en', { withTimezone: true }).notNull().defaultNow(),
+})
+
 /* ─────────────────────────────── medios ─────────────────────────────────── */
 
 /**
@@ -329,6 +346,7 @@ export const portadasRel = relations(portadas, ({ one }) => ({
 }))
 
 export const esquema = {
+  ajustes,
   autor,
   medios,
   categorias,

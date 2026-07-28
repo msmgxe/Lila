@@ -1,6 +1,14 @@
 import type { Metadata, Viewport } from 'next'
-import { Playfair_Display, Archivo } from 'next/font/google'
+import {
+  Playfair_Display,
+  Archivo,
+  Cormorant_Garamond,
+  EB_Garamond,
+  Instrument_Serif,
+} from 'next/font/google'
 import { SITIO } from '@/lib/sitio'
+import { cssDelTema } from '@/lib/temas'
+import { obtenerTema } from '@/lib/datos'
 import './globals.css'
 
 /**
@@ -16,7 +24,7 @@ const display = Playfair_Display({
   subsets: ['latin'],
   weight: ['400', '500', '700'],
   style: ['normal', 'italic'],
-  variable: '--tipo-display',
+  variable: '--fuente-playfair',
   display: 'swap',
 })
 
@@ -24,6 +32,40 @@ const ui = Archivo({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600'],
   variable: '--tipo-ui',
+  display: 'swap',
+})
+
+/*
+ * Las otras tres familias de titulares, para los temas que las piden.
+ *
+ * Se declaran TODAS aquí aunque cada tema use una: `next/font` las descarga en
+ * compilación y las sirve desde nuestro dominio, así que la alternativa —cargar
+ * la del tema activo— obligaría a recompilar para cambiar de tema, que es justo
+ * lo que se quiere evitar. El coste es unos kilobytes de CSS con las
+ * declaraciones; los archivos solo se piden si alguna regla los usa, y solo una
+ * lo hace: `--tipo-display` apunta a la del tema.
+ */
+const cormorant = Cormorant_Garamond({
+  subsets: ['latin'],
+  weight: ['300', '400', '600'],
+  style: ['normal', 'italic'],
+  variable: '--fuente-cormorant',
+  display: 'swap',
+})
+
+const garamond = EB_Garamond({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  style: ['normal', 'italic'],
+  variable: '--fuente-garamond',
+  display: 'swap',
+})
+
+const instrument = Instrument_Serif({
+  subsets: ['latin'],
+  weight: ['400'],
+  style: ['normal', 'italic'],
+  variable: '--fuente-instrument',
   display: 'swap',
 })
 
@@ -53,15 +95,40 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 }
 
+// `themeColor` sale del tema, en el <head> de abajo: aquí quedaría fijo.
 export const viewport: Viewport = {
-  themeColor: '#150C22',
   width: 'device-width',
   initialScale: 1,
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const tema = await obtenerTema()
+
   return (
-    <html lang="es" className={`${display.variable} ${ui.variable}`}>
+    <html
+      lang="es"
+      className={[
+        display.variable,
+        ui.variable,
+        cormorant.variable,
+        garamond.variable,
+        instrument.variable,
+      ].join(' ')}
+      data-tema={tema.clave}
+    >
+      <head>
+        {/*
+         * El tema, en un `<style>` del documento y no en `globals.css`.
+         *
+         * El CSS es el mismo para todos los temas: lo único que cambia son
+         * estos cinco valores, y viven en la base de datos. Va en el `<head>` y
+         * no en el cuerpo para que el navegador lo tenga ANTES de pintar — si
+         * llegara después se vería un parpadeo del tema anterior, que es el
+         * defecto clásico de los conmutadores de tema.
+         */}
+        <style dangerouslySetInnerHTML={{ __html: cssDelTema(tema) }} />
+        <meta name="theme-color" content={tema.fondo} />
+      </head>
       <body>
         <a className="saltar" href="#contenido">
           Saltar al contenido

@@ -29,6 +29,7 @@ export default async function LayoutPrivado({ children }: { children: React.Reac
           <Link href="/panel">Inicio del panel</Link>
           <Link href="/panel/poemarios">Poemarios</Link>
             <Link href="/panel/autor">El autor</Link>
+            <Link href="/panel/ajustes" title="Ajustes del sitio">⚙</Link>
           <Link href="/" target="_blank" rel="noopener">
             Ver el sitio ↗
           </Link>

@@ -7,6 +7,7 @@ import { exigirSesion, signIn, signOut } from '@/auth'
 import * as panel from '@/lib/db/panel'
 import { aCuerpo, aEstrofas } from '@/lib/texto'
 import { esColorValido } from '@/lib/color'
+import { TEMAS } from '@/lib/temas'
 
 /**
  * Acciones del panel.
@@ -577,4 +578,28 @@ export async function guardarAutor(datos: FormData) {
   refrescarSitio()
   revalidatePath('/panel/autor')
   redirect('/panel/autor')
+}
+
+/* ─────────────────────────────── ajustes ────────────────────────────────── */
+
+/**
+ * Cambia el tema del sitio.
+ *
+ * Se comprueba que la clave existe: llega de un formulario, y un formulario se
+ * puede reescribir. Con una clave inventada el layout caería en el tema de la
+ * casa —`buscarTema` lo garantiza—, pero guardarla dejaría en la base un valor
+ * que no significa nada y que confundiría al siguiente que lo mire.
+ */
+export async function guardarTema(datos: FormData) {
+  await autorizar()
+  const clave = texto(datos, 'tema')
+  if (!TEMAS.some((t) => t.clave === clave)) {
+    throw new Error(`«${clave}» no es un tema conocido.`)
+  }
+  await panel.guardarTema(clave)
+
+  // El tema vive en el layout raíz, así que lo tocan TODAS las páginas.
+  refrescarSitio()
+  revalidatePath('/panel/ajustes')
+  redirect('/panel/ajustes')
 }

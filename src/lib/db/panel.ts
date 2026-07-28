@@ -2,7 +2,7 @@ import 'server-only'
 
 import { and, asc, eq, sql } from 'drizzle-orm'
 import { exigirDb } from './cliente'
-import { autor, categorias, libros, medios, poemas, planchas, portadas, registro } from './esquema'
+import { ajustes, autor, categorias, libros, medios, poemas, planchas, portadas, registro } from './esquema'
 
 /** Solo hay un autor. Ver el comentario de la tabla en `esquema.ts`. */
 const CLAVE_AUTOR = 'principal'
@@ -701,4 +701,28 @@ export async function leerMedio(clave: string) {
     .where(eq(medios.clave, clave))
     .limit(1)
   return fila ?? null
+}
+
+/* ─────────────────────────────── ajustes ────────────────────────────────── */
+
+const CLAVE_AJUSTES = 'sitio'
+
+/** El tema elegido, o null si nunca se ha tocado. */
+export async function traerTema(): Promise<string | null> {
+  const db = exigirDb()
+  const [fila] = await db
+    .select({ tema: ajustes.tema })
+    .from(ajustes)
+    .where(eq(ajustes.clave, CLAVE_AJUSTES))
+    .limit(1)
+  return fila?.tema ?? null
+}
+
+export async function guardarTema(tema: string) {
+  const db = exigirDb()
+  await db
+    .insert(ajustes)
+    .values({ clave: CLAVE_AJUSTES, tema, actualizadoEn: new Date() })
+    .onConflictDoUpdate({ target: ajustes.clave, set: { tema, actualizadoEn: new Date() } })
+  await anotar('ajustes', CLAVE_AJUSTES, 'tema', { tema })
 }

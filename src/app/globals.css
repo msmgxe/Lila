@@ -4356,3 +4356,163 @@ body {
     transition: none;
   }
 }
+
+/* ═══ La rejilla de temas del panel ═══════════════════════════════════════ */
+
+.rejilla-temas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 1rem;
+}
+
+.rejilla-temas form {
+  margin: 0;
+}
+
+.tarjeta-tema {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklab, var(--acento) 16%, transparent);
+  background: var(--t-fondo);
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  transition: transform .18s ease, border-color .18s ease;
+}
+
+.tarjeta-tema:hover {
+  transform: translateY(-3px);
+  border-color: var(--acento);
+}
+
+.rejilla-temas form.elegido .tarjeta-tema {
+  border-color: var(--acento);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--acento) 40%, transparent);
+}
+
+.tt-cabeza {
+  display: flex;
+  align-items: baseline;
+  gap: .5rem;
+  flex-wrap: wrap;
+  padding: .8rem 1rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--t-terciario) 16%, transparent);
+}
+
+.tt-cabeza b {
+  font-family: var(--tipo-display);
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--t-primario);
+}
+
+.tt-cabeza em {
+  font-style: normal;
+  font-size: .66rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--t-neutro);
+}
+
+.tt-marca {
+  margin-left: auto;
+  padding: .15rem .55rem;
+  border-radius: 999px;
+  background: var(--t-terciario);
+  color: var(--t-fondo);
+  font-size: .58rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+/* La muestra: el pliego del lector, en miniatura. Un tema se juzga viendo un
+   poema encima, no una fila de cuadrados de color. */
+.tt-muestra {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  min-height: 130px;
+}
+
+.tt-plancha {
+  display: grid;
+  place-items: center;
+  font-family: var(--tipo-display);
+  font-size: 1.8rem;
+  color: color-mix(in oklab, var(--t-terciario) 45%, transparent);
+  background: linear-gradient(150deg, color-mix(in oklab, var(--t-terciario) 32%, var(--t-secundario)), var(--t-fondo));
+}
+
+.tt-papel {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+  padding: .7rem .8rem;
+  background: var(--t-primario);
+}
+
+.tt-et {
+  font-family: var(--tipo-ui);
+  font-size: .5rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--t-acento);
+}
+
+.tt-titulo {
+  font-family: var(--tipo-display);
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--t-secundario);
+}
+
+.tt-verso {
+  font-family: var(--tipo-display);
+  font-style: italic;
+  font-size: .7rem;
+  line-height: 1.6;
+  color: var(--t-secundario);
+}
+
+.tt-barra {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .6rem 1rem;
+  border-top: 1px solid color-mix(in oklab, var(--t-terciario) 16%, transparent);
+}
+
+.tt-pastilla {
+  padding: .22rem .6rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--t-terciario) 32%, transparent);
+  font-family: var(--tipo-ui);
+  font-size: .54rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--t-terciario);
+}
+
+.tt-cta {
+  margin-left: auto;
+  padding: .28rem .8rem;
+  border-radius: 999px;
+  background: var(--t-terciario);
+  color: var(--t-fondo);
+  font-family: var(--tipo-ui);
+  font-size: .54rem;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.tt-tipos {
+  padding: .5rem 1rem .7rem;
+  font-family: var(--tipo-ui);
+  font-size: .62rem;
+  color: var(--t-neutro);
+}

@@ -18,6 +18,7 @@ import { LIBROS_PENTAPOEMARIO } from './contenido/pentapoemario'
 import { sinAcentos, escaparHtml, textoPlano } from './texto'
 import type { Libro, ResultadoBusqueda } from './tipos'
 import type { DatosDelAutor } from '../componentes/ElAutor'
+import { buscarTema, TEMA_POR_DEFECTO, type Tema } from './temas'
 
 export const origenDeDatos: 'neon' | 'archivo' = hayBaseDeDatos ? 'neon' : 'archivo'
 
@@ -142,5 +143,23 @@ export async function obtenerAutor(): Promise<DatosDelAutor | null> {
   } catch (error) {
     console.error('[datos] no se pudo leer la sección del autor:', error)
     return null
+  }
+}
+
+/**
+ * El tema del sitio.
+ *
+ * Devuelve el de la casa en cuanto algo falle —sin base de datos, sin fila, con
+ * una clave que ya no existe—. El layout lo llama en CADA página, así que aquí
+ * no puede romperse nada: un sitio sin tema es un sitio sin colores.
+ */
+export async function obtenerTema(): Promise<Tema> {
+  if (!hayBaseDeDatos) return buscarTema(TEMA_POR_DEFECTO)
+  try {
+    const { traerTema } = await import('./db/panel')
+    return buscarTema(await traerTema())
+  } catch (error) {
+    console.error('[datos] no se pudo leer el tema; se usa el de la casa:', error)
+    return buscarTema(TEMA_POR_DEFECTO)
   }
 }
