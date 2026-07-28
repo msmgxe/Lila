@@ -4312,3 +4312,47 @@ body {
     transition: none;
   }
 }
+
+/* El botón de reproducir sobre la miniatura de la lámina central. */
+.lamina-reproducir {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  /* Sin fondo propio: la miniatura ya se ve, y un velo la apagaría. El
+     contraste del icono lo da su propia píldora. */
+}
+
+.lamina-reproducir svg {
+  width: 62px;
+  height: 62px;
+  fill: var(--primario);
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.6));
+  background: color-mix(in oklab, var(--secundario) 78%, #000);
+  border-radius: 50%;
+  padding: 0.7rem;
+  border: 1px solid color-mix(in oklab, var(--terciario) 40%, transparent);
+  transition: transform 0.18s ease, background 0.18s ease;
+}
+
+.lamina-reproducir:hover svg,
+.lamina-reproducir:focus-visible svg {
+  transform: scale(1.08);
+  background: color-mix(in oklab, var(--terciario) 80%, #000);
+}
+
+/* En una pantalla táctil el gesto manda sobre el desplazamiento nativo: sin
+   esto el navegador se queda el arrastre horizontal y el carrusel no se
+   entera. `pan-y` deja intacto el desplazamiento vertical de la página. */
+.vitrina-videos {
+  touch-action: pan-y;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lamina-reproducir svg {
+    transition: none;
+  }
+}

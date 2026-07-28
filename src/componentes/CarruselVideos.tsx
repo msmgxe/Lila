@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { miniaturaDe, urlParaIncrustar } from './incrustar'
 
 /** El tipo se declara aquí y no se importa de `db/panel`: ese módulo empieza
@@ -33,15 +33,45 @@ export interface VideoAutor {
  */
 export function CarruselVideos({ videos }: { videos: VideoAutor[] }) {
   const [centro, setCentro] = useState(0)
+  /**
+   * Qué vídeo se está reproduciendo. Null = ninguno, y entonces TODAS las
+   * láminas son imágenes.
+   *
+   * Esto no es un capricho de rendimiento: en un móvil la lámina central ocupa
+   * casi toda la pantalla, y un `<iframe>` se traga los eventos táctiles. Con
+   * el reproductor puesto de entrada no había DÓNDE deslizar — el dedo caía
+   * siempre dentro de YouTube y el carrusel no se enteraba. Con la miniatura
+   * delante, el gesto llega; el reproductor aparece cuando alguien lo pide.
+   */
+  const [reproduciendo, setReproduciendo] = useState<number | null>(null)
   const total = videos.length
 
   const ir = useCallback(
-    (paso: number) => setCentro((c) => (c + paso + total) % total),
+    (paso: number) => {
+      // Cambiar de lámina apaga el reproductor: si no, el vídeo anterior
+      // seguiría sonando desde una lámina girada que ya no se ve.
+      setReproduciendo(null)
+      setCentro((c) => (c + paso + total) % total)
+    },
     [total],
   )
 
-  // Deslizar con el dedo. Solo horizontal: el vertical es de la página.
-  const [inicio, setInicio] = useState<{ x: number; y: number } | null>(null)
+  const saltarA = (i: number) => {
+    setReproduciendo(null)
+    setCentro(i)
+  }
+
+  /*
+   * Deslizar con el dedo. Solo horizontal: el vertical es de la página.
+   *
+   * En `useRef` y NO en `useState`, que es como estaba y por lo que no
+   * funcionaba: `setInicio` programa un repintado, y si el dedo va rápido el
+   * `touchend` llega antes de que React lo confirme. Su función lee entonces el
+   * valor viejo —null— y se sale sin hacer nada. Con una referencia el dato está
+   * disponible en el acto, que es lo que pide un gesto. Es lo mismo que hace el
+   * carrusel de poemarios, y por eso aquel sí respondía.
+   */
+  const inicio = useRef<{ x: number; y: number } | null>(null)
 
   useEffect(() => {
     // Si el centro apunta más allá del final —porque se quitó un vídeo— se
@@ -54,18 +84,25 @@ export function CarruselVideos({ videos }: { videos: VideoAutor[] }) {
   const actual = videos[centro]
 
   return (
-    <section className="vitrina-videos" aria-roledescription="carrusel" aria-label="Vídeos">
-      <div
-        className="vitrina-pista"
-        onTouchStart={(e) => setInicio({ x: e.touches[0].clientX, y: e.touches[0].clientY })}
-        onTouchEnd={(e) => {
-          if (!inicio) return
-          const dx = e.changedTouches[0].clientX - inicio.x
-          const dy = e.changedTouches[0].clientY - inicio.y
-          setInicio(null)
-          if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy)) ir(dx < 0 ? 1 : -1)
-        }}
-      >
+    <section
+      className="vitrina-videos"
+      aria-roledescription="carrusel"
+      aria-label="Vídeos"
+      /* El gesto se escucha en la SECCIÓN entera, no solo en la pista: así
+         también vale deslizar sobre la ficha, los puntos o los márgenes, que en
+         un móvil es donde queda sitio libre para el pulgar. */
+      onTouchStart={(e) => {
+        inicio.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+      }}
+      onTouchEnd={(e) => {
+        if (!inicio.current) return
+        const dx = e.changedTouches[0].clientX - inicio.current.x
+        const dy = e.changedTouches[0].clientY - inicio.current.y
+        inicio.current = null
+        if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy)) ir(dx < 0 ? 1 : -1)
+      }}
+    >
+      <div className="vitrina-pista">
         {videos.map((video, i) => {
           // Distancia con la vuelta dada: con seis vídeos, el quinto está a uno
           // del primero, no a cinco. Sin esto el salto del último al primero
@@ -93,33 +130,53 @@ export function CarruselVideos({ videos }: { videos: VideoAutor[] }) {
                 } as React.CSSProperties
               }
               onClick={() => {
-                // Pulsar una lateral la trae al centro. La del centro no hace
-                // nada aquí: ahí manda el reproductor.
-                if (!alFrente) setCentro(i)
+                // Una lateral viene al centro; la central arranca su vídeo.
+                if (!alFrente) saltarA(i)
+                else setReproduciendo(i)
               }}
             >
               <div className="lamina-marco">
-                {alFrente ? (
+                {reproduciendo === i ? (
                   tipo === 'iframe' ? (
                     <iframe
-                      src={src}
+                      // `autoplay=1` porque ya ha habido una pulsación: se ha
+                      // pedido el vídeo, no hay que pedirlo dos veces.
+                      src={`${src}?autoplay=1&rel=0`}
                       title={video.titulo || `Vídeo ${i + 1}`}
-                      loading="lazy"
-                      allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture"
+                      allow="autoplay; accelerometer; clipboard-write; encrypted-media; picture-in-picture"
                       allowFullScreen
                     />
                   ) : (
-                    /* `muted` + `playsInline`: sin los dos, iOS se niega a
-                       reproducir y deja un rectángulo negro. */
-                    <video src={src} loop muted playsInline preload="metadata" controls />
+                    /* `playsInline`: sin él, iOS abre el vídeo a pantalla
+                       completa en vez de reproducirlo en su sitio. */
+                    <video src={src} autoPlay loop playsInline controls />
                   )
-                ) : miniatura ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={miniatura} alt="" loading="lazy" />
                 ) : (
-                  <span className="lamina-sin-miniatura" aria-hidden="true">
-                    ▶
-                  </span>
+                  <>
+                    {miniatura ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={miniatura} alt="" loading="lazy" />
+                    ) : (
+                      <span className="lamina-sin-miniatura" aria-hidden="true">
+                        ▶
+                      </span>
+                    )}
+                    {alFrente && (
+                      <button
+                        type="button"
+                        className="lamina-reproducir"
+                        aria-label={`Reproducir ${video.titulo || `vídeo ${i + 1}`}`}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setReproduciendo(i)
+                        }}
+                      >
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M8 5.5v13l11-6.5z" />
+                        </svg>
+                      </button>
+                    )}
+                  </>
                 )}
               </div>
               {video.titulo && <p className="lamina-video-pie">{video.titulo}</p>}
@@ -155,7 +212,7 @@ export function CarruselVideos({ videos }: { videos: VideoAutor[] }) {
               aria-selected={i === centro}
               aria-label={v.titulo || `Vídeo ${i + 1}`}
               className={i === centro ? 'activo' : ''}
-              onClick={() => setCentro(i)}
+              onClick={() => saltarA(i)}
             />
           ))}
         </div>
