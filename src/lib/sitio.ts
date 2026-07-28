@@ -11,7 +11,7 @@
  */
 
 export const SITIO = {
-  nombre: 'Lila',
+  nombre: 'Nubenauta Rosa',
   lema: 'el anaquel del poeta',
   descripcion:
     'Obra reunida. Cada capítulo agrupa cinco poemas de cinco versos, con la plancha que los acompaña. Se lee, se busca y se escucha.',

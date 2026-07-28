@@ -1,4 +1,5 @@
 import type { Hito, VideoAutor } from '@/lib/db/panel'
+import { CarruselVideos } from './CarruselVideos'
 
 /**
  * La sección del autor — propuesta 04, «La línea».
@@ -22,28 +23,6 @@ export interface DatosDelAutor {
   videos: VideoAutor[]
 }
 
-/**
- * Convierte un enlace de YouTube o Vimeo en su dirección para incrustar.
- *
- * Se pega el enlace normal —el que sale al pulsar «Compartir»— y aquí se
- * traduce. Pedirle a nadie que averigüe la dirección «de incrustar» es pedirle
- * que se pelee con la interfaz de YouTube; y pegar la normal en un `<iframe>`
- * no funciona, así que sin esto la sección se quedaría en blanco sin decir por
- * qué. Lo que no reconoce se deja tal cual: puede ser un mp4 propio.
- */
-export function urlParaIncrustar(url: string): { tipo: 'iframe' | 'video'; src: string } {
-  const t = url.trim()
-
-  const youtube = t.match(
-    /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/,
-  )
-  if (youtube) return { tipo: 'iframe', src: `https://www.youtube-nocookie.com/embed/${youtube[1]}` }
-
-  const vimeo = t.match(/vimeo\.com\/(?:video\/)?(\d+)/)
-  if (vimeo) return { tipo: 'iframe', src: `https://player.vimeo.com/video/${vimeo[1]}` }
-
-  return { tipo: 'video', src: t }
-}
 
 export function ElAutor({ autor }: { autor: DatosDelAutor }) {
   const { nombre, titular, intro, retratoUrl, videos } = autor
@@ -87,35 +66,8 @@ export function ElAutor({ autor }: { autor: DatosDelAutor }) {
         </ol>
       )}
 
-      {videos.length > 0 && (
-        <div className="autor-videos">
-          {videos.map((video, i) => {
-            const { tipo, src } = urlParaIncrustar(video.url)
-            return (
-              <figure key={i} className="autor-video">
-                {tipo === 'iframe' ? (
-                  <iframe
-                    src={src}
-                    title={video.titulo || `Vídeo ${i + 1}`}
-                    loading="lazy"
-                    allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture"
-                    allowFullScreen
-                  />
-                ) : (
-                  /*
-                   * `muted` + `playsInline` no son adorno: sin los dos, iOS se
-                   * niega a reproducir solo y deja un rectángulo negro. Y
-                   * `preload="metadata"` para que la página no se traiga cuatro
-                   * vídeos enteros antes de que nadie los mire.
-                   */
-                  <video src={src} loop muted playsInline preload="metadata" controls />
-                )}
-                {video.titulo && <figcaption>{video.titulo}</figcaption>}
-              </figure>
-            )
-          })}
-        </div>
-      )}
+      <CarruselVideos videos={videos} />
+
     </section>
   )
 }

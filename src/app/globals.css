@@ -4058,15 +4058,35 @@ body {
 
 /* ── la tira de vídeos ───────────────────────────────────────────────────── */
 
-.autor-videos {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
-  gap: .9rem;
+/* ── el carrusel de vídeos ──────────────────────────────────────────────────
+   Antes era una rejilla de cuatro por fila: los vídeos salían pequeños y la
+   última fila quedaba a medias, que se lee como un descuadre. En tira se ven
+   del tamaño que pide un vídeo y el conjunto parece una colección. */
+.autor-carrusel {
+  position: relative;
   margin-top: clamp(1.5rem, 4vh, 2.6rem);
+}
+
+.autor-videos {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  /* `min-width: 0` para que la tira no le imponga su ancho al contenedor: sin
+     esto la página entera se desliza de lado, que ya pasó con la vitrina. */
+  min-width: 0;
+  padding: .2rem .2rem 1rem;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--terciario) 40%, transparent) transparent;
 }
 
 .autor-video {
   margin: 0;
+  flex: none;
+  /* Un 50% más anchos que los 230 px de la rejilla anterior. */
+  width: clamp(280px, 30vw, 360px);
+  scroll-snap-align: start;
 }
 
 .autor-video iframe,
@@ -4088,9 +4108,59 @@ body {
   color: var(--neutro);
 }
 
+/* Las flechas, fuera de la tira y superpuestas: dentro robarían ancho al
+   vídeo, que es justo lo que se venía a ganar. */
+.autor-carrusel .flecha {
+  position: absolute;
+  top: calc(50% - 1.4rem);
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 2.8rem;
+  height: 2.8rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid color-mix(in oklab, var(--terciario) 30%, transparent);
+  background: color-mix(in oklab, var(--secundario) 88%, #000);
+  backdrop-filter: blur(8px);
+  color: var(--primario);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: opacity .2s ease, border-color .2s ease;
+}
+
+.autor-carrusel .flecha.izquierda {
+  left: -.8rem;
+}
+
+.autor-carrusel .flecha.derecha {
+  right: -.8rem;
+}
+
+.autor-carrusel .flecha:hover:not(:disabled) {
+  border-color: var(--terciario);
+}
+
+/* Al llegar al borde la flecha se apaga en vez de desaparecer: si se fuera, el
+   conjunto daría un salto y la otra flecha cambiaría de sitio. */
+.autor-carrusel .flecha:disabled {
+  opacity: .25;
+  cursor: default;
+}
+
 @media (max-width: 640px) {
   .autor-cabeza {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* En móvil se desliza con el dedo; las flechas solo taparían el vídeo. */
+  .autor-carrusel .flecha {
+    display: none;
+  }
+
+  .autor-video {
+    width: min(84vw, 340px);
   }
 }
 
