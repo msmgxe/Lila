@@ -1,6 +1,7 @@
-import { obtenerLibros } from '@/lib/datos'
+import { obtenerAutor, obtenerLibros } from '@/lib/datos'
 import { agruparEnPoemarios } from '@/lib/poemarios'
 import { CarruselPoemarios } from '@/componentes/CarruselPoemarios'
+import { ElAutor } from '@/componentes/ElAutor'
 import { Cabecera } from '@/componentes/Cabecera'
 import { Pie } from '@/componentes/Pie'
 import { AUTOR, OBRA } from '@/lib/contenido/pentapoemario'
@@ -20,7 +21,8 @@ import { AUTOR, OBRA } from '@/lib/contenido/pentapoemario'
 export const revalidate = 3600
 
 export default async function PaginaInicio() {
-  const poemarios = agruparEnPoemarios(await obtenerLibros())
+  const [libros, autor] = await Promise.all([obtenerLibros(), obtenerAutor()])
+  const poemarios = agruparEnPoemarios(libros)
 
   return (
     <>
@@ -28,6 +30,10 @@ export default async function PaginaInicio() {
       <main className="marco-vitrina">
         <CarruselPoemarios poemarios={poemarios} titulo={OBRA} autor={AUTOR} />
       </main>
+
+      {/* Debajo del poemario, nunca encima: quien llega de redes viene a leer
+          un poema, no una biografía. */}
+      {autor && <ElAutor autor={autor} />}
       {/* El año se calcula en el servidor: `new Date()` dentro de un componente
           cliente desajusta la hidratación. */}
       <Pie anio={new Date().getFullYear()} />

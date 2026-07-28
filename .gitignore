@@ -43,3 +43,13 @@ drizzle/meta/_journal.json.bak
 .pglite/
 .env*
 .env.local.respaldo
+
+# Los vídeos de origen/ no van a git.
+# Son material de partida, como los .docx, pero pesan cientos de megas: uno
+# solo pasaba de los 100 MB con los que GitHub corta el push. Y no hacen
+# falta en el repositorio — la sección del autor guarda ENLACES de YouTube o
+# Vimeo, no archivos, justo por esto mismo.
+origen/*.mp4
+origen/*.mov
+origen/*.MP4
+origen/*.MOV

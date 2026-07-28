@@ -511,3 +511,70 @@ function direccionDeImagen(datos: FormData, campo: string): string | null {
       'ya está en otro sitio, pega su dirección completa (empieza por / o por https://).',
   )
 }
+
+/* ─────────────────────────────── el autor ───────────────────────────────── */
+
+/**
+ * Guarda la sección del autor: sus textos, su retrato y sus listas.
+ *
+ * Los hitos y los vídeos llegan como campos repetidos —`hito-etiqueta`,
+ * `hito-titulo`…— y se recomponen aquí por posición. `FormData.getAll` los
+ * devuelve en el orden del documento, que es el orden en que se ven, así que
+ * reordenar en pantalla basta para reordenar de verdad.
+ */
+export async function guardarAutor(datos: FormData) {
+  await autorizar()
+
+  const nombre = texto(datos, 'nombre')
+  if (!nombre) throw new Error('El autor necesita un nombre.')
+
+  function listas<C extends string>(prefijo: string, campos: readonly C[]): Record<C, string>[] {
+    const cols = campos.map((c) => datos.getAll(`${prefijo}-${c}`).map((v) => String(v).trim()))
+    const largo = Math.max(0, ...cols.map((c) => c.length))
+    return Array.from({ length: largo }, (_, i) =>
+      Object.fromEntries(campos.map((c, j) => [c, cols[j][i] ?? ''])),
+    ) as Record<C, string>[]
+  }
+
+  // Una fila totalmente vacía es una que se añadió y no se rellenó: se
+  // descarta en silencio, en vez de guardar un hito sin nada dentro.
+  const hitos: panel.Hito[] = listas('hito', ['etiqueta', 'titulo', 'texto'] as const).filter(
+    (h) => h.etiqueta || h.titulo || h.texto,
+  )
+  const videos: panel.VideoAutor[] = listas('video', ['titulo', 'url'] as const).filter(
+    (v) => v.url,
+  )
+
+  let retratoUrl = textoONulo(datos, 'retratoUrl')
+  const imagen = datos.get('retrato')
+  if (imagen instanceof File && imagen.size > 0) {
+    if (imagen.size > TOPE_IMAGEN) {
+      throw new Error(
+        `El retrato pesa ${(imagen.size / 1024 / 1024).toFixed(1)} MB y el tope son ` +
+          `${TOPE_IMAGEN / 1024 / 1024} MB.`,
+      )
+    }
+    if (!IMAGENES.includes(imagen.type)) {
+      throw new Error('El retrato debe ser JPG, PNG, WebP o AVIF.')
+    }
+    retratoUrl = await panel.guardarMedio(
+      'autor-retrato',
+      imagen.type,
+      Buffer.from(await imagen.arrayBuffer()),
+    )
+  }
+
+  await panel.guardarAutor({
+    nombre,
+    titular: textoONulo(datos, 'titular'),
+    intro: textoONulo(datos, 'intro'),
+    retratoUrl,
+    hitos,
+    videos,
+    visible: datos.get('visible') === 'on',
+  })
+
+  refrescarSitio()
+  revalidatePath('/panel/autor')
+  redirect('/panel/autor')
+}

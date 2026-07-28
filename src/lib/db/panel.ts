@@ -2,7 +2,10 @@ import 'server-only'
 
 import { and, asc, eq, sql } from 'drizzle-orm'
 import { exigirDb } from './cliente'
-import { categorias, libros, poemas, planchas, portadas, registro } from './esquema'
+import { autor, categorias, libros, medios, poemas, planchas, portadas, registro } from './esquema'
+
+/** Solo hay un autor. Ver el comentario de la tabla en `esquema.ts`. */
+const CLAVE_AUTOR = 'principal'
 import { aCuerpo, aEstrofas, slugificar } from '../texto'
 import type { Categoria, Libro, Poema } from '../tipos'
 
@@ -628,6 +631,74 @@ export async function leerPortada(slug: string) {
     .from(portadas)
     .innerJoin(libros, eq(libros.id, portadas.libroId))
     .where(eq(libros.slug, slug))
+    .limit(1)
+  return fila ?? null
+}
+
+/* ─────────────────────────────── el autor ───────────────────────────────── */
+
+export interface Hito {
+  etiqueta: string
+  titulo: string
+  texto: string
+}
+export interface VideoAutor {
+  titulo: string
+  url: string
+}
+export interface DatosAutor {
+  nombre: string
+  titular: string | null
+  intro: string | null
+  retratoUrl: string | null
+  hitos: Hito[]
+  videos: VideoAutor[]
+  visible: boolean
+}
+
+/** La fila del autor, o null si aún no se ha creado. */
+export async function traerAutor() {
+  const db = exigirDb()
+  const [fila] = await db.select().from(autor).where(eq(autor.clave, CLAVE_AUTOR)).limit(1)
+  return fila ?? null
+}
+
+/**
+ * Guarda la sección del autor. Alta y edición son lo mismo: como solo hay una
+ * fila, `onConflictDoUpdate` evita tener que preguntar antes si existe.
+ */
+export async function guardarAutor(datos: DatosAutor) {
+  const db = exigirDb()
+  await db
+    .insert(autor)
+    .values({ clave: CLAVE_AUTOR, ...datos, actualizadoEn: new Date() })
+    .onConflictDoUpdate({
+      target: autor.clave,
+      set: { ...datos, actualizadoEn: new Date() },
+    })
+  await anotar('autor', CLAVE_AUTOR, 'edición', { hitos: datos.hitos.length })
+}
+
+/* ─────────────────────────────── medios ─────────────────────────────────── */
+
+/** Guarda una imagen suelta y devuelve la dirección con la que servirla. */
+export async function guardarMedio(clave: string, mime: string, bytes: Buffer) {
+  const db = exigirDb()
+  await db
+    .insert(medios)
+    .values({ clave, mime, bytes, actualizadoEn: new Date() })
+    .onConflictDoUpdate({ target: medios.clave, set: { mime, bytes, actualizadoEn: new Date() } })
+  // La marca de tiempo obliga al navegador a pedirla de nuevo: sin ella, la
+  // caché de un año le seguiría enseñando la imagen anterior.
+  return `/medios/${clave}?v=${Date.now()}`
+}
+
+export async function leerMedio(clave: string) {
+  const db = exigirDb()
+  const [fila] = await db
+    .select({ mime: medios.mime, bytes: medios.bytes, actualizadoEn: medios.actualizadoEn })
+    .from(medios)
+    .where(eq(medios.clave, clave))
     .limit(1)
   return fila ?? null
 }

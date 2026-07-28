@@ -271,11 +271,66 @@ export const audiosRel = relations(audios, ({ one }) => ({
   poema: one(poemas, { fields: [audios.poemaId], references: [poemas.id] }),
 }))
 
+/* ─────────────────────────────── el autor ───────────────────────────────── */
+
+/**
+ * La sección del autor: retrato, trayectoria y vídeos. **Una sola fila.**
+ *
+ * `clave` es siempre `'principal'` y es la clave primaria: así no hay forma de
+ * acabar con dos filas peleándose por ser la buena, que es el fallo clásico de
+ * las tablas de un solo registro. Si algún día hay más de un autor, deja de ser
+ * fija y el resto no cambia.
+ *
+ * Los hitos y los vídeos van en `jsonb` y no en tablas propias a propósito: son
+ * listas cortas que se editan enteras de una vez —se añade uno, se cambia el
+ * orden, se borra otro— y partirlas en tablas obligaría a un formulario por
+ * fila y a una acción por movimiento, para nada.
+ *
+ * Los vídeos son URLs, no bytes. Un vídeo pesa megas: guardarlo aquí llenaría
+ * Neon y haría lento cada despliegue. El retrato sí va en `medios`, como las
+ * portadas de capítulo, porque es una imagen y pesa kilos.
+ */
+export const autor = pgTable('autor', {
+  clave: text('clave').primaryKey(),
+  nombre: text('nombre').notNull(),
+  /** La línea bajo el nombre: «Poeta, dibujante y profesor de arte». */
+  titular: text('titular'),
+  /** Un párrafo corto encima de la línea de tiempo. */
+  intro: text('intro'),
+  retratoUrl: text('retrato_url'),
+  /** [{ etiqueta, titulo, texto }] — la línea de tiempo, en orden. */
+  hitos: jsonb('hitos').$type<Array<{ etiqueta: string; titulo: string; texto: string }>>().notNull().default([]),
+  /** [{ titulo, url, portadaUrl }] — la tira de vídeos cortos. */
+  videos: jsonb('videos').$type<Array<{ titulo: string; url: string; portadaUrl?: string }>>().notNull().default([]),
+  visible: boolean('visible').notNull().default(false),
+  actualizadoEn: timestamp('actualizado_en', { withTimezone: true }).notNull().defaultNow(),
+})
+
+/* ─────────────────────────────── medios ─────────────────────────────────── */
+
+/**
+ * Imágenes sueltas que no cuelgan de ningún capítulo: hoy, el retrato del
+ * autor. Mismo trato que `portadas` —bytes en Postgres, servidos con caché de
+ * un año— y por las mismas razones, que están escritas allí arriba.
+ *
+ * La clave la pone quien la guarda: `autor-retrato`, `autor-video-2-portada`…
+ * Es un texto y no un id generado porque así la ruta que la sirve se puede
+ * escribir sin consultar nada.
+ */
+export const medios = pgTable('medios', {
+  clave: text('clave').primaryKey(),
+  mime: text('mime').notNull(),
+  bytes: bytea('bytes').notNull(),
+  actualizadoEn: timestamp('actualizado_en', { withTimezone: true }).notNull().defaultNow(),
+})
+
 export const portadasRel = relations(portadas, ({ one }) => ({
   libro: one(libros, { fields: [portadas.libroId], references: [libros.id] }),
 }))
 
 export const esquema = {
+  autor,
+  medios,
   categorias,
   categoriasRel,
   libros,

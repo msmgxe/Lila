@@ -3913,3 +3913,249 @@ body {
 .estado-cap {
   white-space: nowrap;
 }
+
+/* ═══ La sección del autor — propuesta 04, «La línea» ═════════════════════ */
+
+.el-autor {
+  position: relative;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: clamp(2.5rem, 6vh, 4.5rem) clamp(1.2rem, 4vw, 3rem) clamp(3rem, 7vh, 5rem);
+  overflow: clip;
+}
+
+/* El difuminado de la paleta, como en las propuestas: es un gradiente con
+   `blur`, no una imagen — pesa cero y usa los colores del sitio. */
+.autor-halo {
+  position: absolute;
+  width: min(620px, 90vw);
+  aspect-ratio: 1;
+  top: 6%;
+  right: -14%;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: .34;
+  background: radial-gradient(circle, var(--terciario), transparent 68%);
+  pointer-events: none;
+}
+
+.el-autor > *:not(.autor-halo) {
+  position: relative;
+  z-index: 1;
+}
+
+.autor-cabeza {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: clamp(1.2rem, 3vw, 2.4rem);
+  align-items: center;
+  margin-bottom: clamp(2rem, 5vh, 3rem);
+}
+
+.autor-retrato {
+  width: clamp(110px, 15vw, 168px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in oklab, var(--terciario) 34%, transparent);
+  background: linear-gradient(160deg, var(--secundario), #0d0716);
+  font-family: var(--tipo-display);
+  font-size: 3rem;
+  color: color-mix(in oklab, var(--terciario) 55%, transparent);
+}
+
+.autor-retrato img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.autor-cabeza h2 {
+  margin: .4rem 0 0;
+  font-family: var(--tipo-display);
+  font-size: clamp(1.7rem, 4vw, 2.7rem);
+  font-weight: 500;
+  line-height: 1.08;
+  color: var(--primario);
+}
+
+.autor-titular {
+  margin: .45rem 0 0;
+  font-family: var(--tipo-ui);
+  font-size: .74rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--terciario) 82%, white);
+}
+
+.autor-intro {
+  margin: .9rem 0 0;
+  max-width: 58ch;
+  color: color-mix(in oklab, var(--primario) 76%, transparent);
+}
+
+/* ── la línea de tiempo ──────────────────────────────────────────────────── */
+
+.autor-linea {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 2.3rem;
+  position: relative;
+  max-width: 68ch;
+}
+
+/* La línea se desvanece al final en vez de cortarse en seco: la trayectoria
+   sigue, y una raya que termina de golpe dice lo contrario. */
+.autor-linea::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: .5rem;
+  bottom: 1.5rem;
+  width: 1px;
+  background: linear-gradient(180deg, var(--terciario), transparent);
+}
+
+.autor-linea li {
+  position: relative;
+  padding-bottom: 1.9rem;
+}
+
+.autor-linea li::before {
+  content: '';
+  position: absolute;
+  left: -2.3rem;
+  top: .3rem;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1px solid var(--terciario);
+  background: var(--fondo);
+}
+
+.autor-etiqueta {
+  font-family: var(--tipo-display);
+  font-size: 1.15rem;
+  color: var(--terciario);
+}
+
+.autor-linea h3 {
+  margin: .1rem 0 .25rem;
+  font-family: var(--tipo-display);
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--primario);
+}
+
+.autor-linea p {
+  margin: 0;
+  font-size: .93rem;
+  line-height: 1.65;
+  color: color-mix(in oklab, var(--primario) 68%, transparent);
+}
+
+/* ── la tira de vídeos ───────────────────────────────────────────────────── */
+
+.autor-videos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+  gap: .9rem;
+  margin-top: clamp(1.5rem, 4vh, 2.6rem);
+}
+
+.autor-video {
+  margin: 0;
+}
+
+.autor-video iframe,
+.autor-video video {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  display: block;
+  border: 1px solid color-mix(in oklab, var(--terciario) 22%, transparent);
+  border-radius: 11px;
+  background: #0d0716;
+}
+
+.autor-video figcaption {
+  margin-top: .45rem;
+  font-family: var(--tipo-ui);
+  font-size: .7rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--neutro);
+}
+
+@media (max-width: 640px) {
+  .autor-cabeza {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ── las listas que crecen, en el panel ──────────────────────────────────── */
+
+.lista-editable {
+  margin: 1.8rem 0;
+  padding-top: 1.2rem;
+  border-top: 1px solid color-mix(in oklab, var(--acento) 14%, transparent);
+}
+
+.lista-editable > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .8rem;
+  flex-wrap: wrap;
+}
+
+.lista-editable > header h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.fila-editable {
+  display: flex;
+  gap: .7rem;
+  align-items: flex-end;
+  margin-top: .9rem;
+  flex-wrap: wrap;
+}
+
+.fila-editable .campo {
+  margin: 0;
+  min-width: 140px;
+}
+
+.fila-editable .campo.crece {
+  flex: 1;
+  min-width: 220px;
+}
+
+.fila-editable .mandos {
+  display: flex;
+  gap: .2rem;
+  padding-bottom: .1rem;
+}
+
+.fila-editable .ico {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  border: 1px solid color-mix(in oklab, var(--acento) 18%, transparent);
+  background: none;
+  color: var(--neutro);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  transition: .16s;
+}
+
+.fila-editable .ico:hover {
+  color: var(--primario);
+  border-color: var(--acento);
+  background: color-mix(in oklab, var(--acento) 12%, transparent);
+}

@@ -17,6 +17,7 @@ import { buscar as buscarEnDb, traerLibro, traerLibrosPublicados } from './db/co
 import { LIBROS_PENTAPOEMARIO } from './contenido/pentapoemario'
 import { sinAcentos, escaparHtml, textoPlano } from './texto'
 import type { Libro, ResultadoBusqueda } from './tipos'
+import type { DatosDelAutor } from '../componentes/ElAutor'
 
 export const origenDeDatos: 'neon' | 'archivo' = hayBaseDeDatos ? 'neon' : 'archivo'
 
@@ -115,4 +116,31 @@ function buscarEnMuestra(consulta: string): ResultadoBusqueda[] {
     }
   }
   return salida
+}
+
+/**
+ * La sección del autor, si está publicada.
+ *
+ * Devuelve null en cuanto algo no cuadra —sin base de datos, sin fila, sin
+ * marcar visible— y la portada simplemente no la pinta. Es una sección
+ * opcional: que falte no puede tumbar la página ni dejar un hueco raro.
+ */
+export async function obtenerAutor(): Promise<DatosDelAutor | null> {
+  if (!hayBaseDeDatos) return null
+  try {
+    const { traerAutor } = await import('./db/panel')
+    const fila = await traerAutor()
+    if (!fila || !fila.visible) return null
+    return {
+      nombre: fila.nombre,
+      titular: fila.titular,
+      intro: fila.intro,
+      retratoUrl: fila.retratoUrl,
+      hitos: fila.hitos,
+      videos: fila.videos,
+    }
+  } catch (error) {
+    console.error('[datos] no se pudo leer la sección del autor:', error)
+    return null
+  }
 }
