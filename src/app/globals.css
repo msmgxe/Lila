@@ -29,7 +29,10 @@
   --fondo: #150c22;
   --fondo2: #1d1230;
   --panel: #241640;
-  --linea: rgba(244, 238, 248, 0.1);
+  /* Sale del color del texto, no de un blanco fijo: así una misma regla vale
+     para la sala oscura y para la crema del tema claro, donde un blanco al 10%
+     sencillamente no se ve. */
+  --linea: color-mix(in oklab, var(--texto) 13%, transparent);
 
   --display: var(--tipo-display), Georgia, serif;
   --ui: var(--tipo-ui), system-ui, sans-serif;
@@ -41,6 +44,19 @@
      El lila --terciario NO se usa nunca como texto sobre papel — ahí da 1.8:1.
      Solo como fondo de resaltado, que es donde sí funciona. */
   --tinta-acento: #7b3fa8;
+
+  /* El texto sobre el fondo del sitio.
+     Antes era `--primario`, que HACÍA DOS TRABAJOS: el color del texto sobre
+     la sala oscura y el papel del poema. Con los dos claros funcionaba por
+     casualidad; en cuanto un tema aclara el fondo, el texto se vuelve
+     invisible sobre él. Son dos cosas distintas y ahora tienen dos nombres. */
+  --texto: #f4eef8;
+
+  /* Las barras: la cabecera del sitio, la del lector y la de herramientas.
+     Estaban fijadas a un negro que ignoraba el tema — se veían igual de
+     oscuras sobre un tema claro, que era el otro fallo. Ahora salen del
+     fondo. */
+  --barra: color-mix(in oklab, var(--fondo) 86%, #000);
 
   /* El color del poemario. Por defecto son los de la casa; cada poemario puede
      traer el suyo y `colorDelPoemario` (lib/color.ts) los reescribe en el
@@ -66,7 +82,7 @@ body {
 
 body {
   background: var(--fondo);
-  color: var(--primario);
+  color: var(--texto);
   font-family: var(--ui);
   font-weight: 300;
   -webkit-font-smoothing: antialiased;
@@ -134,7 +150,7 @@ button {
   height: var(--alto-cabecera);
   padding: 0 clamp(1rem, 3vw, 2rem);
   border-bottom: 1px solid var(--linea);
-  background: rgba(14, 12, 12, 0.92);
+  background: var(--barra);
   backdrop-filter: blur(8px);
   position: sticky;
   top: 0;
@@ -146,7 +162,7 @@ button {
   font-size: 1.2rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--primario);
+  color: var(--texto);
   text-decoration: none;
   white-space: nowrap;
 }
@@ -166,13 +182,13 @@ button {
   font-size: 0.66rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #a99bb8;
+  color: var(--neutro);
   text-decoration: none;
   transition: 0.2s;
   white-space: nowrap;
 }
 .cabecera-sitio nav a:hover {
-  color: var(--primario);
+  color: var(--texto);
 }
 
 /* ── acceso al panel desde la cabecera ── */
@@ -182,7 +198,7 @@ button {
   gap: 0.45rem;
   background: none;
   border: 1px solid var(--linea);
-  color: #a99bb8;
+  color: var(--neutro);
   cursor: pointer;
   padding: 0.42rem 0.85rem;
   font-size: 0.62rem;
@@ -192,7 +208,7 @@ button {
   white-space: nowrap;
 }
 .acceso-btn:hover {
-  color: var(--primario);
+  color: var(--texto);
   border-color: var(--linea-fuerte, rgba(244, 238, 248, 0.34));
 }
 .acceso-btn svg {
@@ -238,7 +254,7 @@ button {
   padding: 0.2rem 0.4rem;
 }
 .cerrar-acceso:hover {
-  color: var(--primario);
+  color: var(--texto);
 }
 .form-acceso {
   display: grid;
@@ -261,7 +277,7 @@ button {
   font-size: 0.95rem;
   background: var(--panel);
   border: 1px solid var(--linea);
-  color: var(--primario);
+  color: var(--texto);
   padding: 0.6rem 0.75rem;
   width: 100%;
 }
@@ -318,7 +334,7 @@ button {
   margin-bottom: 0.7rem;
 }
 .pie-sitio p {
-  color: #a99bb8;
+  color: var(--neutro);
   font-size: 0.88rem;
   line-height: 1.7;
   max-width: 46ch;
@@ -336,11 +352,11 @@ button {
 .pie-sitio li,
 .pie-sitio li a {
   font-size: 0.85rem;
-  color: #a99bb8;
+  color: var(--neutro);
   text-decoration: none;
 }
 .pie-sitio li a:hover {
-  color: var(--primario);
+  color: var(--texto);
 }
 .pie-sitio .linea-final {
   max-width: 1100px;
@@ -378,13 +394,13 @@ button {
   margin: 2.4rem 0 0.8rem;
 }
 .pagina-texto p {
-  color: #a99bb8;
+  color: var(--neutro);
   line-height: 1.8;
   margin-bottom: 1rem;
 }
 .pagina-texto em {
   font-style: italic;
-  color: var(--primario);
+  color: var(--texto);
 }
 .pagina-texto .volver {
   display: inline-block;
@@ -486,7 +502,7 @@ button {
   color: var(--terciario);
 }
 .rotulo-obra > p {
-  color: #a99bb8;
+  color: var(--neutro);
   max-width: 42ch;
   line-height: 1.7;
   font-size: 0.95rem;
@@ -507,7 +523,7 @@ button {
   text-transform: uppercase;
   font-weight: 500;
   text-decoration: none;
-  border: 1px solid var(--primario);
+  border: 1px solid var(--texto);
   transition: 0.2s;
 }
 .cta-obra:hover {
@@ -516,12 +532,12 @@ button {
 }
 .cta-obra.secundaria {
   background: none;
-  color: var(--primario);
+  color: var(--texto);
   border-color: var(--linea-fuerte, rgba(244, 238, 248, 0.34));
 }
 .cta-obra.secundaria:hover {
   background: rgba(244, 238, 248, 0.1);
-  color: var(--primario);
+  color: var(--texto);
 }
 .cifras-obra {
   font-size: 0.6rem;
@@ -583,7 +599,7 @@ button {
   text-indent: -1em;
 }
 .texto-sala {
-  color: #a99bb8;
+  color: var(--neutro);
   line-height: 1.8;
   max-width: 46ch;
   font-size: 0.95rem;
@@ -599,7 +615,7 @@ button {
   font-weight: 500;
 }
 .enlace-sala:hover {
-  color: var(--primario);
+  color: var(--texto);
 }
 .sala-obra figure {
   margin: 0;
@@ -687,13 +703,13 @@ button {
   align-items: baseline;
   gap: 0.7rem;
   padding: 0.5rem 1.5rem;
-  color: #a99bb8;
+  color: var(--neutro);
   text-decoration: none;
   border-left: 2px solid transparent;
   transition: 0.2s;
 }
 .nav-capitulos li a:hover {
-  color: var(--primario);
+  color: var(--texto);
   background: rgba(244, 238, 248, 0.05);
   border-left-color: var(--terciario);
 }
@@ -745,7 +761,7 @@ button {
   background: none;
   border: 0;
   cursor: pointer;
-  color: #a99bb8;
+  color: var(--neutro);
   padding: 0.66rem 1.5rem;
   font-size: 0.72rem;
   letter-spacing: 0.2em;
@@ -755,12 +771,12 @@ button {
   text-align: left;
 }
 .nav button:hover {
-  color: var(--primario);
+  color: var(--texto);
   background: rgba(244, 238, 248, 0.04);
 }
 .nav button[aria-current='true'] {
-  color: var(--primario);
-  border-left-color: var(--primario);
+  color: var(--texto);
+  border-left-color: var(--texto);
   background: rgba(244, 238, 248, 0.05);
 }
 .nav svg {
@@ -811,7 +827,7 @@ button {
 }
 .mini button:hover,
 .mini a:hover {
-  color: var(--primario);
+  color: var(--texto);
 }
 
 .anaquel {
@@ -827,7 +843,7 @@ button {
   margin-bottom: 0.9rem;
 }
 .intro {
-  color: #a99bb8;
+  color: var(--neutro);
   max-width: 52ch;
   line-height: 1.75;
   font-size: 0.95rem;
@@ -1005,7 +1021,7 @@ button {
   line-height: 1.15;
 }
 .tira p {
-  color: #a99bb8;
+  color: var(--neutro);
   font-size: 0.88rem;
   line-height: 1.65;
 }
@@ -1014,7 +1030,7 @@ button {
   margin-top: auto;
   border: 1px solid rgba(244, 238, 248, 0.3);
   background: none;
-  color: var(--primario);
+  color: var(--texto);
   padding: 0.5rem 1rem;
   font-size: 0.62rem;
   letter-spacing: 0.2em;
@@ -1061,14 +1077,14 @@ button {
   gap: 1rem;
   padding: 0.85rem clamp(0.8rem, 2.5vw, 1.6rem);
   border-bottom: 1px solid var(--linea);
-  background: rgba(14, 12, 12, 0.9);
+  background: var(--barra);
   backdrop-filter: blur(8px);
   z-index: 20;
 }
 .ic {
   background: none;
   border: 0;
-  color: var(--primario);
+  color: var(--texto);
   cursor: pointer;
   width: 32px;
   height: 32px;
@@ -1115,7 +1131,7 @@ button {
 .buscador input {
   background: none;
   border: 0;
-  color: var(--primario);
+  color: var(--texto);
   font-family: var(--ui);
   font-size: 0.7rem;
   letter-spacing: 0.16em;
@@ -1199,7 +1215,7 @@ button {
   background: none;
   border: 0;
   cursor: pointer;
-  color: #a99bb8;
+  color: var(--neutro);
   text-align: left;
   padding: 0.6rem 1.4rem;
   border-left: 2px solid transparent;
@@ -1208,11 +1224,11 @@ button {
 }
 .indice li button:hover {
   background: rgba(244, 238, 248, 0.05);
-  color: var(--primario);
+  color: var(--texto);
 }
 .indice li button[aria-current='true'] {
   border-left-color: var(--terciario);
-  color: var(--primario);
+  color: var(--texto);
 }
 .indice .np {
   margin-left: auto;
@@ -1230,7 +1246,7 @@ button {
   width: calc(100% - 2.8rem);
   border: 1px solid rgba(244, 238, 248, 0.24);
   background: none;
-  color: var(--primario);
+  color: var(--texto);
   padding: 0.55rem;
   font-size: 0.62rem;
   letter-spacing: 0.2em;
@@ -1706,13 +1722,13 @@ h2.tit .sigue {
   gap: clamp(0.7rem, 3vw, 2.6rem);
   padding: 0.7rem 1rem;
   border-top: 1px solid var(--linea);
-  background: rgba(14, 12, 12, 0.92);
+  background: var(--barra);
   flex-wrap: wrap;
 }
 .hbtn {
   background: none;
   border: 0;
-  color: #a99bb8;
+  color: var(--neutro);
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -1725,7 +1741,7 @@ h2.tit .sigue {
 }
 .hbtn:hover,
 .hbtn[aria-pressed='true'] {
-  color: var(--primario);
+  color: var(--texto);
 }
 .hbtn svg {
   width: 17px;
@@ -1748,7 +1764,7 @@ h2.tit .sigue {
 .paginar button {
   background: none;
   border: 0;
-  color: var(--primario);
+  color: var(--texto);
   cursor: pointer;
   width: 26px;
   height: 26px;
@@ -1788,7 +1804,7 @@ h2.tit .sigue {
 .tempo .paso {
   background: none;
   border: 1px solid var(--linea);
-  color: var(--primario);
+  color: var(--texto);
   cursor: pointer;
   width: 22px;
   height: 22px;
@@ -1809,7 +1825,7 @@ h2.tit .sigue {
 .tempo .valor {
   font-size: 0.72rem;
   letter-spacing: 0.06em;
-  color: var(--primario);
+  color: var(--texto);
   min-width: 3em;
   text-align: right;
   font-variant-numeric: tabular-nums;
@@ -1854,13 +1870,13 @@ h2.tit .sigue {
   text-transform: uppercase;
   background: rgba(244, 238, 248, 0.04);
   border: 1px solid var(--linea);
-  color: #a99bb8;
+  color: var(--neutro);
   padding: 0.26rem 0.4rem;
   max-width: 12rem;
   cursor: pointer;
 }
 .sel-voz:hover {
-  color: var(--primario);
+  color: var(--texto);
 }
 
 /* ── barra de progreso — dirección B (Sala blanca) ── */
@@ -2211,7 +2227,7 @@ h2.tit .sigue {
   font-weight: 500;
 }
 .modal p {
-  color: #a99bb8;
+  color: var(--neutro);
   line-height: 1.7;
   margin-top: 0.3rem;
   font-size: 0.92rem;
@@ -2298,7 +2314,7 @@ h2.tit .sigue {
   }
   .nav button[aria-current='true'] {
     border-left-color: transparent;
-    border-bottom-color: var(--primario);
+    border-bottom-color: var(--texto);
   }
   .nav svg {
     display: none;
@@ -2472,7 +2488,7 @@ h2.tit .sigue {
   border: 1px dashed color-mix(in oklab, var(--terciario) 45%, transparent);
   border-radius: 8px;
   background: color-mix(in oklab, var(--secundario) 22%, transparent);
-  color: var(--primario);
+  color: var(--texto);
   font: inherit;
   font-size: 0.9rem;
   cursor: pointer;
@@ -2608,7 +2624,7 @@ h2.tit .sigue {
   font-size: clamp(2rem, 5vw, 3.4rem);
   font-weight: 500;
   letter-spacing: -0.01em;
-  color: var(--primario);
+  color: var(--texto);
   text-wrap: balance;
 }
 
@@ -2701,7 +2717,7 @@ h2.tit .sigue {
   font-family: var(--tipo-display);
   font-size: 1.15rem;
   font-weight: 500;
-  color: var(--primario);
+  color: var(--texto);
 }
 
 .lamina.al-frente .lamina-pie h2 {
@@ -2738,7 +2754,7 @@ h2.tit .sigue {
   border-radius: 50%;
   border: 1px solid color-mix(in oklab, var(--acento) 24%, transparent);
   background: none;
-  color: var(--primario);
+  color: var(--texto);
   font-size: 1.4rem;
   line-height: 1;
   cursor: pointer;
@@ -2791,7 +2807,7 @@ h2.tit .sigue {
   font-family: var(--tipo-display);
   font-size: 1.05rem;
   font-weight: 500;
-  color: var(--primario);
+  color: var(--texto);
 }
 
 .vitrina-ficha-cuerpo em {
@@ -2896,7 +2912,7 @@ h2.tit .sigue {
   max-width: 42ch;
   font-size: 1rem;
   line-height: 1.65;
-  color: color-mix(in oklab, var(--primario) 88%, transparent);
+  color: color-mix(in oklab, var(--texto) 88%, transparent);
 }
 
 .ficha-cifras {
@@ -2941,7 +2957,7 @@ h2.tit .sigue {
   font-family: var(--tipo-display);
   font-size: 1.5rem;
   font-weight: 500;
-  color: var(--primario);
+  color: var(--texto);
 }
 
 .lista-capitulos {
@@ -3014,7 +3030,7 @@ h2.tit .sigue {
   font-family: var(--tipo-display);
   font-size: 1.12rem;
   font-weight: 500;
-  color: var(--primario);
+  color: var(--texto);
   /* Un título largo no puede empujar la miniatura ni desbordar la tarjeta. */
   overflow: hidden;
   text-overflow: ellipsis;
@@ -3200,7 +3216,7 @@ h2.tit .sigue {
   font-family: var(--tipo-display);
   font-size: 1.15rem;
   font-weight: 500;
-  color: var(--primario);
+  color: var(--texto);
 }
 
 .tp-texto em {
@@ -3319,7 +3335,7 @@ h2.tit .sigue {
 }
 
 .tira-capitulo:hover .tira-titulo {
-  color: var(--primario);
+  color: var(--texto);
 }
 
 /* ── el guardarraíl: la página no se mueve nunca de lado ─────────────────── */
@@ -3474,7 +3490,7 @@ body {
 }
 
 .avanzado > summary:hover {
-  color: var(--primario);
+  color: var(--texto);
 }
 
 .avanzado[open] > summary {
@@ -3547,7 +3563,7 @@ body {
   border: 1px solid color-mix(in oklab, var(--acento) 35%, transparent);
   background: color-mix(in oklab, var(--secundario) 88%, #000);
   backdrop-filter: blur(10px);
-  color: var(--primario);
+  color: var(--texto);
   font-family: var(--tipo-ui);
   font-size: .7rem;
   letter-spacing: .14em;
@@ -3705,7 +3721,7 @@ body {
   font-size: .82rem;
   font-weight: 500;
   line-height: 1.25;
-  color: var(--primario);
+  color: var(--texto);
   /* Dos líneas: en una tira de 132 px, un título entero no cabe en una. */
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -3785,7 +3801,7 @@ body {
 .titulo-cap {
   font-family: var(--tipo-display);
   font-size: 1.02rem;
-  color: var(--primario);
+  color: var(--texto);
   text-decoration: none;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -3817,7 +3833,7 @@ body {
 }
 
 .estado-cap:hover {
-  color: var(--primario);
+  color: var(--texto);
   border-color: color-mix(in oklab, var(--acento) 30%, transparent);
   background: color-mix(in oklab, var(--acento) 10%, transparent);
 }
@@ -3854,7 +3870,7 @@ body {
 
 .acciones-cap .ico:hover,
 .acciones-cap .ico:focus-visible {
-  color: var(--primario);
+  color: var(--texto);
   border-color: color-mix(in oklab, var(--acento) 28%, transparent);
   background: color-mix(in oklab, var(--acento) 12%, transparent);
 }
@@ -3978,7 +3994,7 @@ body {
   font-size: clamp(1.7rem, 4vw, 2.7rem);
   font-weight: 500;
   line-height: 1.08;
-  color: var(--primario);
+  color: var(--texto);
 }
 
 .autor-titular {
@@ -3993,7 +4009,7 @@ body {
 .autor-intro {
   margin: .9rem 0 0;
   max-width: 58ch;
-  color: color-mix(in oklab, var(--primario) 76%, transparent);
+  color: color-mix(in oklab, var(--texto) 76%, transparent);
 }
 
 /* ── la línea de tiempo ──────────────────────────────────────────────────── */
@@ -4046,14 +4062,14 @@ body {
   font-family: var(--tipo-display);
   font-size: 1.1rem;
   font-weight: 500;
-  color: var(--primario);
+  color: var(--texto);
 }
 
 .autor-linea p {
   margin: 0;
   font-size: .93rem;
   line-height: 1.65;
-  color: color-mix(in oklab, var(--primario) 68%, transparent);
+  color: color-mix(in oklab, var(--texto) 68%, transparent);
 }
 
 /* ── la tira de vídeos ───────────────────────────────────────────────────── */
@@ -4134,7 +4150,7 @@ body {
 }
 
 .fila-editable .ico:hover {
-  color: var(--primario);
+  color: var(--texto);
   border-color: var(--acento);
   background: color-mix(in oklab, var(--acento) 12%, transparent);
 }
@@ -4155,7 +4171,7 @@ body {
 }
 
 .fila-editable:hover .asa {
-  color: var(--primario);
+  color: var(--texto);
 }
 
 /* La fila que se está arrastrando se apaga: así se ve cuál se mueve y dónde
@@ -4265,7 +4281,7 @@ body {
 }
 
 .lamina-video.al-frente .lamina-video-pie {
-  color: var(--primario);
+  color: var(--texto);
   font-size: 0.72rem;
 }
 
@@ -4329,7 +4345,7 @@ body {
 .lamina-reproducir svg {
   width: 62px;
   height: 62px;
-  fill: var(--primario);
+  fill: var(--texto);
   filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.6));
   background: color-mix(in oklab, var(--secundario) 78%, #000);
   border-radius: 50%;

@@ -21,7 +21,8 @@
     "docx:probar": "tsx scripts/probar-docx.ts",
     "contenido:portadas": "tsx scripts/sincronizar-portadas.ts",
     "muestra:poner": "tsx scripts/muestra-poemarios.ts poner",
-    "muestra:quitar": "tsx scripts/muestra-poemarios.ts quitar"
+    "muestra:quitar": "tsx scripts/muestra-poemarios.ts quitar",
+    "temas:probar": "tsx scripts/probar-temas.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

@@ -25,8 +25,17 @@ export interface Tema {
   fondo: string
   /** Tinta y superficies elevadas. */
   secundario: string
-  /** El papel del poema. */
+  /** El papel del poema. Siempre claro, incluso en los temas oscuros. */
   primario: string
+  /**
+   * El texto sobre el fondo del sitio.
+   *
+   * Va aparte de `primario` desde que existe un tema claro. Antes eran el
+   * mismo valor y funcionaba por casualidad: con la sala oscura, el color del
+   * papel servía también de texto. En cuanto el fondo se aclara, ese mismo
+   * valor se vuelve invisible sobre él.
+   */
+  texto: string
   /** Resalte sobre fondo oscuro. NO vale para texto sobre papel. */
   terciario: string
   /** Etiquetas y texto secundario. */
@@ -45,6 +54,7 @@ export const TEMAS: Tema[] = [
     nombre: 'Lila',
     nota: 'el de siempre',
     fondo: '#150C22', secundario: '#2A1B3D', primario: '#F4EEF8',
+    texto: '#F4EEF8',
     terciario: '#C9A6E8', neutro: '#8A7E99', acentoTexto: '#7B3FA8',
     display: 'playfair', tipografias: 'Playfair Display · Archivo',
   },
@@ -53,6 +63,7 @@ export const TEMAS: Tema[] = [
     nombre: 'Nube rosa',
     nota: 'el nombre del sitio, hecho color',
     fondo: '#1A0E18', secundario: '#3A1E33', primario: '#FBEEF5',
+    texto: '#FBEEF5',
     terciario: '#E8A6C9', neutro: '#9A8090', acentoTexto: '#A8306B',
     display: 'playfair', tipografias: 'Playfair Display · Archivo',
   },
@@ -61,6 +72,7 @@ export const TEMAS: Tema[] = [
     nombre: 'Tinta y hueso',
     nota: 'sobrio, casi sin color',
     fondo: '#0F1116', secundario: '#1E222B', primario: '#F2EFE9',
+    texto: '#F2EFE9',
     terciario: '#B9C2D0', neutro: '#7C8493', acentoTexto: '#3D4757',
     display: 'cormorant', tipografias: 'Cormorant Garamond · Archivo',
   },
@@ -69,6 +81,7 @@ export const TEMAS: Tema[] = [
     nombre: 'Ocre',
     nota: 'cálido, de taller',
     fondo: '#191108', secundario: '#33240F', primario: '#F7F0E2',
+    texto: '#F7F0E2',
     terciario: '#E0B060', neutro: '#95866B', acentoTexto: '#8A5A12',
     display: 'garamond', tipografias: 'EB Garamond · Archivo',
   },
@@ -77,6 +90,7 @@ export const TEMAS: Tema[] = [
     nombre: 'Verdemar',
     nota: 'frío y vegetal',
     fondo: '#081614', secundario: '#122E2A', primario: '#EAF5F1',
+    texto: '#EAF5F1',
     terciario: '#7FD1B9', neutro: '#77918A', acentoTexto: '#136B52',
     display: 'instrument', tipografias: 'Instrument Serif · Archivo',
   },
@@ -85,6 +99,7 @@ export const TEMAS: Tema[] = [
     nombre: 'Índigo',
     nota: 'nocturno, de mar abierto',
     fondo: '#080D1F', secundario: '#141E42', primario: '#EDF0FB',
+    texto: '#EDF0FB',
     terciario: '#8FA8F0', neutro: '#7C86A6', acentoTexto: '#2F45A8',
     display: 'playfair', tipografias: 'Playfair Display · Archivo',
   },
@@ -93,6 +108,7 @@ export const TEMAS: Tema[] = [
     nombre: 'Cardenal',
     nota: 'el más intenso',
     fondo: '#180809', secundario: '#361214', primario: '#F9EEEE',
+    texto: '#F9EEEE',
     terciario: '#E08A8A', neutro: '#9A7B7B', acentoTexto: '#9E2222',
     display: 'garamond', tipografias: 'EB Garamond · Archivo',
   },
@@ -101,15 +117,21 @@ export const TEMAS: Tema[] = [
     nombre: 'Grafito',
     nota: 'neutro del todo; la obra pone el color',
     fondo: '#121212', secundario: '#242424', primario: '#F0F0F0',
+    texto: '#F0F0F0',
     terciario: '#B8B8B8', neutro: '#808080', acentoTexto: '#3A3A3A',
     display: 'instrument', tipografias: 'Instrument Serif · Archivo',
   },
   {
     clave: 'papel',
     nombre: 'Papel',
-    nota: 'claro — invierte el sitio entero',
+    nota: 'claro — la sala en crema, no en penumbra',
+    // El ÚNICO tema con el fondo claro, y por eso el único donde `texto` no es
+    // el papel sino la tinta. Comprobado: tinta sobre crema da 12.6:1 y el
+    // acento 5.4:1; el lila de la casa daba 1.8:1 sobre su papel y por eso
+    // nunca se usó para texto.
     fondo: '#EFEAE1', secundario: '#2A2620', primario: '#FFFDF8',
-    terciario: '#8A6E4B', neutro: '#8A8175', acentoTexto: '#6B5230',
+    texto: '#2A2620',
+    terciario: '#7A5B33', neutro: '#6E665C', acentoTexto: '#6B5230',
     display: 'cormorant', tipografias: 'Cormorant Garamond · Archivo',
   },
   {
@@ -117,6 +139,7 @@ export const TEMAS: Tema[] = [
     nombre: 'Sin serifa',
     nota: 'contemporáneo; una sola familia',
     fondo: '#101014', secundario: '#1F1F26', primario: '#F4F4F7',
+    texto: '#F4F4F7',
     terciario: '#A8A0F0', neutro: '#82828F', acentoTexto: '#4A3FB0',
     display: 'archivo', tipografias: 'Archivo, en dos pesos',
   },
@@ -144,6 +167,7 @@ export function cssDelTema(tema: Tema): string {
   --fondo:${tema.fondo};
   --secundario:${tema.secundario};
   --primario:${tema.primario};
+  --texto:${tema.texto};
   --terciario:${tema.terciario};
   --neutro:${tema.neutro};
   --tinta-acento:${tema.acentoTexto};
