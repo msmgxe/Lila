@@ -27,7 +27,10 @@
   --terciario: #c9a6e8;
   --neutro: #8a7e99;
   --fondo: #150c22;
-  --fondo2: #1d1230;
+  /* El segundo plano: el pie del sitio y algún panel elevado. Sale del fondo
+     del tema, un punto más claro, en vez de ser un violeta fijo que se quedaba
+     igual mientras el resto de la página cambiaba de color. */
+  --fondo2: color-mix(in oklab, var(--fondo) 88%, var(--texto));
   --panel: #241640;
   /* Sale del color del texto, no de un blanco fijo: así una misma regla vale
      para la sala oscura y para la crema del tema claro, donde un blanco al 10%
@@ -1900,8 +1903,14 @@ h2.tit .sigue {
    Mismo contenido, misma navegación, otra atmósfera: galería blanca, una sola
    columna, sin giro 3D. Se activa desde la barra inferior y se recuerda. */
 
+/* La Sala trae su propia atmósfera —galería blanca— y por eso reescribe la
+   paleta entera. Antes ponía `--primario: #16150f` porque esa variable era el
+   color del TEXTO; desde que el texto vive en `--texto`, poner ahí un tono
+   oscuro dejaría el papel del poema en negro. Se reparte cada valor donde
+   ahora corresponde. */
 .lector[data-sala='true'] {
-  --primario: #16150f;
+  --texto: #16150f;
+  --primario: #fbfaf8;
   --linea: #e4e1db;
   --neutro: #8b877e;
   background: #fbfaf8;
