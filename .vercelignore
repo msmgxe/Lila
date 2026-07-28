@@ -1,0 +1,16 @@
+# Lo que NO se sube a Vercel.
+#
+# `origen/` son los materiales de partida —los .docx del poeta, sus imágenes y
+# sus vídeos—, y nada de eso interviene en la compilación: el importador ya los
+# ha convertido en `src/lib/contenido/pentapoemario.ts` y las portadas ya están
+# en `public/portadas/`. Subirlos costaba un despliegue rechazado, porque un
+# vídeo pasaba de los 100 MB que Vercel admite por archivo.
+origen/
+
+# Las propuestas son HTML para mirar en local y decidir; no forman parte del
+# sitio y suman casi dos megas de tipografías incrustadas.
+propuestas/
+
+# Documentación y prototipos de referencia.
+docs/
+prototipos/
