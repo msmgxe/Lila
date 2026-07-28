@@ -204,6 +204,12 @@ export async function eliminarLibro(datos: FormData) {
   redirect('/panel')
 }
 
+export async function moverLibro(datos: FormData) {
+  await autorizar()
+  await panel.moverLibro(texto(datos, 'id'), texto(datos, 'direccion') === 'arriba' ? -1 : 1)
+  refrescarSitio()
+}
+
 /* ─────────────────────────────── poemas ─────────────────────────────────── */
 
 export async function guardarPoema(datos: FormData) {

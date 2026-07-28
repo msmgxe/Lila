@@ -3,8 +3,8 @@ import { notFound } from 'next/navigation'
 import { panelLibros } from '@/lib/db/panel'
 import { buscarPoemario, lemaDe } from '@/lib/poemarios'
 import { colorDelPoemario } from '@/lib/color'
-import { ListaCapitulos } from '@/componentes/FichaPoemario'
-import { alternarLibro } from '../../../acciones'
+import { ListaCapitulosPanel } from '../../../ListaCapitulosPanel'
+import { SubirArriba } from '@/componentes/SubirArriba'
 
 export const dynamic = 'force-dynamic'
 
@@ -80,35 +80,11 @@ export default async function PaginaPoemarioPanel({
             </Link>
           </header>
 
-          <ListaCapitulos
-            capitulos={capitulos}
-            destino={(c) => `/panel/libro/${c.slug}`}
-            subtitulo={(c) => {
-              const pub = c.poemas.filter((p) => p.publicado).length
-              const total = c.poemas.length
-              return total === pub
-                ? `${total} ${total === 1 ? 'poema' : 'poemas'}`
-                : `${pub} de ${total} publicados`
-            }}
-            extra={(capitulo) => (
-              <form action={alternarLibro} className="fila-acciones">
-                <input type="hidden" name="id" value={capitulo.id} />
-                <button
-                  className={`marca ${capitulo.publicado ? 'publicado' : 'borrador'}`}
-                  type="submit"
-                  title={
-                    capitulo.publicado
-                      ? 'Está en el sitio. Pulsa para retirarlo.'
-                      : 'Es un borrador. Pulsa para publicarlo.'
-                  }
-                >
-                  {capitulo.publicado ? 'En el sitio' : 'Borrador'}
-                </button>
-              </form>
-            )}
-          />
+          <ListaCapitulosPanel capitulos={capitulos} />
         </section>
       </div>
+
+      <SubirArriba etiqueta="Arriba" />
     </div>
   )
 }

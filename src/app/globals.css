@@ -3447,3 +3447,113 @@ body {
 .avanzado > .campo {
   padding: 1rem;
 }
+
+/* ── gestionar muchos capítulos ──────────────────────────────────────────── */
+
+.filtro-capitulos {
+  display: flex;
+  gap: .6rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.filtro-capitulos input {
+  flex: 1;
+  min-width: 0;
+}
+
+.filtro-capitulos .bt {
+  flex: none;
+  white-space: nowrap;
+}
+
+/* Los botones de subir y bajar, cuadrados y discretos: se usan de vez en
+   cuando y no deben competir con el título del capítulo. */
+.bt.icono {
+  width: 2rem;
+  min-width: 2rem;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.lista-capitulos .fila-acciones {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  padding-right: .7rem;
+}
+
+.siguiente-paso {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+  margin: 0 0 1.6rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--acento) 14%, transparent);
+}
+
+/* ── el botón de volver arriba ───────────────────────────────────────────── */
+
+.subir-arriba {
+  position: fixed;
+  right: 1.4rem;
+  bottom: 1.4rem;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  padding: .7rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--acento) 35%, transparent);
+  background: color-mix(in oklab, var(--secundario) 88%, #000);
+  backdrop-filter: blur(10px);
+  color: var(--primario);
+  font-family: var(--tipo-ui);
+  font-size: .7rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .45);
+  /* Escondido pero presente: animar `opacity` y `transform` no obliga al
+     navegador a recalcular la maqueta en cada desplazamiento. */
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+  transition: opacity .25s ease, transform .25s ease, border-color .2s ease;
+}
+
+.subir-arriba.visible {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.subir-arriba:hover {
+  border-color: var(--acento);
+}
+
+.subir-arriba svg {
+  width: 15px;
+  height: 15px;
+}
+
+@media (max-width: 640px) {
+  /* En móvil, solo la flecha: el texto ocuparía media pantalla. */
+  .subir-arriba span {
+    display: none;
+  }
+  .subir-arriba {
+    padding: .8rem;
+    right: 1rem;
+    bottom: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .subir-arriba {
+    transition: none;
+  }
+}

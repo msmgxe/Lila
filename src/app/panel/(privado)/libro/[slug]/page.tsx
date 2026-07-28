@@ -5,6 +5,7 @@ import { paginarLibro } from '@/lib/paginar'
 import { FormularioLibro } from '../../../FormularioLibro'
 import { SubirCapitulo } from '../../../SubirCapitulo'
 import { alternarPoema, moverPoema } from '../../../acciones'
+import { SubirArriba } from '@/componentes/SubirArriba'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,11 +22,44 @@ export default async function PaginaLibroPanel({ params }: Props) {
 
   return (
     <>
-      <p className="et" style={{ marginBottom: '.7rem' }}>
-        <Link href="/panel" style={{ color: 'inherit' }}>
-          ← Volúmenes
-        </Link>
+      <p className="miga">
+        <Link href="/panel">Inicio del panel</Link>
+        {libro.categoria && (
+          <>
+            {' › '}
+            <Link href={`/panel/poemario/${libro.categoria.slug}`}>{libro.categoria.nombre}</Link>
+          </>
+        )}
+        {' › '}
+        {libro.titulo}
       </p>
+
+      {/* La barra de «y ahora qué».
+          Al guardar un capítulo se aterriza aquí, y hasta ahora la única salida
+          era una flecha pequeña arriba del todo. Con la lista de poemas de por
+          medio, quien acaba de subir un Word tiene que decidir dos cosas —
+          revisar lo que ha entrado, o volver a por el siguiente capítulo— y las
+          dos estaban escondidas. */}
+      <nav className="siguiente-paso">
+        {libro.categoria && (
+          <>
+            <Link className="bt" href={`/panel/poemario/${libro.categoria.slug}`}>
+              ← Todos los capítulos
+            </Link>
+            <Link
+              className="bt fuerte"
+              href={`/panel/libro/nuevo?poemario=${libro.categoria.id}`}
+            >
+              + Crear otro capítulo
+            </Link>
+          </>
+        )}
+        {libro.publicado && (
+          <Link className="bt" href={`/${libro.slug}`} target="_blank">
+            Ver en el sitio ↗
+          </Link>
+        )}
+      </nav>
       <h1>{libro.titulo}</h1>
       <p className="sub">
         {libro.categoria?.nombre ?? 'sin poemario'} · {libro.poemas.length}{' '}
@@ -137,6 +171,7 @@ export default async function PaginaLibroPanel({ params }: Props) {
         <h2>Datos del volumen</h2>
         <FormularioLibro libro={libro} categorias={categorias} />
       </section>
+      <SubirArriba etiqueta="Arriba" />
     </>
   )
 }

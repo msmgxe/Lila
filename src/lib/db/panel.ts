@@ -172,6 +172,42 @@ export async function moverPoema(id: string, direccion: -1 | 1) {
   }
 }
 
+/**
+ * Sube o baja un capítulo dentro de su poemario.
+ *
+ * Mismo criterio que `moverPoema`: se reescribe el bloque entero para que el
+ * orden quede compacto (0,1,2…) aunque viniera con huecos. Con cincuenta
+ * capítulos, un orden con agujeros hace que dos acaben empatados y el listado
+ * baile de una carga a otra.
+ *
+ * Los capítulos sin poemario se mueven entre ellos: si no, un huérfano no se
+ * podría colocar nunca.
+ */
+export async function moverLibro(id: string, direccion: -1 | 1) {
+  const db = exigirDb()
+  const actual = await db.query.libros.findFirst({ where: eq(libros.id, id) })
+  if (!actual) return
+
+  const hermanos = await db.query.libros.findMany({
+    where: actual.categoriaId
+      ? eq(libros.categoriaId, actual.categoriaId)
+      : sql`${libros.categoriaId} IS NULL`,
+    orderBy: [asc(libros.orden), asc(libros.titulo)],
+  })
+  const i = hermanos.findIndex((l) => l.id === id)
+  const j = i + direccion
+  if (j < 0 || j >= hermanos.length) return
+
+  const reordenados = [...hermanos]
+  ;[reordenados[i], reordenados[j]] = [reordenados[j], reordenados[i]]
+  for (const [n, l] of reordenados.entries()) {
+    if (l.orden !== n) {
+      await db.update(libros).set({ orden: n }).where(eq(libros.id, l.id))
+    }
+  }
+  await anotar('libro', id, 'orden', { hacia: direccion === -1 ? 'arriba' : 'abajo' })
+}
+
 /* ────────────────────────────── categorías ──────────────────────────────── */
 
 export async function panelCategorias(): Promise<Array<Categoria & { cuantos: number }>> {
