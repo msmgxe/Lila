@@ -31,7 +31,12 @@
      del tema, un punto más claro, en vez de ser un violeta fijo que se quedaba
      igual mientras el resto de la página cambiaba de color. */
   --fondo2: color-mix(in oklab, var(--fondo) 88%, var(--texto));
-  --panel: #241640;
+  /* Las superficies elevadas —campos de formulario, tarjetas del panel—.
+     Era un violeta fijo: sobre una página en crema quedaban unos rectángulos
+     oscuros en medio de todo lo claro. Ahora se separa del fondo mezclándolo
+     con el color del texto, así que se eleva en los dos sentidos: se aclara
+     sobre un fondo oscuro y se oscurece sobre uno claro. */
+  --panel: color-mix(in oklab, var(--fondo) 92%, var(--texto));
   /* Sale del color del texto, no de un blanco fijo: así una misma regla vale
      para la sala oscura y para la crema del tema claro, donde un blanco al 10%
      sencillamente no se ve. */
@@ -212,7 +217,7 @@ button {
 }
 .acceso-btn:hover {
   color: var(--texto);
-  border-color: var(--linea-fuerte, rgba(244, 238, 248, 0.34));
+  border-color: var(--linea-fuerte, color-mix(in oklab, var(--texto) 34%, transparent));
 }
 .acceso-btn svg {
   width: 13px;
@@ -536,10 +541,10 @@ button {
 .cta-obra.secundaria {
   background: none;
   color: var(--texto);
-  border-color: var(--linea-fuerte, rgba(244, 238, 248, 0.34));
+  border-color: var(--linea-fuerte, color-mix(in oklab, var(--texto) 34%, transparent));
 }
 .cta-obra.secundaria:hover {
-  background: rgba(244, 238, 248, 0.1);
+  background: color-mix(in oklab, var(--texto) 10%, transparent);
   color: var(--texto);
 }
 .cifras-obra {
@@ -713,7 +718,7 @@ button {
 }
 .nav-capitulos li a:hover {
   color: var(--texto);
-  background: rgba(244, 238, 248, 0.05);
+  background: color-mix(in oklab, var(--texto) 5%, transparent);
   border-left-color: var(--terciario);
 }
 .nav-capitulos .tt {
@@ -775,12 +780,12 @@ button {
 }
 .nav button:hover {
   color: var(--texto);
-  background: rgba(244, 238, 248, 0.04);
+  background: color-mix(in oklab, var(--texto) 4%, transparent);
 }
 .nav button[aria-current='true'] {
   color: var(--texto);
   border-left-color: var(--texto);
-  background: rgba(244, 238, 248, 0.05);
+  background: color-mix(in oklab, var(--texto) 5%, transparent);
 }
 .nav svg {
   width: 15px;
@@ -885,7 +890,7 @@ button {
   aspect-ratio: 16 / 9;
   flex: none;
   overflow: hidden;
-  border-bottom: 1px solid rgba(244, 238, 248, 0.14);
+  border-bottom: 1px solid color-mix(in oklab, var(--texto) 14%, transparent);
 }
 .tomo .banda img {
   width: 100%;
@@ -936,7 +941,7 @@ button {
   content: '';
   position: absolute;
   inset: 10px 10px 10px;
-  border: 1px solid rgba(244, 238, 248, 0.16);
+  border: 1px solid color-mix(in oklab, var(--texto) 16%, transparent);
   border-top: 0;
   pointer-events: none;
 }
@@ -951,7 +956,7 @@ button {
 }
 .tomo:hover {
   transform: translateY(-5px);
-  border-color: rgba(244, 238, 248, 0.34);
+  border-color: color-mix(in oklab, var(--texto) 34%, transparent);
 }
 .tomo:hover::before {
   opacity: 1;
@@ -960,7 +965,7 @@ button {
   font-size: 0.6rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: rgba(244, 238, 248, 0.7);
+  color: color-mix(in oklab, var(--texto) 70%, transparent);
 }
 .tomo .tt {
   font-family: var(--display);
@@ -972,7 +977,7 @@ button {
   font-size: 0.62rem;
   letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: rgba(244, 238, 248, 0.62);
+  color: color-mix(in oklab, var(--texto) 62%, transparent);
   margin-top: 0.4rem;
 }
 .tomo .cn {
@@ -980,7 +985,7 @@ button {
   font-size: 0.58rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(244, 238, 248, 0.45);
+  color: color-mix(in oklab, var(--texto) 45%, transparent);
 }
 .tomo.t0::before {
   background:
@@ -990,7 +995,7 @@ button {
 .tomo.t1::before {
   background:
     linear-gradient(150deg, #35256b, #150e28 64%),
-    radial-gradient(60% 50% at 30% 30%, rgba(244, 238, 248, 0.13), transparent);
+    radial-gradient(60% 50% at 30% 30%, color-mix(in oklab, var(--texto) 13%, transparent), transparent);
 }
 .tomo.t2::before {
   background:
@@ -1031,7 +1036,7 @@ button {
 .tira .btn {
   align-self: flex-start;
   margin-top: auto;
-  border: 1px solid rgba(244, 238, 248, 0.3);
+  border: 1px solid color-mix(in oklab, var(--texto) 30%, transparent);
   background: none;
   color: var(--texto);
   padding: 0.5rem 1rem;
@@ -1054,7 +1059,7 @@ button {
 .disco {
   width: 44px;
   height: 44px;
-  border: 1px solid rgba(244, 238, 248, 0.28);
+  border: 1px solid color-mix(in oklab, var(--texto) 28%, transparent);
   border-radius: 50%;
   display: grid;
   place-items: center;
@@ -1121,7 +1126,7 @@ button {
   align-items: center;
   gap: 0.5rem;
   border: 1px solid var(--linea);
-  background: rgba(244, 238, 248, 0.04);
+  background: color-mix(in oklab, var(--texto) 4%, transparent);
   padding: 0.35rem 0.8rem;
   width: min(300px, 32vw);
 }
@@ -1226,7 +1231,7 @@ button {
   font-size: 0.88rem;
 }
 .indice li button:hover {
-  background: rgba(244, 238, 248, 0.05);
+  background: color-mix(in oklab, var(--texto) 5%, transparent);
   color: var(--texto);
 }
 .indice li button[aria-current='true'] {
@@ -1247,7 +1252,7 @@ button {
   display: block;
   margin: 1.2rem 1.4rem 0;
   width: calc(100% - 2.8rem);
-  border: 1px solid rgba(244, 238, 248, 0.24);
+  border: 1px solid color-mix(in oklab, var(--texto) 24%, transparent);
   background: none;
   color: var(--texto);
   padding: 0.55rem;
@@ -1259,7 +1264,7 @@ button {
   text-decoration: none;
 }
 .volver:hover {
-  background: rgba(244, 238, 248, 0.08);
+  background: color-mix(in oklab, var(--texto) 8%, transparent);
 }
 
 /* ── el pliego ── */
@@ -1332,7 +1337,7 @@ button {
   height: auto;
   max-height: 100%;
   object-fit: contain;
-  border: 1px solid rgba(244, 238, 248, 0.14);
+  border: 1px solid color-mix(in oklab, var(--texto) 14%, transparent);
 }
 
 .plancha .pie {
@@ -1346,7 +1351,7 @@ button {
 }
 .plancha .badge {
   display: inline-block;
-  border: 1px solid rgba(244, 238, 248, 0.35);
+  border: 1px solid color-mix(in oklab, var(--texto) 35%, transparent);
   padding: 0.24rem 0.6rem;
   font-size: 0.58rem;
   letter-spacing: 0.24em;
@@ -1776,7 +1781,7 @@ h2.tit .sigue {
   line-height: 1;
 }
 .paginar button:hover:not(:disabled) {
-  background: rgba(244, 238, 248, 0.1);
+  background: color-mix(in oklab, var(--texto) 10%, transparent);
 }
 .paginar button:disabled {
   opacity: 0.25;
@@ -1819,7 +1824,7 @@ h2.tit .sigue {
   flex: none;
 }
 .tempo .paso:hover:not(:disabled) {
-  background: rgba(244, 238, 248, 0.12);
+  background: color-mix(in oklab, var(--texto) 12%, transparent);
 }
 .tempo .paso:disabled {
   opacity: 0.25;
@@ -1840,7 +1845,7 @@ h2.tit .sigue {
   appearance: none;
   width: 110px;
   height: 2px;
-  background: rgba(244, 238, 248, 0.22);
+  background: color-mix(in oklab, var(--texto) 22%, transparent);
   border-radius: 2px;
   outline: none;
   cursor: pointer;
@@ -1871,7 +1876,7 @@ h2.tit .sigue {
   font-size: 0.62rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  background: rgba(244, 238, 248, 0.04);
+  background: color-mix(in oklab, var(--texto) 4%, transparent);
   border: 1px solid var(--linea);
   color: var(--neutro);
   padding: 0.26rem 0.4rem;
@@ -1885,7 +1890,7 @@ h2.tit .sigue {
 /* ── barra de progreso — dirección B (Sala blanca) ── */
 .progreso {
   height: 2px;
-  background: rgba(244, 238, 248, 0.08);
+  background: color-mix(in oklab, var(--texto) 8%, transparent);
   position: relative;
   flex: none;
 }
@@ -2142,7 +2147,7 @@ h2.tit .sigue {
   height: auto;
   max-height: 100%;
   object-fit: contain;
-  border: 1px solid rgba(244, 238, 248, 0.14);
+  border: 1px solid color-mix(in oklab, var(--texto) 14%, transparent);
 }
 
 .plancha .pie {
@@ -2212,7 +2217,7 @@ h2.tit .sigue {
   padding-bottom: 0.5rem;
 }
 .modal article {
-  border-top: 1px solid rgba(244, 238, 248, 0.1);
+  border-top: 1px solid color-mix(in oklab, var(--texto) 10%, transparent);
 }
 .modal article a {
   display: block;
@@ -2259,7 +2264,7 @@ h2.tit .sigue {
   transform: translateX(-50%);
   z-index: 90;
   background: #241640;
-  border: 1px solid rgba(244, 238, 248, 0.1);
+  border: 1px solid color-mix(in oklab, var(--texto) 10%, transparent);
   color: #f4eef8;
   padding: 0.55rem 1rem;
   font-size: 0.8rem;
