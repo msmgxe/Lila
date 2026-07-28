@@ -10,6 +10,7 @@ haga falta servidor ni conexión.
 | [`02-portadas.html`](02-portadas.html) | Cinco maquetas de página de entrada, cada una apostando por algo distinto | 729 KB |
 | [`03-el-autor.html`](03-el-autor.html) | Seis secciones para presentar al autor —poeta, dibujante y profesor— debajo del poemario | 156 KB |
 | [`04-lista-de-capitulos.html`](04-lista-de-capitulos.html) | Tres maneras de listar los capítulos en el panel: fila, rejilla y carrusel con tabla | 152 KB |
+| [`05-temas.html`](05-temas.html) | Diez temas de color y tipografía para todo el sitio, sobre el mismo pliego | 346 KB |
 
 ---
 
