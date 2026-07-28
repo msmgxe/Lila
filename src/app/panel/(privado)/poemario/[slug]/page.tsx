@@ -75,12 +75,10 @@ export default async function PaginaPoemarioPanel({
                 con él ya elegido: se entra aquí desde un poemario concreto, y
                 obligar a volver a seleccionarlo en un desplegable es pedir que
                 alguien se equivoque tarde o temprano. */}
-            <Link className="bt fuerte" href={`/panel/libro/nuevo?poemario=${categoria.id}`}>
-              Nuevo capítulo aquí
-            </Link>
+            <span className="et">{capitulos.length}</span>
           </header>
 
-          <ListaCapitulosPanel capitulos={capitulos} />
+          <ListaCapitulosPanel capitulos={capitulos} poemarioId={categoria.id} />
         </section>
       </div>
 

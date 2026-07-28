@@ -3594,3 +3594,322 @@ body {
     transition: none;
   }
 }
+
+/* ═══ El gestor de capítulos: carrusel arriba, tabla abajo ════════════════ */
+
+.gestor-capitulos {
+  --verde: #5fbf8b;
+  --ambar: #d9a441;
+}
+
+.gestor-barra {
+  display: flex;
+  gap: .6rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.gestor-barra input {
+  flex: 1;
+  min-width: 0;
+}
+
+.gestor-barra .bt {
+  flex: none;
+  white-space: nowrap;
+}
+
+/* ── el punto de estado ──────────────────────────────────────────────────
+   El color lo dice antes de leer. La palabra se queda al lado en letra
+   pequeña: quien no distingue el verde del ámbar se quedaría sin saberlo. */
+.punto {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+  display: inline-block;
+}
+
+.punto.si {
+  background: var(--verde);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--verde) 22%, transparent);
+}
+
+.punto.no {
+  background: var(--ambar);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ambar) 22%, transparent);
+}
+
+/* ── la tira de portadas ─────────────────────────────────────────────────── */
+
+.gestor-tira {
+  display: flex;
+  gap: .7rem;
+  overflow-x: auto;
+  padding: .2rem .2rem 1.2rem;
+  min-width: 0;
+  scroll-snap-type: x proximity;
+}
+
+.tarjeta-cap,
+.tarjeta-nueva {
+  flex: none;
+  width: 132px;
+  scroll-snap-align: start;
+  text-decoration: none;
+  position: relative;
+}
+
+.tarjeta-cap .tapa {
+  position: relative;
+  display: block;
+  width: 132px;
+  height: 84px;
+  border-radius: 9px;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklab, var(--acento) 18%, transparent);
+  background: color-mix(in oklab, var(--secundario) 80%, #000);
+  transition: border-color .18s ease;
+}
+
+.tarjeta-cap:hover .tapa {
+  border-color: var(--acento);
+}
+
+.tarjeta-cap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tarjeta-cap .sin-portada {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  font-family: var(--tipo-display);
+  font-size: 1.7rem;
+  color: color-mix(in oklab, var(--acento) 55%, transparent);
+}
+
+.tarjeta-cap .punto {
+  position: absolute;
+  top: .45rem;
+  right: .45rem;
+}
+
+.tarjeta-cap b,
+.tarjeta-nueva b {
+  display: block;
+  margin-top: .4rem;
+  font-family: var(--tipo-display);
+  font-size: .82rem;
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--primario);
+  /* Dos líneas: en una tira de 132 px, un título entero no cabe en una. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tarjeta-nueva .hueco {
+  display: grid;
+  place-items: center;
+  width: 132px;
+  height: 84px;
+  border-radius: 9px;
+  border: 1px dashed color-mix(in oklab, var(--acento) 45%, transparent);
+  font-size: 1.7rem;
+  color: color-mix(in oklab, var(--acento) 70%, transparent);
+  transition: border-color .18s ease, color .18s ease;
+}
+
+.tarjeta-nueva:hover .hueco {
+  border-color: var(--acento);
+  color: var(--acento);
+}
+
+/* ── la tabla ────────────────────────────────────────────────────────────── */
+
+.tabla-capitulos {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .9rem;
+}
+
+.tabla-capitulos th {
+  text-align: left;
+  font-family: var(--tipo-ui);
+  font-size: .62rem;
+  font-weight: 500;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--neutro);
+  padding: .5rem .7rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--acento) 16%, transparent);
+}
+
+.tabla-capitulos td {
+  padding: .5rem .7rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--acento) 8%, transparent);
+  vertical-align: middle;
+}
+
+.tabla-capitulos tr:hover td {
+  background: color-mix(in oklab, var(--acento) 6%, transparent);
+}
+
+.tabla-capitulos .col-n {
+  width: 3rem;
+  font-family: var(--tipo-display);
+  color: var(--neutro);
+  font-variant-numeric: tabular-nums;
+}
+
+.tabla-capitulos .col-p {
+  width: 7rem;
+  color: var(--neutro);
+  font-size: .82rem;
+}
+
+.tabla-capitulos .col-e {
+  width: 9.5rem;
+}
+
+.tabla-capitulos .col-a {
+  width: 8rem;
+}
+
+/* El título ocupa la columna que crece: es lo que había que recuperar. */
+.titulo-cap {
+  font-family: var(--tipo-display);
+  font-size: 1.02rem;
+  color: var(--primario);
+  text-decoration: none;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.titulo-cap:hover {
+  color: var(--acento);
+}
+
+/* El estado ES el botón de publicar: un rótulo que además hace algo se
+   entiende antes que un rótulo y un botón diciendo lo mismo. */
+.estado-cap {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  padding: .28rem .6rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: none;
+  color: var(--neutro);
+  font-family: var(--tipo-ui);
+  font-size: .66rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: .18s;
+}
+
+.estado-cap:hover {
+  color: var(--primario);
+  border-color: color-mix(in oklab, var(--acento) 30%, transparent);
+  background: color-mix(in oklab, var(--acento) 10%, transparent);
+}
+
+/* Las acciones se encienden al pasar por encima: en reposo la tabla se lee. */
+.acciones-cap {
+  display: flex;
+  gap: .1rem;
+  justify-content: flex-end;
+  opacity: .28;
+  transition: opacity .18s ease;
+}
+
+.tabla-capitulos tr:hover .acciones-cap,
+.acciones-cap:focus-within {
+  opacity: 1;
+}
+
+.acciones-cap .ico {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: none;
+  color: var(--neutro);
+  cursor: pointer;
+  font-size: .95rem;
+  line-height: 1;
+  text-decoration: none;
+  transition: .16s;
+}
+
+.acciones-cap .ico:hover,
+.acciones-cap .ico:focus-visible {
+  color: var(--primario);
+  border-color: color-mix(in oklab, var(--acento) 28%, transparent);
+  background: color-mix(in oklab, var(--acento) 12%, transparent);
+}
+
+.acciones-cap .ico svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.visualmente-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+  /* En estrecho, la tabla pierde las columnas que no deciden nada: el número
+     y el recuento de poemas. El título, el estado y las acciones se quedan. */
+  .tabla-capitulos .col-n,
+  .tabla-capitulos .col-p {
+    display: none;
+  }
+  .tabla-capitulos .col-e {
+    width: auto;
+  }
+  .acciones-cap {
+    opacity: 1;
+  }
+}
+
+/* En el PANEL la ficha se apila: la portada arriba a lo ancho y el gestor
+   debajo, también a lo ancho. En el sitio siguen a dos columnas, porque allí
+   la derecha es una lista corta; aquí es una tabla, y una tabla en media
+   pantalla parte «Capítulo primero» en dos líneas y «En el sitio» en tres. */
+.ficha-panel {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.ficha-panel .ficha-portada {
+  min-height: clamp(260px, 34vh, 340px);
+}
+
+.ficha-panel .ficha-texto h1 {
+  font-size: clamp(1.7rem, 3.4vw, 2.6rem);
+}
+
+/* El rótulo de estado, en una línea siempre. */
+.estado-cap {
+  white-space: nowrap;
+}
