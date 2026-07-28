@@ -4516,3 +4516,24 @@ body {
   font-size: .62rem;
   color: var(--t-neutro);
 }
+
+/* Un enlace de la barra del panel con su icono delante. */
+.con-icono {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.con-icono svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  /* Sin esto el icono hereda el interletrado de la barra y se separa del
+     texto más de la cuenta. */
+  letter-spacing: normal;
+  flex: none;
+}
