@@ -24,8 +24,19 @@ export default async function PaginaAutor() {
       <p className="sub">
         Se ve debajo del carrusel de poemarios, en la portada. Retrato, trayectoria en
         línea de tiempo y vídeos cortos.
-        {!autor?.visible && ' Ahora mismo está oculta.'}
       </p>
+
+      {/* El aviso va aquí arriba y no en una línea perdida: que la sección esté
+          escrita y no se vea es exactamente el tipo de cosa que se descubre
+          tarde, preguntando por qué no sale en la web. */}
+      {!autor?.visible && (
+        <div className="recuadro avisos-subida" style={{ marginBottom: '1.6rem' }}>
+          <p>
+            <strong>Esta sección no se está viendo en el sitio.</strong> Rellena lo que
+            quieras y marca «Mostrar la sección en el sitio», ahí abajo, antes de guardar.
+          </p>
+        </div>
+      )}
 
       <FormularioAutor
         autor={

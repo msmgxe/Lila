@@ -46,7 +46,13 @@ export function urlParaIncrustar(url: string): { tipo: 'iframe' | 'video'; src: 
 }
 
 export function ElAutor({ autor }: { autor: DatosDelAutor }) {
-  const { nombre, titular, intro, retratoUrl, hitos, videos } = autor
+  const { nombre, titular, intro, retratoUrl, videos } = autor
+
+  // Un hito con etiqueta pero sin nada debajo es uno que se añadió y aún no se
+  // ha escrito. Pintarlo deja un punto en la línea con un hueco al lado, que se
+  // lee como que falta algo — y falta, pero eso es asunto del panel, no del
+  // visitante.
+  const hitos = autor.hitos.filter((h) => h.titulo.trim() || h.texto.trim())
 
   return (
     <section className="el-autor" aria-labelledby="titulo-autor">
