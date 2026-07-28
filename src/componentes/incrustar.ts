@@ -24,3 +24,23 @@ export function urlParaIncrustar(url: string): { tipo: 'iframe' | 'video'; src: 
 
   return { tipo: 'video', src: t }
 }
+
+/**
+ * La miniatura de un vídeo, sin llamar a ninguna API.
+ *
+ * YouTube publica la portada de cada vídeo en una dirección predecible a partir
+ * de su identificador, así que se arma sin pedir permiso ni clave. Vimeo no —su
+ * miniatura solo se consigue por API— y un mp4 propio tampoco tiene: en esos
+ * casos devuelve null y la lámina cae en su motivo de reserva.
+ *
+ * Sirve para que el carrusel enseñe las láminas de los lados como IMAGEN y no
+ * como reproductor. Dos ventajas de golpe: el giro en 3D no toca ningún
+ * `<iframe>` —que es donde se rompía— y la página deja de traerse seis
+ * reproductores de YouTube para enseñar uno.
+ */
+export function miniaturaDe(url: string): string | null {
+  const youtube = url
+    .trim()
+    .match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/)
+  return youtube ? `https://i.ytimg.com/vi/${youtube[1]}/hqdefault.jpg` : null
+}

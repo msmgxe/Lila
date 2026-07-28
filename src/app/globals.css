@@ -4058,97 +4058,6 @@ body {
 
 /* ── la tira de vídeos ───────────────────────────────────────────────────── */
 
-/* ── el carrusel de vídeos ──────────────────────────────────────────────────
-   Antes era una rejilla de cuatro por fila: los vídeos salían pequeños y la
-   última fila quedaba a medias, que se lee como un descuadre. En tira se ven
-   del tamaño que pide un vídeo y el conjunto parece una colección. */
-.autor-carrusel {
-  position: relative;
-  margin-top: clamp(1.5rem, 4vh, 2.6rem);
-}
-
-.autor-videos {
-  display: flex;
-  gap: 1rem;
-  overflow-x: auto;
-  /* `min-width: 0` para que la tira no le imponga su ancho al contenedor: sin
-     esto la página entera se desliza de lado, que ya pasó con la vitrina. */
-  min-width: 0;
-  padding: .2rem .2rem 1rem;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in oklab, var(--terciario) 40%, transparent) transparent;
-}
-
-.autor-video {
-  margin: 0;
-  flex: none;
-  /* Un 50% más anchos que los 230 px de la rejilla anterior. */
-  width: clamp(280px, 30vw, 360px);
-  scroll-snap-align: start;
-}
-
-.autor-video iframe,
-.autor-video video {
-  width: 100%;
-  aspect-ratio: 16 / 10;
-  display: block;
-  border: 1px solid color-mix(in oklab, var(--terciario) 22%, transparent);
-  border-radius: 11px;
-  background: #0d0716;
-}
-
-.autor-video figcaption {
-  margin-top: .45rem;
-  font-family: var(--tipo-ui);
-  font-size: .7rem;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--neutro);
-}
-
-/* Las flechas, fuera de la tira y superpuestas: dentro robarían ancho al
-   vídeo, que es justo lo que se venía a ganar. */
-.autor-carrusel .flecha {
-  position: absolute;
-  top: calc(50% - 1.4rem);
-  transform: translateY(-50%);
-  z-index: 2;
-  width: 2.8rem;
-  height: 2.8rem;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  border: 1px solid color-mix(in oklab, var(--terciario) 30%, transparent);
-  background: color-mix(in oklab, var(--secundario) 88%, #000);
-  backdrop-filter: blur(8px);
-  color: var(--primario);
-  font-size: 1.5rem;
-  line-height: 1;
-  cursor: pointer;
-  transition: opacity .2s ease, border-color .2s ease;
-}
-
-.autor-carrusel .flecha.izquierda {
-  left: -.8rem;
-}
-
-.autor-carrusel .flecha.derecha {
-  right: -.8rem;
-}
-
-.autor-carrusel .flecha:hover:not(:disabled) {
-  border-color: var(--terciario);
-}
-
-/* Al llegar al borde la flecha se apaga en vez de desaparecer: si se fuera, el
-   conjunto daría un salto y la otra flecha cambiaría de sitio. */
-.autor-carrusel .flecha:disabled {
-  opacity: .25;
-  cursor: default;
-}
-
 @media (max-width: 640px) {
   .autor-cabeza {
     grid-template-columns: minmax(0, 1fr);
@@ -4263,4 +4172,143 @@ body {
 
 .fila-editable:hover {
   background: color-mix(in oklab, var(--acento) 5%, transparent);
+}
+
+/* ═══ La vitrina de vídeos — misma que la de poemarios ════════════════════ */
+
+.vitrina-videos {
+  margin-top: clamp(2rem, 5vh, 3.5rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.6rem;
+  min-width: 0;
+}
+
+/* Reutiliza `.vitrina-pista`, `.vitrina-ficha` y `.vitrina-puntos` de la
+   portada: es el mismo objeto y tiene que sentirse igual. Solo cambia la
+   proporción, porque un vídeo es apaisado y una portada de libro no. */
+.vitrina-videos .vitrina-pista {
+  height: clamp(230px, 34vh, 330px);
+}
+
+.lamina-video {
+  position: absolute;
+  width: clamp(230px, 26vw, 330px);
+  transform-style: preserve-3d;
+  /* Mismo reparto que las láminas de poemarios: de `--d` salen a la vez el
+     desplazamiento, el giro, el retranqueo y la escala. */
+  transform: translateX(calc(var(--d) * clamp(150px, 17vw, 240px)))
+    translateZ(calc(abs(var(--d)) * -120px)) rotateY(calc(var(--d) * -32deg))
+    scale(calc(1 - abs(var(--d)) * 0.06));
+  transition:
+    transform 0.55s cubic-bezier(0.22, 0.61, 0.36, 1),
+    opacity 0.4s ease,
+    width 0.55s cubic-bezier(0.22, 0.61, 0.36, 1);
+  cursor: pointer;
+}
+
+.lamina-video.al-frente {
+  width: clamp(300px, 40vw, 500px);
+  cursor: default;
+}
+
+.lamina-marco {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklab, var(--terciario) 24%, transparent);
+  background: #0d0716;
+  box-shadow: 0 24px 55px rgba(0, 0, 0, 0.5);
+  display: grid;
+  place-items: center;
+}
+
+.lamina-marco > iframe,
+.lamina-marco > video,
+.lamina-marco > img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border: 0;
+  object-fit: cover;
+}
+
+/* Las de los lados se apagan para que la del centro mande. */
+.lamina-video:not(.al-frente) .lamina-marco > img {
+  filter: brightness(0.6) saturate(0.85);
+}
+
+.lamina-video.al-frente .lamina-marco {
+  border-color: color-mix(in oklab, var(--terciario) 45%, transparent);
+}
+
+.lamina-sin-miniatura {
+  font-size: 2rem;
+  color: color-mix(in oklab, var(--terciario) 55%, transparent);
+}
+
+.lamina-video-pie {
+  margin: 0.6rem 0 0;
+  font-family: var(--tipo-ui);
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--neutro);
+  /* Un título largo no puede ensanchar la lámina ni empujar a las vecinas. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lamina-video.al-frente .lamina-video-pie {
+  color: var(--primario);
+  font-size: 0.72rem;
+}
+
+/* La ficha de abajo no es un enlace aquí: solo dice cuál se está viendo. */
+.vitrina-videos .vitrina-ficha-cuerpo {
+  min-width: min(300px, 56vw);
+  justify-content: center;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .vitrina-videos .vitrina-pista {
+    height: clamp(210px, 30vh, 290px);
+  }
+
+  .lamina-video {
+    width: clamp(180px, 24vw, 250px);
+    transform: translateX(calc(var(--d) * clamp(120px, 17vw, 190px)))
+      translateZ(calc(abs(var(--d)) * -90px)) rotateY(calc(var(--d) * -28deg))
+      scale(calc(1 - abs(var(--d)) * 0.07));
+  }
+
+  .lamina-video.al-frente {
+    width: clamp(250px, 46vw, 380px);
+  }
+}
+
+@media (max-width: 640px) {
+  /* Como en la portada: en un móvil una lámina girada 30° queda en dos dedos.
+     Se ve una de frente, con las vecinas asomando. */
+  .vitrina-videos .vitrina-pista {
+    perspective: none;
+  }
+
+  .lamina-video,
+  .lamina-video.al-frente {
+    width: min(80vw, 340px);
+    transform: translateX(calc(var(--d) * min(86vw, 366px)));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lamina-video {
+    transition: none;
+  }
 }
