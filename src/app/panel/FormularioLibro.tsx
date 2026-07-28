@@ -214,7 +214,13 @@ export function FormularioLibro({
             id="publicado"
             name="publicado"
             type="checkbox"
-            defaultChecked={libro?.publicado ?? false}
+            /* Un capítulo nuevo nace PUBLICADO. Se creaba oculto «por
+               prudencia», pero quien acaba de escribir un capítulo lo que
+               quiere es que se lea: dejarlo invisible obliga a un segundo paso
+               que solo se descubre cuando alguien pregunta por qué no sale.
+               Los POEMAS que entran de un Word sí siguen naciendo en borrador
+               —ahí la revisión importa, porque los ha leído una máquina. */
+            defaultChecked={libro?.publicado ?? true}
           />
           <label htmlFor="publicado">Visible en el sitio</label>
         </div>

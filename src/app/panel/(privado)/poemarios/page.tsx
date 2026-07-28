@@ -9,8 +9,17 @@ export const dynamic = 'force-dynamic'
  * sitio sin tocar sus capítulos uno a uno: es lo que hace falta para tener
  * varias obras a la vez y decidir cuáles están a la vista.
  */
-export default async function PaginaPoemarios() {
+export default async function PaginaPoemarios({
+  searchParams,
+}: {
+  searchParams: Promise<{ editar?: string }>
+}) {
+  const { editar } = await searchParams
   const categorias = await panelCategorias()
+  // Con `?editar=<id>` el formulario de abajo deja de ser un alta y pasa a ser
+  // la edición de ese poemario. Hasta ahora solo se podía crear: el nombre, el
+  // lema, la imagen y el color de uno ya existente no había forma de tocarlos.
+  const enEdicion = categorias.find((c) => c.id === editar)
 
   return (
     <>
@@ -71,17 +80,18 @@ export default async function PaginaPoemarios() {
       </div>
 
       <section>
-        <h2>Nuevo poemario</h2>
-        <form action={guardarCategoria} className="form">
+        <h2 id="formulario">{enEdicion ? `Editar «${enEdicion.nombre}»` : 'Nuevo poemario'}</h2>
+        <form action={guardarCategoria} className="form" key={enEdicion?.id ?? 'nuevo'}>
+            {enEdicion && <input type="hidden" name="id" value={enEdicion.id} />}
           <div className="fila">
             <div className="campo">
               <label htmlFor="nombre">Nombre</label>
-              <input id="nombre" name="nombre" type="text" placeholder="Multiversos" required />
+              <input id="nombre" name="nombre" type="text" placeholder="Multiversos" defaultValue={enEdicion?.nombre ?? ''} required />
               <span className="pista">Es el título grande de su ficha y del carrusel.</span>
             </div>
             <div className="campo">
               <label htmlFor="orden">Orden</label>
-              <input id="orden" name="orden" type="number" defaultValue={categorias.length} />
+              <input id="orden" name="orden" type="number" defaultValue={enEdicion?.orden ?? categorias.length} />
               <span className="pista">De menor a mayor en la barra lateral.</span>
             </div>
           </div>
@@ -93,6 +103,7 @@ export default async function PaginaPoemarios() {
               name="lema"
               type="text"
               placeholder="Ocho capítulos · cuarenta poemas"
+              defaultValue={enEdicion?.lema ?? ''}
             />
             <span className="pista">
               La línea corta bajo el nombre. Si la dejas vacía se cuenta lo que hay.
@@ -101,7 +112,7 @@ export default async function PaginaPoemarios() {
 
           <div className="campo">
             <label htmlFor="descripcion">Descripción</label>
-            <input id="descripcion" name="descripcion" type="text" />
+            <input id="descripcion" name="descripcion" type="text" defaultValue={enEdicion?.descripcion ?? ''} />
             <span className="pista">Un par de líneas dentro de la ficha del poemario.</span>
           </div>
 
@@ -113,6 +124,7 @@ export default async function PaginaPoemarios() {
                 name="portadaUrl"
                 type="text"
                 placeholder="/portadas/capitulo-2.jpg"
+                defaultValue={enEdicion?.portadaUrl ?? ''}
               />
               <span className="pista">
                 Es la lámina del carrusel. Si la dejas vacía se usa la del primer capítulo
@@ -121,7 +133,7 @@ export default async function PaginaPoemarios() {
             </div>
             <div className="campo">
               <label htmlFor="colorAcento">Color del poemario</label>
-              <input id="colorAcento" name="colorAcento" type="text" placeholder="#C9A6E8" />
+              <input id="colorAcento" name="colorAcento" type="text" placeholder="#C9A6E8" defaultValue={enEdicion?.colorAcento ?? ''} />
               <span className="pista">
                 Tiñe su carrusel y su ficha. Vacío = el lila del sitio. El tono para texto se
                 calcula solo, oscurecido hasta que se lea sobre el papel.
@@ -130,14 +142,19 @@ export default async function PaginaPoemarios() {
           </div>
 
           <div className="campo interruptor">
-            <input id="visible" name="visible" type="checkbox" defaultChecked />
+            <input id="visible" name="visible" type="checkbox" defaultChecked={enEdicion?.visible ?? true} />
             <label htmlFor="visible">A la vista en el sitio</label>
           </div>
 
           <div className="acciones-form">
             <button className="bt fuerte" type="submit">
-              Crear poemario
+              {enEdicion ? 'Guardar cambios' : 'Crear poemario'}
             </button>
+            {enEdicion && (
+              <Link className="bt" href="/panel/poemarios">
+                Cancelar
+              </Link>
+            )}
           </div>
         </form>
       </section>
