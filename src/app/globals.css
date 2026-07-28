@@ -2341,25 +2341,62 @@ h2.tit .sigue {
   .narr .lb {
     display: none;
   }
-  /* Sin `wrap`: si la barra se parte en dos filas, la de arriba se sale de la
-     pantalla y sus botones quedan inalcanzables. Con nowrap + overflow-x
-     siempre se puede llegar a todos. */
+  /*
+   * DOS FILAS, y la barra no encoge.
+   *
+   * Antes era una sola fila con `overflow-x: auto`. La intención era buena —que
+   * ningún botón quedara fuera de alcance— pero el resultado era peor: en un
+   * móvil solo caben tres, y Sala, Capital, Marcar y Compartir quedaban a la
+   * derecha SIN NINGUNA PISTA de que estuvieran ahí. Un carrusel que no parece
+   * un carrusel es lo mismo que no tenerlos.
+   *
+   * Volver a `wrap` se descartó entonces porque la fila de arriba se salía de
+   * la pantalla. Eso pasaba por otra razón: `.herr` heredaba `flex-shrink: 1` y
+   * la mesa se quedaba con todo el alto. Con `flex: none` la barra reclama el
+   * suyo primero y la mesa se conforma con el que sobra —que es el orden
+   * correcto: los controles siempre alcanzables, el poema encogiéndose—.
+   */
   .herr {
-    gap: 0.7rem;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    justify-content: space-between;
-    padding: 0.6rem 0.8rem;
-    scrollbar-width: none;
+    gap: 0.5rem 0.9rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0.55rem 0.8rem;
+    flex: none;
   }
-  .herr::-webkit-scrollbar {
-    display: none;
+  /*
+   * En móvil el pliego SE DESPLAZA dentro de la mesa; no se encoge.
+   *
+   * La plancha y la página apiladas piden unos 700 px, y con la barra en dos
+   * filas quedan menos de 600. Antes el pliego se salía y se montaba sobre los
+   * controles. Comprimirlo tampoco vale: el poema acabaría en cuerpo 10.
+   *
+   * Así que la mesa pasa a ser una caja con desplazamiento propio —`overflow-y`
+   * más `align-items: start`, porque centrar dentro de algo que se desplaza
+   * corta el principio— y la barra se queda anclada abajo, siempre visible.
+   * Es como se lee en un móvil: el texto corre, los controles no.
+   */
+  .mesa {
+    min-height: 0;
+    overflow-y: auto;
+    align-items: start;
+    padding-block: 0.6rem;
   }
+
+  .pliego {
+    height: auto;
+    min-height: 0;
+  }
+
   .hbtn {
     flex: none;
   }
+  /* La etiqueta VUELVE en móvil: un icono suelto de «plancha» o de «capital»
+     no se entiende, y ahora que hay dos filas cabe perfectamente. Es la
+     diferencia entre una barra de botones y una fila de jeroglíficos. */
   .hbtn span {
-    display: none;
+    display: block;
+    font-size: 0.5rem;
+    letter-spacing: 0.12em;
   }
   .hbtn svg {
     width: 19px;
