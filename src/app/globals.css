@@ -60,6 +60,13 @@
      invisible sobre él. Son dos cosas distintas y ahora tienen dos nombres. */
   --texto: #f4eef8;
 
+  /* Archivo se declara con `--tipo-ui` porque es la tipografía de interfaz,
+     pero el tema «Sin serifa» también la usa de titular y la pide como
+     `--fuente-archivo`. Sin este alias esa cadena se rompía en silencio:
+     `--tipo-display` quedaba vacía y los títulos caían a la fuente del
+     sistema, que es justo lo que el proyecto prohíbe. */
+  --fuente-archivo: var(--tipo-ui);
+
   /* Las barras: la cabecera del sitio, la del lector y la de herramientas.
      Estaban fijadas a un negro que ignoraba el tema — se veían igual de
      oscuras sobre un tema claro, que era el otro fallo. Ahora salen del
@@ -2862,13 +2869,22 @@ h2.tit .sigue {
   padding: 1.5rem clamp(1rem, 4vw, 3rem) 3rem;
 }
 
+/* Una sola columna, no dos.
+   A dos columnas los capítulos caían en una tira estrecha a la derecha, con
+   los títulos recortados y media pantalla en blanco a partir del sexto. La
+   portada a lo ancho y los capítulos debajo aprovechan el espacio y dejan sitio
+   al título entero. */
 .ficha-poemario {
   max-width: 1280px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-  gap: clamp(1rem, 2.5vw, 2rem);
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(1.6rem, 4vh, 2.6rem);
   align-items: start;
+}
+
+.ficha-poemario .ficha-portada {
+  min-height: clamp(300px, 42vh, 420px);
 }
 
 .ficha-portada {
@@ -4566,4 +4582,150 @@ body {
      texto más de la cuenta. */
   letter-spacing: normal;
   flex: none;
+}
+
+/* ── la tira de portadas y el índice del poemario ────────────────────────── */
+
+.tira-portadas {
+  display: flex;
+  gap: .8rem;
+  overflow-x: auto;
+  min-width: 0;
+  padding: .2rem .2rem 1.4rem;
+  scroll-snap-type: x proximity;
+}
+
+.portada-cap {
+  flex: none;
+  width: clamp(140px, 15vw, 175px);
+  scroll-snap-align: start;
+  text-decoration: none;
+}
+
+.portada-cap .tapa {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklab, var(--acento) 18%, transparent);
+  background: color-mix(in oklab, var(--secundario) 80%, #000);
+  transition: border-color .18s ease, transform .18s ease;
+}
+
+.portada-cap:hover .tapa,
+.portada-cap:focus-visible .tapa {
+  border-color: var(--acento);
+  transform: translateY(-3px);
+}
+
+.portada-cap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.portada-cap .sin-portada {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  font-family: var(--tipo-display);
+  font-size: 2rem;
+  color: color-mix(in oklab, var(--acento) 55%, transparent);
+}
+
+.portada-cap b {
+  display: block;
+  margin-top: .45rem;
+  font-family: var(--tipo-display);
+  font-size: .9rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--texto);
+  /* Dos líneas: en 160 px un título entero no cabe en una, y recortarlo
+     obligaría a abrir el capítulo para saber cuál es. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* El índice: una línea por capítulo, con el título entero por delante. */
+.indice-capitulos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid color-mix(in oklab, var(--acento) 14%, transparent);
+}
+
+.indice-capitulos li + li {
+  border-top: 1px solid color-mix(in oklab, var(--acento) 8%, transparent);
+}
+
+.indice-capitulos a {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr) auto auto;
+  align-items: baseline;
+  gap: 1rem;
+  padding: .8rem .7rem;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background .16s ease;
+}
+
+.indice-capitulos a:hover,
+.indice-capitulos a:focus-visible {
+  background: color-mix(in oklab, var(--acento) 8%, transparent);
+}
+
+.indice-capitulos .num {
+  font-family: var(--tipo-display);
+  color: var(--neutro);
+  font-variant-numeric: tabular-nums;
+}
+
+.indice-capitulos .titulo {
+  font-family: var(--tipo-display);
+  font-size: 1.15rem;
+  color: var(--texto);
+  min-width: 0;
+}
+
+.indice-capitulos .cuantos {
+  font-family: var(--tipo-ui);
+  font-size: .78rem;
+  color: var(--neutro);
+  white-space: nowrap;
+}
+
+/* «Leer →» aparece al acercarse: en reposo el índice se lee, y repetir la
+   misma llamada en cada fila cansa la vista sin añadir nada. */
+.indice-capitulos .ir {
+  font-family: var(--tipo-ui);
+  font-size: .68rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--acento);
+  opacity: 0;
+  transition: opacity .16s ease;
+  white-space: nowrap;
+}
+
+.indice-capitulos a:hover .ir,
+.indice-capitulos a:focus-visible .ir {
+  opacity: 1;
+}
+
+@media (max-width: 640px) {
+  .indice-capitulos a {
+    grid-template-columns: 2.2rem minmax(0, 1fr);
+    row-gap: .1rem;
+  }
+  .indice-capitulos .cuantos {
+    grid-column: 2;
+  }
+  /* En móvil no hay «acercarse»: el enlace entero ya es pulsable. */
+  .indice-capitulos .ir {
+    display: none;
+  }
 }

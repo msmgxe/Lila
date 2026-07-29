@@ -39,12 +39,65 @@ export function FichaPoemario({ poemario }: { poemario: Poemario }) {
         )}
       </section>
 
+      {/*
+       * Los capítulos, en dos alturas: la tira para encontrarlos por su portada
+       * —que es como se reconocen, porque llevan su número dibujado— y la lista
+       * para recorrerlos con el título entero delante.
+       *
+       * Es la misma disposición que el panel, y eso importa: el poeta ordena
+       * los capítulos viendo exactamente lo que va a ver quien lea. Antes esta
+       * página los apilaba en una columna estrecha a la derecha, con los
+       * títulos recortados y media pantalla en blanco a partir del sexto.
+       */}
       <section className="ficha-capitulos">
         <header>
           <h2>Capítulos</h2>
           <span className="et">{capitulos.length}</span>
         </header>
-        <ListaCapitulos capitulos={capitulos} destino={(c) => `/${c.slug}`} />
+
+        {capitulos.length === 0 ? (
+          <div className="recuadro">
+            <p>Este poemario todavía no tiene capítulos.</p>
+          </div>
+        ) : (
+          <>
+            <div className="tira-portadas" aria-label="Capítulos por su portada">
+              {capitulos.map((c) => (
+                <Link key={c.id} className="portada-cap" href={`/${c.slug}`}>
+                  <span className="tapa">
+                    {c.portadaUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={c.portadaUrl} alt="" loading="lazy" />
+                    ) : (
+                      <span className="sin-portada">{c.orden + 1}</span>
+                    )}
+                  </span>
+                  <b>{c.titulo}</b>
+                </Link>
+              ))}
+            </div>
+
+            <ol className="indice-capitulos">
+              {capitulos.map((c) => {
+                const n = c.poemas.filter((p) => p.publicado).length
+                return (
+                  <li key={c.id}>
+                    <Link href={`/${c.slug}`}>
+                      <span className="num">{String(c.orden + 1).padStart(2, '0')}</span>
+                      <span className="titulo">{c.titulo}</span>
+                      <span className="cuantos">
+                        {n} {n === 1 ? 'poema' : 'poemas'}
+                      </span>
+                      <span className="ir" aria-hidden="true">
+                        Leer →
+                      </span>
+                    </Link>
+                  </li>
+                )
+              })}
+            </ol>
+          </>
+        )}
       </section>
     </div>
   )
