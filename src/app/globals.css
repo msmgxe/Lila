@@ -4729,3 +4729,75 @@ body {
     display: none;
   }
 }
+
+/* ── las salidas en la barra del lector ──────────────────────────────────── */
+
+.salidas-barra {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  min-width: 0;
+}
+
+.salidas-barra a {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .35rem .7rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  color: var(--neutro);
+  font-family: var(--tipo-ui);
+  font-size: .66rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: .18s;
+}
+
+.salidas-barra a:hover,
+.salidas-barra a:focus-visible {
+  color: var(--texto);
+  border-color: color-mix(in oklab, var(--acento) 32%, transparent);
+  background: color-mix(in oklab, var(--acento) 10%, transparent);
+}
+
+.salidas-barra svg {
+  width: 13px;
+  height: 13px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  letter-spacing: normal;
+}
+
+/* El nombre del poemario puede ser largo: se recorta antes de empujar la
+   búsqueda fuera de la barra. */
+.salidas-barra a span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 16ch;
+}
+
+@media (max-width: 1100px) {
+  /* Se quedan los iconos: el significado lo da el sitio —casa e izquierda— y
+     el título sigue estando en el atributo. */
+  .salidas-barra a span {
+    display: none;
+  }
+  .salidas-barra a {
+    padding: .35rem .45rem;
+  }
+}
+
+@media (max-width: 640px) {
+  /* En móvil solo el inicio: la vuelta al poemario ya está en el índice
+     lateral, y la barra no da para más sin comerse la búsqueda. */
+  .salidas-barra a:nth-child(2) {
+    display: none;
+  }
+}

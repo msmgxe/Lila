@@ -8,6 +8,7 @@ import { CLAVE, SITIO } from '@/lib/sitio'
 import { PaginaPliego } from './PaginaPliego'
 import { Plancha } from './Plancha'
 import { Buscador } from './Buscador'
+import { AccesoPanel } from '../AccesoPanel'
 import { useNarracion } from './useNarracion'
 
 const DURACION_GIRO = 800
@@ -438,6 +439,35 @@ export function Lector({ libro, pliegos, inicial }: Props) {
           {SITIO.nombre}
         </Link>
 
+        {/*
+         * Las salidas, EN LA BARRA y no en el índice lateral.
+         *
+         * Estaban al pie de la barra lateral, que hay que desplazar para verlas
+         * y que en pantallas estrechas vive detrás del menú. Desde dentro de un
+         * capítulo no había forma de saber cómo volver — y volver es lo primero
+         * que se busca cuando se termina de leer.
+         *
+         * Aquí están siempre: al inicio y al poemario que contiene el capítulo,
+         * que son los dos escalones de vuelta.
+         */}
+        <nav className="salidas-barra">
+          <Link href="/" title="Ir al inicio">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 10.5L12 3l9 7.5" />
+              <path d="M5.5 9.5V20h13V9.5" />
+            </svg>
+            <span>Inicio</span>
+          </Link>
+          {libro.categoria && (
+            <Link href={`/poemario/${libro.categoria.slug}`} title="Volver al poemario">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M15 5l-7 7 7 7" />
+              </svg>
+              <span>{libro.categoria.nombre}</span>
+            </Link>
+          )}
+        </nav>
+
         <Buscador
           abierto={buscadorAbierto}
           alAbrir={() => setBuscadorAbierto(true)}
@@ -508,6 +538,10 @@ export function Lector({ libro, pliegos, inicial }: Props) {
             </select>
           )}
         </div>
+
+        {/* El acceso al panel también aquí: el poeta entra a leer como todo el
+            mundo, y desde el lector no tenía por dónde entrar a editar. */}
+        <AccesoPanel />
       </header>
 
       <div className="progreso">
