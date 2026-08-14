@@ -36,7 +36,13 @@
      oscuros en medio de todo lo claro. Ahora se separa del fondo mezclándolo
      con el color del texto, así que se eleva en los dos sentidos: se aclara
      sobre un fondo oscuro y se oscurece sobre uno claro. */
-  --panel: color-mix(in oklab, var(--fondo) 92%, var(--texto));
+  /* Mezcla hacia el PAPEL, no hacia el texto.
+     Hacia el texto siempre oscurece, y en un tema claro eso deja los campos y
+     las tarjetas como manchas turbias sobre la crema — que es como se veían.
+     Hacia el papel se aclaran, que es lo que hace que una superficie parezca
+     elevada; y en los temas oscuros el papel también es claro, así que se
+     siguen aclarando igual. Una regla para los dos casos. */
+  --panel: color-mix(in oklab, var(--fondo) 90%, var(--primario));
   /* Sale del color del texto, no de un blanco fijo: así una misma regla vale
      para la sala oscura y para la crema del tema claro, donde un blanco al 10%
      sencillamente no se ve. */

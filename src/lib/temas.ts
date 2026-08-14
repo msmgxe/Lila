@@ -124,14 +124,24 @@ export const TEMAS: Tema[] = [
   {
     clave: 'papel',
     nombre: 'Papel',
-    nota: 'claro — la sala en crema, no en penumbra',
-    // El ÚNICO tema con el fondo claro, y por eso el único donde `texto` no es
-    // el papel sino la tinta. Comprobado: tinta sobre crema da 12.6:1 y el
-    // acento 5.4:1; el lila de la casa daba 1.8:1 sobre su papel y por eso
-    // nunca se usó para texto.
-    fondo: '#EFEAE1', secundario: '#2A2620', primario: '#FFFDF8',
-    texto: '#2A2620',
-    terciario: '#7A5B33', neutro: '#6E665C', acentoTexto: '#6B5230',
+    nota: 'crema y oro viejo, como un pliego impreso',
+    /*
+     * Tomado del portafolio: crema cálida, tinta parda y oro viejo, con
+     * Cormorant Garamond —la misma que usa aquel— para los titulares.
+     *
+     * Con dos ajustes, y conviene decir por qué. Allí el oro es #B0894F y
+     * decora: bordes, filetes, marcas pequeñas. Aquí ese mismo color hace de
+     * botón y de resalte, y sobre la crema da 2.8:1 — por debajo del 3.0 que
+     * necesita un elemento con el que se interactúa. Se oscurece a 3.7:1
+     * conservando el tono, y el acento de texto baja aún más porque leer pide
+     * 4.5:1. El neutro sube de 3.8 a 4.5 por lo mismo.
+     *
+     * Es el ÚNICO tema con el fondo claro, y por eso el único donde `texto` no
+     * es el papel sino la tinta.
+     */
+    fondo: '#F5EFE4', secundario: '#33281F', primario: '#F7F2E9',
+    texto: '#33281F',
+    terciario: '#9A7433', neutro: '#7E6A54', acentoTexto: '#7F5D24',
     display: 'cormorant', tipografias: 'Cormorant Garamond · Archivo',
   },
   {
