@@ -3,6 +3,7 @@
 import { useActionState } from 'react'
 import { entrar } from '../acciones'
 import { CampoClave } from '@/componentes/CampoClave'
+import { AyudaClave } from '@/componentes/AyudaClave'
 
 export function FormularioEntrada() {
   const [estado, accion, pendiente] = useActionState(entrar, undefined)
@@ -29,6 +30,8 @@ export function FormularioEntrada() {
       <CampoClave id="clave" />
 
       {estado?.error && <p className="error">{estado.error}</p>}
+
+      <AyudaClave />
 
       <button className="bt fuerte" type="submit" disabled={pendiente}>
         {pendiente ? 'Entrando…' : 'Entrar'}

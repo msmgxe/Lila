@@ -16,10 +16,6 @@ import type { CSSProperties } from 'react'
  * por qué saber nada de esto: el segundo se calcula solo.
  */
 
-/** El de la casa: el lila que el Pentapoemario lleva en el nombre. */
-export const COLOR_SITIO = '#C9A6E8'
-export const COLOR_SITIO_TEXTO = '#7B3FA8'
-
 /** Acepta `#abc` y `#aabbcc`. Cualquier otra cosa se ignora, y manda la casa. */
 const HEX = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i
 
@@ -114,7 +110,7 @@ function deHsl([h, s, l]: [number, number, number]): [number, number, number] {
  * reconoce como el del poemario. El tono y la viveza son justo lo que lo
  * identifica; lo único que sobra es el brillo.
  */
-export function colorParaTextoSobrePapel(hex: string): string {
+function colorParaTextoSobrePapel(hex: string): string {
   const [h, s, l] = aHsl(aRgb(hex))
   let luz = l
   let rgb = aRgb(hex)

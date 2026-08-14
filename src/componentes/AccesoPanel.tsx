@@ -4,6 +4,7 @@ import { useActionState, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { entrar } from '@/app/panel/acciones'
 import { CampoClave } from './CampoClave'
+import { AyudaClave } from './AyudaClave'
 
 /**
  * Acceso al panel desde la cabecera del sitio.
@@ -116,6 +117,8 @@ export function AccesoPanel() {
                 <CampoClave id="acc-clave" />
 
                 {estado?.error && <p className="error-acceso">{estado.error}</p>}
+
+                <AyudaClave />
 
                 <button className="cta-acceso" type="submit" disabled={pendiente}>
                   {pendiente ? 'Entrando…' : 'Entrar'}

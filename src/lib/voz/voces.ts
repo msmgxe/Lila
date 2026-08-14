@@ -34,7 +34,7 @@ export interface VozDelSistema {
   local: boolean
 }
 
-export function generoDe(nombre: string): Voz | null {
+function generoDe(nombre: string): Voz | null {
   if (MASCULINAS.test(nombre)) return 'masculina'
   if (FEMENINAS.test(nombre)) return 'femenina'
   return null

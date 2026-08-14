@@ -30,7 +30,7 @@
 
 import { limpiarMarcas, marcaDePausa } from '../texto'
 
-export const PAUSA = {
+const PAUSA = {
   /** Tras punto, exclamación, interrogación o puntos suspensivos. */
   frase: 620,
   /** Tras coma, punto y coma, dos puntos o raya. */
@@ -89,7 +89,7 @@ export const ENTONACION: Record<Tono, { pitch: number; rate: number }> = {
 }
 
 /** Detecta el tono por los signos que el poeta escribió. */
-export function tonoDelVerso(verso: string): Tono {
+function tonoDelVerso(verso: string): Tono {
   const t = limpiarMarcas(verso).trim()
   // Vale tanto el par completo «¡…!» como el signo suelto al final: en esta
   // obra hay versos que abren interrogación y no la cierran hasta más abajo.
@@ -112,7 +112,7 @@ export function tonoDelVerso(verso: string): Tono {
  * abrir. **Solo para la voz**: el verso impreso conserva la puntuación del
  * poeta, letra por letra. Nadie ve esto; solo se oye.
  */
-export function textoParaVoz(verso: string): string {
+function textoParaVoz(verso: string): string {
   let t = limpiarMarcas(verso).trim()
   if (t === '') return t
 
@@ -138,7 +138,7 @@ export function textoParaVoz(verso: string): string {
 }
 
 /** Qué trozo del texto pronunciado corresponde a qué verso de la página. */
-export interface Tramo {
+interface Tramo {
   inicio: number
   fin: number
   verso: number
@@ -164,7 +164,7 @@ export interface Frase {
  * Decide la pausa que sigue a una emisión que termina en este verso.
  * Solo se llama cuando la emisión SE CIERRA aquí.
  */
-export function pausaTrasVerso(verso: string, finDeEstrofa: boolean): number {
+function pausaTrasVerso(verso: string, finDeEstrofa: boolean): number {
   const marca = marcaDePausa(verso)
   if (marca === 'larga') return PAUSA.estrofa
   if (marca === 'breve') return PAUSA.coma
@@ -179,21 +179,10 @@ export function pausaTrasVerso(verso: string, finDeEstrofa: boolean): number {
 }
 
 /**
- * ¿Se cierra la emisión al acabar este verso? **Siempre.**
- *
- * Cada verso es una frase: se dice entero, la voz calla, y empieza el
- * siguiente. La función se mantiene por claridad y porque el generador de SSML
- * de la Fase 4 la usa para decidir dónde va cada `<break>`.
- */
-export function cierraEmision(_verso: string): boolean {
-  return true
-}
-
-/**
  * Parte un alejandrino en sus dos hemistiquios.
  * Corta en el espacio más cercano al centro; si no hay uno razonable, no corta.
  */
-export function hemistiquios(verso: string): [string, string] | null {
+function hemistiquios(verso: string): [string, string] | null {
   const t = limpiarMarcas(verso).trim()
   if (t.length < UMBRAL_ALEJANDRINO) return null
 

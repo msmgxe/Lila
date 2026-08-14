@@ -4801,3 +4801,59 @@ body {
     display: none;
   }
 }
+
+/* ── «¿No puedes entrar?» ────────────────────────────────────────────────── */
+
+.ayuda-clave > button {
+  padding: .4rem 0;
+  border: 0;
+  background: none;
+  color: var(--neutro);
+  font-family: var(--tipo-ui);
+  font-size: .74rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.ayuda-clave > button:hover {
+  color: var(--texto);
+}
+
+.ayuda-cuerpo {
+  margin-top: .6rem;
+  padding: .9rem 1rem;
+  border-radius: 10px;
+  border: 1px solid color-mix(in oklab, var(--acento) 20%, transparent);
+  background: color-mix(in oklab, var(--secundario) 40%, transparent);
+  font-size: .84rem;
+  line-height: 1.6;
+}
+
+.ayuda-cuerpo p {
+  margin: 0 0 .6rem;
+  color: color-mix(in oklab, var(--texto) 82%, transparent);
+}
+
+.ayuda-cuerpo code {
+  display: block;
+  margin: 0 0 .8rem;
+  padding: .5rem .7rem;
+  border-radius: 7px;
+  background: color-mix(in oklab, var(--fondo) 80%, #000);
+  border: 1px solid color-mix(in oklab, var(--acento) 16%, transparent);
+  font-family: ui-monospace, monospace;
+  font-size: .8rem;
+  color: var(--acento);
+  /* Un comando debe poder seleccionarse entero de una pasada. */
+  user-select: all;
+  overflow-x: auto;
+}
+
+.ayuda-cuerpo .nota {
+  margin: 0;
+  padding-top: .6rem;
+  border-top: 1px solid color-mix(in oklab, var(--acento) 12%, transparent);
+  font-size: .78rem;
+  color: var(--neutro);
+}

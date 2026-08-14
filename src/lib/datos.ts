@@ -20,8 +20,6 @@ import type { Libro, ResultadoBusqueda } from './tipos'
 import type { DatosDelAutor } from '../componentes/ElAutor'
 import { buscarTema, TEMA_POR_DEFECTO, type Tema } from './temas'
 
-export const origenDeDatos: 'neon' | 'archivo' = hayBaseDeDatos ? 'neon' : 'archivo'
-
 /**
  * La obra nunca falta.
  *
